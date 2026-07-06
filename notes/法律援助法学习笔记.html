@@ -124,6 +124,17 @@ main{flex:1; min-width:0;}
 .qg:first-child{border-top:none;}
 .qg b{color:var(--primary);}
 
+/* 法规简介（发布信息） */
+.law-intro{background:linear-gradient(135deg,#f0f6fc,#eef4fb); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.law-intro-head{font-weight:700; color:var(--primary); padding:11px 14px; font-size:14.5px;}
+.law-intro-body{padding:2px 14px 12px;}
+.law-intro-desc{font-size:13.5px; color:#34404d; line-height:1.8; margin:2px 0 10px;}
+.meta-grid{display:grid; grid-template-columns:auto 1fr; gap:6px 14px; align-items:baseline;}
+.meta-grid .mk{font-size:13px; color:var(--muted); white-space:nowrap;}
+.meta-grid .mv{font-size:13px; color:#2b2f36;}
+.meta-grid .mv.ok{color:#1a9e57; font-weight:600;}
+.meta-grid .mv.no{color:#c0392b; font-weight:600;}
+
 /* 条文互链 */
 .lawlink{color:#1f6fb2; text-decoration:underline; cursor:pointer;}
 .lawlink:hover{color:#0d4f86;}
@@ -245,7 +256,17 @@ const REL = {
 const RELMAP = {
   "第二十四条":["r1"], "第二十五条":["r1"], "第二十八条":["r2"], "第三十一条":["r4"],
   "第三十二条":["r3"], "第三十六条":["r1"], "第三十九条":["r1"], "第四十二条":["r5"],
-  "第五十二条":["r7"], "第五十三条":["r6"]
+  "第五十二条":["r7"],   "第五十三条":["r6"]
+};
+
+/* ===== 法规简介元数据（发布信息，展示于笔记开头）===== */
+const LAW_INTRO = '我国法律援助领域首部专门法律（此前为2003年《法律援助条例》行政法规），系统规范法律援助的申请、实施、保障与监督，是公共法律服务体系的核心依据。';
+const LAW_META = {
+  issuer:'全国人民代表大会常务委员会',
+  published:'2021年8月20日',
+  effective:'2022年1月1日',
+  valid:'有效',
+  level:'法律'
 };
 
 /* ===== 法条数据（官方文本 + 解读 + 关联案例，2021年8月20日通过）===== */
@@ -417,12 +438,35 @@ function toggleQuick(){
   if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
 }
 
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
 /* ===== 渲染 ===== */
 function render(){
   buildLawMap();
   const main = document.getElementById('content');
   const toc = document.getElementById('toc');
-  let html = quickHtml();
+  let html = metaHtml() + quickHtml();
   let tocHtml = '';
   DATA.forEach(function(chap, ci){
     const cid = 'chap' + ci;
