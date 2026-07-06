@@ -119,6 +119,17 @@ main{flex:1; min-width:0;}
 .qg:first-child{border-top:none;}
 .qg b{color:var(--primary);}
 
+/* 法规简介（发布信息） */
+.law-intro{background:linear-gradient(135deg,#f0f6fc,#eef4fb); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.law-intro-head{font-weight:700; color:var(--primary); padding:11px 14px; font-size:14.5px;}
+.law-intro-body{padding:2px 14px 12px;}
+.law-intro-desc{font-size:13.5px; color:#34404d; line-height:1.8; margin:2px 0 10px;}
+.meta-grid{display:grid; grid-template-columns:auto 1fr; gap:6px 14px; align-items:baseline;}
+.meta-grid .mk{font-size:13px; color:var(--muted); white-space:nowrap;}
+.meta-grid .mv{font-size:13px; color:#2b2f36;}
+.meta-grid .mv.ok{color:#1a9e57; font-weight:600;}
+.meta-grid .mv.no{color:#c0392b; font-weight:600;}
+
 /* 条文互链 */
 .lawlink{color:#1f6fb2; text-decoration:underline; cursor:pointer;}
 .lawlink:hover{color:#0d4f86;}
@@ -216,6 +227,16 @@ const LAW_TITLE = '超龄劳动者基本权益保障暂行规定';
 const LAW_SUB   = '2026.5.10公布（五部门令第56号）· 2026.7.1施行 · 共24条 · 不分章（下列为学习分组） · 速查/解读/分层笔记/案例/互链/自测';
 const LAW_KEY   = 'cyldz';   // ← 用于 localStorage 键与导出文件名，不同法规务必不同
 const LAW_FIELD = '劳动与社会保障法';   // ← 所属法律领域（用于笔记网站分类）
+
+/* 法规简介：一句话概述 + 发布信息（展示于笔记开头） */
+const LAW_INTRO = '我国首部明确超龄劳动者权益的专门规章，在渐进式延迟退休背景下，将超龄劳动者就业纳入规范化、法治化轨道，为用人单位合规与劳动者维权提供明确依据。';
+const LAW_META = {
+  issuer:'人力资源社会保障部、国家卫生健康委、应急管理部、国家税务总局、国家医保局（五部门联合）',
+  published:'2026年5月10日',
+  effective:'2026年7月1日',
+  valid:'有效',
+  level:'部门规章（联合规章）'
+};
 
 /* 重点速查卡：{b:'标题', t:'内容'}；可留空数组 [] */
 const QUICK = [
@@ -375,12 +396,35 @@ function toggleQuick(){
   if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
 }
 
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
 /* ===== 渲染 ===== */
 function render(){
   buildLawMap();
   const main = document.getElementById('content');
   const toc = document.getElementById('toc');
-  let html = quickHtml();
+  let html = metaHtml() + quickHtml();
   let tocHtml = '';
   DATA.forEach(function(chap, ci){
     const cid = 'chap' + ci;
