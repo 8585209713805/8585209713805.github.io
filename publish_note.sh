@@ -58,15 +58,9 @@ if [ ${#published[@]} -eq 0 ]; then
 fi
 
 cd "$SITE_DIR"
-git add -A
-if git diff --cached --quiet; then
-  echo "没有改动，无需推送。"
-  exit 0
-fi
-msg="发布批注: $(echo "${published[@]}" | sed 's/notes\///g')"
-git commit -q -m "$msg"
-git push -q origin main
-echo "✔ 已推送到 GitHub Pages，公网几秒后生效："
+echo "发布批注: ${published[*]}"
+python3 "$SITE_DIR/sync_to_github.py"
+echo "✔ 已通过 GitHub API 同步，公网约 1-3 分钟后生效："
 echo "   https://8585209713805.github.io/"
 for p in "${published[@]}"; do
   echo "   https://8585209713805.github.io/notes/$p"
