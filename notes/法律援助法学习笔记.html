@@ -200,7 +200,7 @@ footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--mute
       <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
       <span class="status" id="status">已就绪</span>
       <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
-      <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）">导出</button>
+      <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
       <button id="btnPrint" title="打印 / 存为PDF">打印</button>
       <button id="btnClear" title="清空全部笔记与标记">清空</button>
     </div>
@@ -562,7 +562,7 @@ document.getElementById('btnExport').addEventListener('click', function(){
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
   URL.revokeObjectURL(url);
-  showStatus('已导出 ' + fname);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
 });
 
 document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
