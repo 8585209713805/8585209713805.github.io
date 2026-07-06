@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>《中华人民共和国法律援助法》学习笔记（可编辑）</title>
+<style>
+:root{
+  --bg:#eef1f5; --card:#ffffff; --ink:#1f2329; --muted:#7a8290;
+  --primary:#1f4e79; --primary-soft:#e8f0f7; --accent:#c0392b;
+  --mark:#e6a23c; --note-bg:#fffdf3; --note-bd:#e8d9a8;
+  --border:#e1e5ea; --line:#d8dde4; --shadow:0 1px 3px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  line-height:1.8; font-size:15px;
+}
+/* ===== 顶部栏 ===== */
+header{
+  position:sticky; top:0; z-index:50; background:var(--primary); color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.head-inner{max-width:1180px; margin:0 auto; padding:10px 18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.head-inner h1{font-size:16px; margin:0; font-weight:600; letter-spacing:.5px; flex:1 1 260px;}
+.head-inner h1 small{display:block; font-size:11.5px; font-weight:400; opacity:.8; margin-top:2px;}
+.toolbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.toolbar input[type=search]{
+  padding:6px 10px; border:1px solid rgba(255,255,255,.35); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; width:160px; outline:none;
+}
+.toolbar input[type=search]::placeholder{color:rgba(255,255,255,.7);}
+.toolbar button{
+  padding:6px 12px; border:1px solid rgba(255,255,255,.4); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; cursor:pointer; white-space:nowrap;
+}
+.toolbar button:hover{background:rgba(255,255,255,.25);}
+.toolbar button.active{background:var(--mark); border-color:var(--mark); color:#fff;}
+.status{font-size:12px; opacity:.85; min-width:80px;}
+
+/* ===== 布局 ===== */
+.layout{max-width:1180px; margin:18px auto; padding:0 18px; display:flex; gap:20px; align-items:flex-start;}
+nav.toc{
+  position:sticky; top:78px; width:200px; flex:0 0 200px;
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:12px 10px; box-shadow:var(--shadow); max-height:calc(100vh - 100px); overflow:auto;
+}
+nav.toc .toc-title{font-size:12px; color:var(--muted); padding:0 8px 8px; border-bottom:1px solid var(--line); margin-bottom:6px;}
+nav.toc a{
+  display:block; padding:7px 8px; border-radius:6px; color:var(--ink); text-decoration:none;
+  font-size:13.5px; cursor:pointer;
+}
+nav.toc a:hover{background:var(--primary-soft);}
+nav.toc a.active{background:var(--primary); color:#fff; font-weight:500;}
+nav.toc a .cnt{float:right; color:var(--muted); font-size:11px;}
+nav.toc a.active .cnt{color:rgba(255,255,255,.85);}
+
+main{flex:1; min-width:0;}
+.chapter{margin-bottom:26px;}
+.chapter > h2{
+  font-size:18px; color:var(--primary); border-left:4px solid var(--primary);
+  padding-left:12px; margin:0 0 14px; font-weight:700;
+}
+.article{
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow); position:relative;
+  border-left:3px solid var(--line);
+}
+.article.marked{border-left-color:var(--mark); background:#fffdf6;}
+.art-head{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+.art-no{
+  font-weight:700; color:var(--primary); font-size:14.5px; background:var(--primary-soft);
+  padding:2px 10px; border-radius:5px;
+}
+.mark-btn{
+  margin-left:auto; border:none; background:none; cursor:pointer; font-size:18px; line-height:1;
+  color:var(--mark); padding:0 4px;
+}
+.mark-btn:hover{transform:scale(1.15);}
+.art-text{font-size:15px; color:#2b2f36; text-align:justify; white-space:pre-wrap;}
+
+/* 解读区 */
+.explain-label{font-size:12px; color:var(--primary); font-weight:600; margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+.explain{
+  font-size:13.5px; color:#3a4250; background:#f6f9fc; border-left:3px solid var(--primary);
+  border-radius:0 6px 6px 0; padding:8px 11px; white-space:pre-wrap; outline:none;
+}
+.explain:focus{background:#eef3fa; box-shadow:0 0 0 3px rgba(31,78,121,.12);}
+
+/* 关联案例 */
+.case-label{font-size:12px; color:#9a5b1e; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.case{background:#fbf6ee; border:1px solid #ecdcc0; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.case-title{font-weight:600; font-size:13.5px; color:#6b4423;}
+.case-desc{font-size:13px; color:#5a4a3a; margin-top:3px; white-space:pre-wrap;}
+.case-src{font-size:11.5px; color:#a98b5e; margin-top:4px;}
+/* 关联法条 */
+.rel-label{font-size:12px; color:#1f5b8a; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.rel{background:#eef4fb; border:1px solid #cfe0f0; border-left:3px solid #2f7dc0; border-radius:0 8px 8px 0; padding:9px 11px; margin-bottom:8px;}
+.rel-title{font-weight:600; font-size:13px; color:#1f5b8a; margin-bottom:3px;}
+.rel-text{font-size:13px; color:#3a4a5a; white-space:pre-wrap; line-height:1.6;}
+
+/* 检索按钮 */
+.tool-row{margin:10px 0 2px;}
+.search-btn{border:1px solid var(--border); background:#f3f7fb; color:var(--primary); border-radius:6px; padding:5px 10px; font-size:12.5px; cursor:pointer;}
+.search-btn:hover{background:#e3edf6;}
+
+/* 笔记区 */
+.note-label{font-size:12px; color:var(--muted); margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+.note{
+  background:var(--note-bg); border:1px dashed var(--note-bd); border-radius:8px;
+  padding:9px 11px; min-height:38px; font-size:14px; color:#5a4a1a;
+  white-space:pre-wrap; outline:none;
+}
+.note:focus{border-style:solid; border-color:var(--mark); background:#fffce8; box-shadow:0 0 0 3px rgba(230,162,60,.15);}
+.note:empty:before{content:attr(data-ph); color:#b9a86a;}
+
+/* 速查卡 */
+.quick{background:linear-gradient(135deg,#f0f6fc,#e8f0f7); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.quick-head{font-weight:700; color:var(--primary); padding:11px 14px; cursor:pointer; user-select:none; font-size:14.5px;}
+.quick-body{padding:2px 14px 12px;}
+.qg{font-size:13px; color:#34404d; padding:7px 0; border-top:1px dashed #d4e2ee; white-space:pre-wrap;}
+.qg:first-child{border-top:none;}
+.qg b{color:var(--primary);}
+
+/* 条文互链 */
+.lawlink{color:#1f6fb2; text-decoration:underline; cursor:pointer;}
+.lawlink:hover{color:#0d4f86;}
+
+/* 批注分层 */
+.notes-wrap{margin-top:2px;}
+.note-block{margin-bottom:8px;}
+.note-tag{display:inline-block; font-size:11px; font-weight:600; padding:1px 8px; border-radius:4px; margin-bottom:3px;}
+.tag-q{background:#fde8e8; color:#c0392b;}      /* 疑问 */
+.tag-c{background:#e6f4ea; color:#1e7a46;}      /* 我的案例 */
+.tag-s{background:#fef3e0; color:#b9770e;}      /* 要点总结 */
+.tag-t{background:#efe7fb; color:#6b3fa0;}      /* 待办 */
+.note.sub{background:var(--note-bg); border:1px dashed var(--note-bd); border-radius:7px; padding:7px 10px; min-height:32px; font-size:13.5px; color:#5a4a1a; white-space:pre-wrap; outline:none;}
+.note.sub:focus{border-style:solid; border-color:var(--mark); background:#fffce8; box-shadow:0 0 0 3px rgba(230,162,60,.15);}
+.note.sub:empty:before{content:attr(data-ph); color:#b9a86a;}
+
+/* 自测模式 */
+.reveal-btn{display:none; margin:10px 0 2px; border:1px solid var(--primary); background:var(--primary-soft); color:var(--primary); border-radius:6px; padding:5px 12px; font-size:12.5px; cursor:pointer;}
+.reveal-btn:hover{background:#d8e6f5;}
+body.self-test .reveal-btn{display:inline-block;}
+body.self-test .explain-label,
+body.self-test .explain,
+body.self-test .case-label,
+body.self-test .case,
+body.self-test .rel-label,
+body.self-test .rel,
+body.self-test .tool-row,
+body.self-test .note-label,
+body.self-test .notes-wrap{display:none;}
+.article.revealed .explain-label,
+.article.revealed .explain,
+.article.revealed .case-label,
+.article.revealed .case,
+.article.revealed .rel-label,
+.article.revealed .rel,
+.article.revealed .tool-row,
+.article.revealed .note-label,
+.article.revealed .notes-wrap{display:block;}
+body.self-test .article{opacity:.97;}
+body.self-test .article.revealed{border-left-color:var(--primary); background:#fff;}
+
+footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--muted); font-size:12.5px; text-align:center;}
+
+@media (max-width:860px){
+  .layout{flex-direction:column;}
+  nav.toc{position:static; width:100%; flex:none; max-height:none;}
+  .toolbar input[type=search]{width:120px;}
+}
+@media print{
+  header, nav.toc, footer, .tool-row, .quick-head{display:none !important;}
+  body{background:#fff;}
+  .layout{display:block; margin:0; padding:0;}
+  .article{break-inside:avoid; box-shadow:none; border:1px solid #ccc;}
+  .note{border:1px solid #bbb; background:#fff;}
+  .explain{background:#f4f6f9;}
+  .case{background:#fbf6ee;}
+  .mark-btn{display:none;}
+  .quick{box-shadow:none; border:1px solid #ccc;}
+  body.self-test .reveal-btn{display:none !important;}
+  body.self-test .explain, body.self-test .explain-label,
+  body.self-test .case, body.self-test .case-label,
+  body.self-test .rel, body.self-test .rel-label,
+  body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <h1>《中华人民共和国法律援助法》学习笔记
+      <small>2021.8.20 通过 · 2022.1.1 施行 · 共7章71条 · 速查/解读/分层笔记/案例/关联法条/互链/自测</small>
+    </h1>
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
+      <span class="status" id="status">已就绪</span>
+      <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
+      <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）">导出</button>
+      <button id="btnPrint" title="打印 / 存为PDF">打印</button>
+      <button id="btnClear" title="清空全部笔记与标记">清空</button>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" id="toc">
+    <div class="toc-title">目录</div>
+  </nav>
+  <main id="content"></main>
+</div>
+
+<footer>
+  本笔记为个人学习用途，条文以官方公布文本为准。案例来源于司法部公开发布的典型/指导案例；关联法条原文整理自相关法律法规权威文本，建议校对。笔记与解读自动保存在本浏览器，导出可脱离浏览器长期留存。
+</footer>
+
+<script>
+/* ===== 案例库（司法部公开发布，真实可核实）===== */
+const CASES = {
+  c1:{t:"北京市法律援助中心对马某确认劳动关系纠纷提供法律援助案", d:"赵某送货途中猝死，家属申请援助确认劳动关系。承办律师以劳动关系三要素论证，仲裁、一审、二审（市、区中心接续援助）均确认劳动关系，为后续工伤赔偿奠基。", s:"司法部贯彻实施法律援助法典型案例（2023.8）"},
+  c2:{t:"上海市闵行区法律援助中心对农民工刘某某工伤赔偿提供法律援助案", d:"刘某某工地工伤八级伤残，劳务公司补签低薪合同企图少赔。承办律师经仲裁、诉讼施压，促成调解补差额并增补偿10万余元。", s:"司法部贯彻实施法律援助法典型案例（2023.8）"},
+  c3:{t:"江苏省苏州市相城区法律援助中心对魏某某劳动争议纠纷提供法律援助案", d:"网络主播孕期被解雇。承办律师主张不得因怀孕解除劳动合同，仲裁支持继续履行合同并付工资损失；诉讼阶段调解一次性补偿8万元。", s:"司法部贯彻实施法律援助法典型案例（2023.8）"},
+  c4:{t:"四川省某县法律援助中心对未成年人赵某某涉嫌盗窃罪提供法律援助案", d:"未成年赵某某参与车内盗窃，检察院通知辩护。承办律师提坦白、认罪认罚等情节，建议附条件不起诉被采纳，考验期六个月。", s:"司法部贯彻实施法律援助法典型案例（2023.8）"},
+  c5:{t:"山东省济宁市汶上县法律援助中心对李某某医疗事故人身损害赔偿提供法律援助案", d:"李某某术后神经损伤，申请援助并申请司法鉴定，证成医院过错及因果关系，判赔19万余元。", s:"司法部贯彻实施法律援助法典型案例（2023.8）"},
+  c6:{t:"浙江省金华市磐安县法律援助中心为军属范某某交通事故责任纠纷提供法律援助案", d:"军属范某某十年护理期满需后续费，依《军人军属法律援助工作实施办法》再获援助，调解获后续护理费16.6万余元。", s:"司法部贯彻实施法律援助法典型案例（2023.8）"},
+  g1:{t:"安徽淮南八公山区法援中心对杨某请求宣告公民无民事行为能力提供法律援助案", d:"二级智力残疾杨某因拆迁需认定无民事行为能力。法援中心审查给予援助，鉴定后法院判决宣告无民并指定监护人。", s:"司法部法律援助工作指导案例（2023.9）"},
+  g2:{t:"重庆奉节县法援中心对未成年人浩浩抚养费纠纷提供法律援助案", d:"离异父亲拒付抚养费，法援中心启动未成年人绿色通道，判决父亲每月支付800元至成年。", s:"司法部法律援助工作指导案例（2023.9）"},
+  g3:{t:"黑龙江齐齐哈尔龙江县法援中心对受家庭暴力妇女马某提供法律援助案", d:"马某长期遭家暴起诉离婚，法援中心开通绿色通道免予审查经济困难，调解离婚并分割财产。", s:"司法部法律援助工作指导案例（2023.9）"}
+};
+/* ===== 关联法条（其他法规中可对照的条文原文，权威文本整理，建议校对）===== */
+const REL = {
+  r1:{src:"《中华人民共和国刑事诉讼法》", art:"第三十五条", t:"犯罪嫌疑人、被告人因经济困难或者其他原因没有委托辩护人的，本人及其近亲属可以向法律援助机构提出申请。对符合法律援助条件的，法律援助机构应当指派律师为其提供辩护。\n犯罪嫌疑人、被告人是盲、聋、哑人，或者是尚未完全丧失辨认或者控制自己行为能力的精神病人，没有委托辩护人的，人民法院、人民检察院和公安机关应当通知法律援助机构指派律师为其提供辩护。犯罪嫌疑人、被告人可能被判处无期徒刑、死刑，没有委托辩护人的，人民法院、人民检察院和公安机关应当通知法律援助机构指派律师为其提供辩护。"},
+  r2:{src:"《中华人民共和国刑事诉讼法》", art:"第三百零四条", t:"人民法院受理强制医疗的申请后，应当组成合议庭进行审理。\n人民法院审理强制医疗案件，应当通知被申请人或者被告人的法定代理人到场。被申请人或者被告人没有委托诉讼代理人的，人民法院应当通知法律援助机构指派律师为其提供法律帮助。"},
+  r3:{src:"《中华人民共和国反家庭暴力法》", art:"第十九条", t:"法律援助机构应当依法为家庭暴力受害人提供法律援助。"},
+  r4:{src:"《中华人民共和国劳动法》", art:"第七十九条", t:"劳动争议发生后，当事人可以向本单位劳动争议调解委员会申请调解；调解不成，当事人一方要求仲裁的，可以向劳动争议仲裁委员会申请仲裁。当事人一方也可以直接向劳动争议仲裁委员会申请仲裁。对仲裁裁决不服的，可以向人民法院提起诉讼。"},
+  r5:{src:"《保障农民工工资支付条例》", art:"第四十五条", t:"司法行政部门和法律援助机构应当将农民工列为法律援助的重点对象，依法为请求支付工资的农民工提供便捷的法律援助。"},
+  r6:{src:"《诉讼费用交纳办法》", art:"第四十五条", t:"当事人申请司法救助，符合下列情形之一的，人民法院应当准予免交诉讼费用：\n（一）残疾人无固定生活来源；\n（二）追索赡养费、扶养费、抚育费、抚恤金、劳动报酬的；\n（三）最低生活保障对象、农村特困定期救济对象、农村五保供养对象、领取失业保险金人员；\n（四）因见义勇为或者为保护社会公共利益致使自身合法权益受到损害，本人或者其近亲属请求赔偿或者补偿的；\n（五）确实需要免交的其他情形。"},
+  r7:{src:"《中华人民共和国个人所得税法》", art:"第四条", t:"下列各项个人所得，免征个人所得税：\n（一）省级人民政府、国务院部委和中国人民解放军军以上单位，以及外国组织、国际组织颁发的科学、教育、技术、文化、卫生、体育、环境保护等方面的奖金；\n（二）国债和国家发行的金融债券利息；\n（三）按照国家统一规定发给的补贴、津贴；\n（四）福利费、抚恤金、救济金；\n（五）保险赔款；\n……（法律援助补贴免征个税系本法第五十二条特别规定，与本条补贴津贴免税框架相衔接）。"}
+};
+/* 关联法条映射：按本法条号挂接 REL 键 */
+const RELMAP = {
+  "第二十四条":["r1"], "第二十五条":["r1"], "第二十八条":["r2"], "第三十一条":["r4"],
+  "第三十二条":["r3"], "第三十六条":["r1"], "第三十九条":["r1"], "第四十二条":["r5"],
+  "第五十二条":["r7"], "第五十三条":["r6"]
+};
+
+/* ===== 法条数据（官方文本 + 解读 + 关联案例，2021年8月20日通过）===== */
+const DATA = [
+  { ch:"第一章 总则", items:[
+    {no:"第一条", t:"为了规范和促进法律援助工作，保障公民和有关当事人的合法权益，保障法律正确实施，维护社会公平正义，制定本法。", ex:"立法目的条款。四大目的层层递进：规范促进工作（手段）→保障当事人权益、保障法律正确实施（直接目标）→维护社会公平正义（价值目标）。"},
+    {no:"第二条", t:"本法所称法律援助，是国家建立的为经济困难公民和符合法定条件的其他当事人无偿提供法律咨询、代理、刑事辩护等法律服务的制度，是公共法律服务体系的组成部分。", ex:"法律定义条款，含三要素：①性质为『国家建立』的制度；②对象为经济困难公民+符合法定条件其他当事人；③内容为『无偿』法律服务。明确其属于公共法律服务体系。"},
+    {no:"第三条", t:"法律援助工作坚持中国共产党领导，坚持以人民为中心，尊重和保障人权，遵循公开、公平、公正的原则，实行国家保障与社会参与相结合。", ex:"确立工作基本原则。新增『尊重和保障人权』表述，体现人权保障导向；『国家保障与社会参与相结合』为志愿服务、社会捐赠等预留制度空间。"},
+    {no:"第四条", t:"县级以上人民政府应当将法律援助工作纳入国民经济和社会发展规划、基本公共服务体系，保障法律援助事业与经济社会协调发展。\n县级以上人民政府应当健全法律援助保障体系，将法律援助相关经费列入本级政府预算，建立动态调整机制，保障法律援助工作需要，促进法律援助均衡发展。", ex:"政府保障条款。经费『列入本级政府预算』+『动态调整机制』是本法新增的刚性保障，解决过去经费不稳问题；『均衡发展』指向资源短缺地区倾斜。"},
+    {no:"第五条", t:"国务院司法行政部门指导、监督全国的法律援助工作。县级以上地方人民政府司法行政部门指导、监督本行政区域的法律援助工作。\n县级以上人民政府其他有关部门依照各自职责，为法律援助工作提供支持和保障。", ex:"监管体制。司法行政部门是主管部门（指导+监督）；其他部门（如财政、人社）依职责配合。注意是『指导、监督』而非直接办案。"},
+    {no:"第六条", t:"人民法院、人民检察院、公安机关应当在各自职责范围内保障当事人依法获得法律援助，为法律援助人员开展工作提供便利。", ex:"办案机关协助义务。法检公须保障当事人『获得』援助，并为援助人员提供便利（如阅卷、会见、转交申请等）。"},
+    {no:"第七条", t:"律师协会应当指导和支持律师事务所、律师参与法律援助工作。", ex:"律协职责。将律所、律师参与援助纳入行业指导支持；本条与第60条（年度考核、惩戒）形成行业约束闭环。"},
+    {no:"第八条", t:"国家鼓励和支持群团组织、事业单位、社会组织在司法行政部门指导下，依法提供法律援助。", ex:"拓宽提供主体。群团、事业、社会组织可在司法行政部门『指导下』提供援助，区别于律所律师的法定义务。"},
+    {no:"第九条", t:"国家鼓励和支持企业事业单位、社会组织和个人等社会力量，依法通过捐赠等方式为法律援助事业提供支持；对符合条件的，给予税收优惠。", ex:"社会支持与激励。明确捐赠等支持方式，并规定符合条件的税收优惠，提升社会参与积极性。"},
+    {no:"第十条", t:"司法行政部门应当开展经常性的法律援助宣传教育，普及法律援助知识。\n新闻媒体应当积极开展法律援助公益宣传，并加强舆论监督。", ex:"宣传与监督。行政部门负宣传教育职责；新闻媒体兼具『公益宣传』与『舆论监督』双重角色。"},
+    {no:"第十一条", t:"国家对在法律援助工作中做出突出贡献的组织和个人，按照有关规定给予表彰、奖励。", ex:"表彰奖励。为后续配套激励制度（如法律援助志愿服务表彰）提供依据。"}
+  ]},
+  { ch:"第二章 机构和人员", items:[
+    {no:"第十二条", t:"县级以上人民政府司法行政部门应当设立法律援助机构。法律援助机构负责组织实施法律援助工作，受理、审查法律援助申请，指派律师、基层法律服务工作者、法律援助志愿者等法律援助人员提供法律援助，支付法律援助补贴。", ex:"机构设立与职能。县级以上司法行政部门『应当』设立（强制）；机构核心职能：受理审查申请、指派人员、支付补贴。注意指派对象含志愿者。"},
+    {no:"第十三条", t:"法律援助机构根据工作需要，可以安排本机构具有律师资格或者法律职业资格的工作人员提供法律援助；可以设置法律援助工作站或者联络点，就近受理法律援助申请。", ex:"机构内部分工。本机构有资格人员可直接办案；设工作站/联络点实现『就近受理』，便民导向。"},
+    {no:"第十四条", t:"法律援助机构可以在人民法院、人民检察院和看守所等场所派驻值班律师，依法为没有辩护人的犯罪嫌疑人、被告人提供法律援助。", ex:"值班律师派驻。派驻场所为法检看守所；对象是『没有辩护人』的犯罪嫌疑人、被告人，与通知辩护相衔接。"},
+    {no:"第十五条", t:"司法行政部门可以通过政府采购等方式，择优选择律师事务所等法律服务机构为受援人提供法律援助。", ex:"购买服务。允许以政府采购择优选律所，是公共法律服务供给方式创新，但须保证质量。"},
+    {no:"第十六条", t:"律师事务所、基层法律服务所、律师、基层法律服务工作者负有依法提供法律援助的义务。\n律师事务所、基层法律服务所应当支持和保障本所律师、基层法律服务工作者履行法律援助义务。", ex:"法律服务主体义务。律所、律师等『负有依法提供援助的义务』（法定义务）；律所须支持保障本所人员履行，违者可被处罚（第62条）。"},
+    {no:"第十七条", t:"国家鼓励和规范法律援助志愿服务；支持符合条件的个人作为法律援助志愿者，依法提供法律援助。\n高等院校、科研机构可以组织从事法学教育、研究工作的人员和法学专业学生作为法律援助志愿者，在司法行政部门指导下，为当事人提供法律咨询、代拟法律文书等法律援助。\n法律援助志愿者具体管理办法由国务院有关部门规定。", ex:"志愿服务。高校师生可在司法行政部门指导下提供咨询、代拟文书等；志愿者管理办法由国务院另行规定，本条为授权条款。"},
+    {no:"第十八条", t:"国家建立健全法律服务资源依法跨区域流动机制，鼓励和支持律师事务所、律师、法律援助志愿者等在法律服务资源相对短缺地区提供法律援助。", ex:"资源均衡。建立跨区域流动机制，回应城乡、地区间援助资源分布不均问题。"},
+    {no:"第十九条", t:"法律援助人员应当依法履行职责，及时为受援人提供符合标准的法律援助服务，维护受援人的合法权益。", ex:"人员履职标准。关键词『符合标准』，对应第57条质量标准的制定与考核。"},
+    {no:"第二十条", t:"法律援助人员应当恪守职业道德和执业纪律，不得向受援人收取任何财物。", ex:"禁止收费。援助的『无偿』核心体现；违反可受处罚（第63条第三项）。"},
+    {no:"第二十一条", t:"法律援助机构、法律援助人员对提供法律援助过程中知悉的国家秘密、商业秘密和个人隐私应当予以保密。", ex:"保密义务。覆盖机构与人员；违反保密义务纳入法律责任（第61条第六项、第63条第四项）。"}
+  ]},
+  { ch:"第三章 形式和范围", items:[
+    {no:"第二十二条", t:"法律援助机构可以组织法律援助人员依法提供下列形式的法律援助服务：\n（一）法律咨询；\n（二）代拟法律文书；\n（三）刑事辩护与代理；\n（四）民事案件、行政案件、国家赔偿案件的诉讼代理及非诉讼代理；\n（五）值班律师法律帮助；\n（六）劳动争议调解与仲裁代理；\n（七）法律、法规、规章规定的其他形式。", ex:"服务形式清单。七类形式中，劳动争议调解与仲裁代理为本法明确新增，体现对劳动者权益保障的强化。"},
+    {no:"第二十三条", t:"法律援助机构应当通过服务窗口、电话、网络等多种方式提供法律咨询服务；提示当事人享有依法申请法律援助的权利，并告知申请法律援助的条件和程序。", ex:"咨询提供义务。要求多渠道（窗口/电话/网络）；并负『提示申请权+告知条件程序』的释明义务。"},
+    {no:"第二十四条", t:"刑事案件的犯罪嫌疑人、被告人因经济困难或者其他原因没有委托辩护人的，本人及其近亲属可以向法律援助机构申请法律援助。", ex:"刑事申请援助（依申请）。对象为因经济困难等无辩护人的嫌疑人、被告人；本人及近亲属可申请，区别于通知辩护的强制指派。"},
+    {no:"第二十五条", t:"刑事案件的犯罪嫌疑人、被告人属于下列人员之一，没有委托辩护人的，人民法院、人民检察院、公安机关应当通知法律援助机构指派律师担任辩护人：\n（一）未成年人；\n（二）视力、听力、言语残疾人；\n（三）不能完全辨认自己行为的成年人；\n（四）可能被判处无期徒刑、死刑的人；\n（五）申请法律援助的死刑复核案件被告人；\n（六）缺席审判案件的被告人；\n（七）法律法规规定的其他人员。\n其他适用普通程序审理的刑事案件，被告人没有委托辩护人的，人民法院可以通知法律援助机构指派律师担任辩护人。", ex:"通知辩护（强制指派）核心条款。七类『应当通知』对象须重点记忆：未成年人、三类残障/限制行为能力、无期死刑、死核被告、缺席审判被告。注意前六类为『应当』，普通程序其他案件为『可以』，强度不同。", cases:["c4"]},
+    {no:"第二十六条", t:"对可能被判处无期徒刑、死刑的人，以及死刑复核案件的被告人，法律援助机构收到人民法院、人民检察院、公安机关通知后，应当指派具有三年以上相关执业经历的律师担任辩护人。", ex:"重刑案件资质要求。无期死刑+死核被告，须指派『三年以上相关执业经历』律师，体现对重大案件辩护质量的保障。"},
+    {no:"第二十七条", t:"人民法院、人民检察院、公安机关通知法律援助机构指派律师担任辩护人时，不得限制或者损害犯罪嫌疑人、被告人委托辩护人的权利。", ex:"不得限制委托权。通知辩护是『兜底』而非剥夺当事人自行委托辩护人的权利。"},
+    {no:"第二十八条", t:"强制医疗案件的被申请人或者被告人没有委托诉讼代理人的，人民法院应当通知法律援助机构指派律师为其提供法律援助。", ex:"强制医疗特别保护。被申请人/被告人无诉讼代理人的，法院『应当』通知指派，与刑诉法强制医疗程序衔接。"},
+    {no:"第二十九条", t:"刑事公诉案件的被害人及其法定代理人或者近亲属，刑事自诉案件的自诉人及其法定代理人，刑事附带民事诉讼案件的原告人及其法定代理人，因经济困难没有委托诉讼代理人的，可以向法律援助机构申请法律援助。", ex:"被害人方代理援助。三类主体（公诉被害人、自诉人、附带民诉原告人）因经济困难无代理的，可申请援助，扩展了对当事人权益的保护。"},
+    {no:"第三十条", t:"值班律师应当依法为没有辩护人的犯罪嫌疑人、被告人提供法律咨询、程序选择建议、申请变更强制措施、对案件处理提出意见等法律帮助。", ex:"值班律师职责。区别于辩护律师，值班律师提供『法律帮助』（咨询、程序建议、申请变更强制措施、提意见），不当然承担全程辩护。"},
+    {no:"第三十一条", t:"下列事项的当事人，因经济困难没有委托代理人的，可以向法律援助机构申请法律援助：\n（一）依法请求国家赔偿；\n（二）请求给予社会保险待遇或者社会救助；\n（三）请求发给抚恤金；\n（四）请求给付赡养费、抚养费、扶养费；\n（五）请求确认劳动关系或者支付劳动报酬；\n（六）请求认定公民无民事行为能力或者限制民事行为能力；\n（七）请求工伤事故、交通事故、食品药品安全事故、医疗事故人身损害赔偿；\n（八）请求环境污染、生态破坏损害赔偿；\n（九）法律、法规、规章规定的其他情形。", ex:"民事/行政等申请范围（经济困难）。九类事项须记忆，典型含国家赔偿、社保救助、三费、劳动关系/报酬、人格/事故赔偿、环损赔偿。均须『因经济困难』且『无代理人』。", cases:["c1","c2","c3","c5","g2"]},
+    {no:"第三十二条", t:"有下列情形之一，当事人申请法律援助的，不受经济困难条件的限制：\n（一）英雄烈士近亲属为维护英雄烈士的人格权益；\n（二）因见义勇为行为主张相关民事权益；\n（三）再审改判无罪请求国家赔偿；\n（四）遭受虐待、遗弃或者家庭暴力的受害人主张相关权益；\n（五）法律、法规、规章规定的其他情形。", ex:"免经济困难审查（依情形）。四类情形直接豁免经济门槛，体现对英烈、见义勇为、冤错赔偿、家暴受害人的特殊保护。", cases:["g3"]},
+    {no:"第三十三条", t:"当事人不服司法机关生效裁判或者决定提出申诉或者申请再审，人民法院决定、裁定再审或者人民检察院提出抗诉，因经济困难没有委托辩护人或者诉讼代理人的，本人及其近亲属可以向法律援助机构申请法律援助。", ex:"申诉再审援助。进入再审/抗诉程序后因经济困难无代理的，本人及近亲属可申请，保障纠错程序中的平等武装。"},
+    {no:"第三十四条", t:"经济困难的标准，由省、自治区、直辖市人民政府根据本行政区域经济发展状况和法律援助工作需要确定，并实行动态调整。", ex:"经济标准授权。标准由省级政府定并动态调整，故各地门槛不一，实务中须查本省规定。"}
+  ]},
+  { ch:"第四章 程序和实施", items:[
+    {no:"第三十五条", t:"人民法院、人民检察院、公安机关和有关部门在办理案件或者相关事务中，应当及时告知有关当事人有权依法申请法律援助。", ex:"告知义务。办案机关及有关部门须『及时告知』申请权，是申请人行使权利的前提。"},
+    {no:"第三十六条", t:"人民法院、人民检察院、公安机关办理刑事案件，发现有本法第二十五条第一款、第二十八条规定情形的，应当在三日内通知法律援助机构指派律师。法律援助机构收到通知后，应当在三日内指派律师并通知人民法院、人民检察院、公安机关。", ex:"通知与指派时限。两端各『三日』：办案机关发现情形3日内通知；机构收到后3日内指派并回告。注意衔接第25条（通知辩护）与第28条（强制医疗）。"},
+    {no:"第三十七条", t:"人民法院、人民检察院、公安机关应当保障值班律师依法提供法律帮助，告知没有辩护人的犯罪嫌疑人、被告人有权约见值班律师，并依法为值班律师了解案件有关情况、阅卷、会见等提供便利。", ex:"值班律师保障。办案机关须告知约见权，并为阅卷、会见等提供便利，落实第30条职责。"},
+    {no:"第三十八条", t:"对诉讼事项的法律援助，由申请人向办案机关所在地的法律援助机构提出申请；对非诉讼事项的法律援助，由申请人向争议处理机关所在地或者事由发生地的法律援助机构提出申请。", ex:"申请管辖。诉讼事项→办案机关所在地机构；非诉讼事项→争议处理机关所在地或事由发生地机构。管辖规则影响申请地点。"},
+    {no:"第三十九条", t:"被羁押的犯罪嫌疑人、被告人、服刑人员，以及强制隔离戒毒人员等提出法律援助申请的，办案机关、监管场所应当在二十四小时内将申请转交法律援助机构。\n犯罪嫌疑人、被告人通过值班律师提出代理、刑事辩护等法律援助申请的，值班律师应当在二十四小时内将申请转交法律援助机构。", ex:"转交申请时限。两类情形均『二十四小时』转交：羁押人员申请由办案/监管场所转交；经值班律师申请由值班律师转交。"},
+    {no:"第四十条", t:"无民事行为能力人或者限制民事行为能力人需要法律援助的，可以由其法定代理人代为提出申请。法定代理人侵犯无民事行为能力人、限制民事行为能力人合法权益的，其他法定代理人或者近亲属可以代为提出法律援助申请。\n被羁押的犯罪嫌疑人、被告人、服刑人员，以及强制隔离戒毒人员，可以由其法定代理人或者近亲属代为提出法律援助申请。", ex:"代为申请。无/限制民事行为能力人由法定代理人代；若法定代理人侵权，其他法定/近亲属可代。羁押人员由法定/近亲属代。注意侵权时代为申请的顺位变化。"},
+    {no:"第四十一条", t:"因经济困难申请法律援助的，申请人应当如实说明经济困难状况。\n法律援助机构核查申请人的经济困难状况，可以通过信息共享查询，或者由申请人进行个人诚信承诺。\n法律援助机构开展核查工作，有关部门、单位、村民委员会、居民委员会和个人应当予以配合。", ex:"经济审查方式革新。从『证明』转向『承诺+核查』：可信息共享查询或申请人诚信承诺，减证便民；有关部门及基层组织有配合义务。"},
+    {no:"第四十二条", t:"法律援助申请人有材料证明属于下列人员之一的，免予核查经济困难状况：\n（一）无固定生活来源的未成年人、老年人、残疾人等特定群体；\n（二）社会救助、司法救助或者优抚对象；\n（三）申请支付劳动报酬或者请求工伤事故人身损害赔偿的进城务工人员；\n（四）法律、法规、规章规定的其他人员。", ex:"免核查情形。四类直接免经济审查：特定困难群体、救助优抚对象、讨薪/工伤进城务工者、其他。与第31条经济困难申请相衔接的绿色通道。", cases:["g1","g3"]},
+    {no:"第四十三条", t:"法律援助机构应当自收到法律援助申请之日起七日内进行审查，作出是否给予法律援助的决定。决定给予法律援助的，应当自作出决定之日起三日内指派法律援助人员为受援人提供法律援助；决定不给予法律援助的，应当书面告知申请人，并说明理由。\n申请人提交的申请材料不齐全的，法律援助机构应当一次性告知申请人需要补充的材料或者要求申请人作出说明。申请人未按要求补充材料或者作出说明的，视为撤回申请。", ex:"审查决定时限。收件起『七日』审查；给援后『三日』指派；不给予须书面告知理由。材料不全『一次性告知』，未补视为撤回——注意撤回的拟制后果。"},
+    {no:"第四十四条", t:"法律援助机构收到法律援助申请后，发现有下列情形之一的，可以决定先行提供法律援助：\n（一）距法定时效或者期限届满不足七日，需要及时提起诉讼或者申请仲裁、行政复议；\n（二）需要立即申请财产保全、证据保全或者先予执行；\n（三）法律、法规、规章规定的其他情形。\n法律援助机构先行提供法律援助的，受援人应当及时补办有关手续，补充有关材料。", ex:"先行援助（紧急情况）。三种紧急情形可先提供后补手续，重点是第一类『时效不足七日』与保全需求，防止权利人因程序落空。"},
+    {no:"第四十五条", t:"法律援助机构为老年人、残疾人提供法律援助服务的，应当根据实际情况提供无障碍设施设备和服务。\n法律法规对向特定群体提供法律援助有其他特别规定的，依照其规定。", ex:"无障碍服务。对老残须提供无障碍设施；特别规定优先适用（如第42条、第32条的优待）。"},
+    {no:"第四十六条", t:"法律援助人员接受指派后，无正当理由不得拒绝、拖延或者终止提供法律援助服务。\n法律援助人员应当按照规定向受援人通报法律援助事项办理情况，不得损害受援人合法权益。", ex:"人员履约义务。接受指派后不得随意拒绝/拖延/终止；须通报进展。违反可处罚（第63条）。"},
+    {no:"第四十七条", t:"受援人应当向法律援助人员如实陈述与法律援助事项有关的情况，及时提供证据材料，协助、配合办理法律援助事项。", ex:"受援人义务。对应第48条终止情形——若不如实陈述或虚假证据，机构可终止援助。"},
+    {no:"第四十八条", t:"有下列情形之一的，法律援助机构应当作出终止法律援助的决定：\n（一）受援人以欺骗或者其他不正当手段获得法律援助；\n（二）受援人故意隐瞒与案件有关的重要事实或者提供虚假证据；\n（三）受援人利用法律援助从事违法活动；\n（四）受援人的经济状况发生变化，不再符合法律援助条件；\n（五）案件终止审理或者已经被撤销；\n（六）受援人自行委托律师或者其他代理人；\n（七）受援人有正当理由要求终止法律援助；\n（八）法律法规规定的其他情形。\n法律援助人员发现有前款规定情形的，应当及时向法律援助机构报告。", ex:"终止援助八情形。须整体记忆：骗援、虚假、违法、经济变化、案件终结、自行委托、正当理由终止、其他。前三类属受援人过错，机构可作终止并追偿（第64条）。人员发现须报告。"},
+    {no:"第四十九条", t:"申请人、受援人对法律援助机构不予法律援助、终止法律援助的决定有异议的，可以向设立该法律援助机构的司法行政部门提出。\n司法行政部门应当自收到异议之日起五日内进行审查，作出维持法律援助机构决定或者责令法律援助机构改正的决定。\n申请人、受援人对司法行政部门维持法律援助机构决定不服的，可以依法申请行政复议或者提起行政诉讼。", ex:"异议救济路径。对不予/终止决定→向设立机构的司法行政部门异议（5日内审查）；不服可复议或行政诉讼。注意是行政救济而非民事申诉。"},
+    {no:"第五十条", t:"法律援助事项办理结束后，法律援助人员应当及时向法律援助机构报告，提交有关法律文书的副本或者复印件、办理情况报告等材料。", ex:"结案归档。人员须及时报告并提交文书副本、办理报告，对应质量监管（第59条）。"}
+  ]},
+  { ch:"第五章 保障和监督", items:[
+    {no:"第五十一条", t:"国家加强法律援助信息化建设，促进司法行政部门与司法机关及其他有关部门实现信息共享和工作协同。", ex:"信息化保障。推动跨部门信息共享，支撑第41条的『信息共享查询』经济审查方式。"},
+    {no:"第五十二条", t:"法律援助机构应当依照有关规定及时向法律援助人员支付法律援助补贴。\n法律援助补贴的标准，由省、自治区、直辖市人民政府司法行政部门会同同级财政部门，根据当地经济发展水平和法律援助的服务类型、承办成本、基本劳务费用等确定，并实行动态调整。\n法律援助补贴免征增值税和个人所得税。", ex:"补贴保障。及时支付；标准由省级司法会同财政定并动态调整；关键优惠：补贴『免征增值税和个人所得税』，直接提高人员积极性。"},
+    {no:"第五十三条", t:"人民法院应当根据情况对受援人缓收、减收或者免收诉讼费用；对法律援助人员复制相关材料等费用予以免收或者减收。\n公证机构、司法鉴定机构应当对受援人减收或者免收公证费、鉴定费。", ex:"费用减免链。法院（诉讼费缓减免+复制费减免）、公证/鉴定机构（费减免）共同降低受援人成本，体现援助『无偿』延伸。"},
+    {no:"第五十四条", t:"县级以上人民政府司法行政部门应当有计划地对法律援助人员进行培训，提高法律援助人员的专业素质和服务能力。", ex:"培训制度。主管部门有计划培训，对应第19条『符合标准』服务与第57条质量考核。"},
+    {no:"第五十五条", t:"受援人有权向法律援助机构、法律援助人员了解法律援助事项办理情况；法律援助机构、法律援助人员未依法履行职责的，受援人可以向司法行政部门投诉，并可以请求法律援助机构更换法律援助人员。", ex:"受援人监督权。可了解进展、投诉、请求更换人员，是制衡援助质量的直接权利。"},
+    {no:"第五十六条", t:"司法行政部门应当建立法律援助工作投诉查处制度；接到投诉后，应当依照有关规定受理和调查处理，并及时向投诉人告知处理结果。", ex:"投诉查处。主管部门建制度、受理调查并告知结果，落实第55条的投诉权。"},
+    {no:"第五十七条", t:"司法行政部门应当加强对法律援助服务的监督，制定法律援助服务质量标准，通过第三方评估等方式定期进行质量考核。", ex:"质量监督。制定标准+第三方评估定期考核，是质量保障的核心机制，对应第19条『符合标准』。"},
+    {no:"第五十八条", t:"司法行政部门、法律援助机构应当建立法律援助信息公开制度，定期向社会公布法律援助资金使用、案件办理、质量考核结果等情况，接受社会监督。", ex:"信息公开。定期公布资金、案件、质量结果，以公开促规范，接受社会监督。"},
+    {no:"第五十九条", t:"法律援助机构应当综合运用庭审旁听、案卷检查、征询司法机关意见和回访受援人等措施，督促法律援助人员提升服务质量。", ex:"督促措施清单。四类手段（旁听、查卷、征询意见、回访）构成机构层面的质量督促闭环。"},
+    {no:"第六十条", t:"律师协会应当将律师事务所、律师履行法律援助义务的情况纳入年度考核内容，对拒不履行或者怠于履行法律援助义务的律师事务所、律师，依照有关规定进行惩戒。", ex:"行业约束。律协将履义情况纳入年度考核，拒不/怠于履行可惩戒，与第16条义务、第62条/第63条处罚衔接。"}
+  ]},
+  { ch:"第六章 法律责任", items:[
+    {no:"第六十一条", t:"法律援助机构及其工作人员有下列情形之一的，由设立该法律援助机构的司法行政部门责令限期改正；有违法所得的，责令退还或者没收违法所得；对直接负责的主管人员和其他直接责任人员，依法给予处分：\n（一）拒绝为符合法律援助条件的人员提供法律援助，或者故意为不符合法律援助条件的人员提供法律援助；\n（二）指派不符合本法规定的人员提供法律援助；\n（三）收取受援人财物；\n（四）从事有偿法律服务；\n（五）侵占、私分、挪用法律援助经费；\n（六）泄露法律援助过程中知悉的国家秘密、商业秘密和个人隐私；\n（七）法律法规规定的其他情形。", ex:"机构及人员责任。六种违法对应责令改、退/没收所得、处分。涵盖拒援/错援、违规指派、收费、有偿服务、挪用经费、泄密。"},
+    {no:"第六十二条", t:"律师事务所、基层法律服务所有下列情形之一的，由司法行政部门依法给予处罚：\n（一）无正当理由拒绝接受法律援助机构指派；\n（二）接受指派后，不及时安排本所律师、基层法律服务工作者办理法律援助事项或者拒绝为本所律师、基层法律服务工作者办理法律援助事项提供支持和保障；\n（三）纵容或者放任本所律师、基层法律服务工作者怠于履行法律援助义务或者擅自终止提供法律援助；\n（四）法律法规规定的其他情形。", ex:"律所/基层所责任。三类违法由司法行政部门处罚，与第16条义务对应，堵住机构层面的推诿。"},
+    {no:"第六十三条", t:"律师、基层法律服务工作者有下列情形之一的，由司法行政部门依法给予处罚：\n（一）无正当理由拒绝履行法律援助义务或者怠于履行法律援助义务；\n（二）擅自终止提供法律援助；\n（三）收取受援人财物；\n（四）泄露法律援助过程中知悉的国家秘密、商业秘密和个人隐私；\n（五）法律法规规定的其他情形。", ex:"人员责任。四类违法处罚：拒/怠履义务、擅自终止、收财物、泄密。与第19、20、21条义务直接对应。"},
+    {no:"第六十四条", t:"受援人以欺骗或者其他不正当手段获得法律援助的，由司法行政部门责令其支付已实施法律援助的费用，并处三千元以下罚款。", ex:"受援人骗援责任。后果为支付已实施费用+三千元以下罚款；与第48条第一项终止情形衔接。"},
+    {no:"第六十五条", t:"违反本法规定，冒用法律援助名义提供法律服务并谋取利益的，由司法行政部门责令改正，没收违法所得，并处违法所得一倍以上三倍以下罚款。", ex:"冒用名义责任。按违法所得1-3倍罚款并没收，打击借援助之名牟利的行为。"},
+    {no:"第六十六条", t:"国家机关及其工作人员在法律援助工作中滥用职权、玩忽职守、徇私舞弊的，对直接负责的主管人员和其他直接责任人员，依法给予处分。", ex:"公职人员渎职责任。指向行政问责，与第61条机构责任、第67条刑事责任相衔接。"},
+    {no:"第六十七条", t:"违反本法规定，构成犯罪的，依法追究刑事责任。", ex:"刑事责任衔接。本条为引致条款，违反本法且触犯刑法的（如挪用经费、渎职）依法追究刑事责任。"}
+  ]},
+  { ch:"第七章 附则", items:[
+    {no:"第六十八条", t:"工会、共产主义青年团、妇女联合会、残疾人联合会等群团组织开展法律援助工作，参照适用本法的相关规定。", ex:"群团参照适用。工会、共青团、妇联、残联等开展援助参照本法，与第8条鼓励群团提供援助相呼应。"},
+    {no:"第六十九条", t:"对外国人和无国籍人提供法律援助，我国法律有规定的，适用法律规定；我国法律没有规定的，可以根据我国缔结或者参加的国际条约，或者按照互惠原则，参照适用本法的相关规定。", ex:"外国人/无国籍人。有规定从规定；无规定依国际条约或互惠参照适用，体现国际法优先与对等原则。"},
+    {no:"第七十条", t:"对军人军属提供法律援助的具体办法，由国务院和中央军事委员会有关部门制定。", ex:"军人军属特别授权。具体办法由国务院与中央军委有关部门另行制定，本条为授权条款。", cases:["c6"]},
+    {no:"第七十一条", t:"本法自2022年1月1日起施行。", ex:"施行日期。2022年1月1日起施行，系法律援助领域首部专门法律（此前为2003年《法律援助条例》行政法规）。"}
+  ]}
+];
+
+/* ===== 存储（自动保存 + 导出烘焙）===== */
+const KEY = 'falvyuanzhu_note_v1';
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
+})();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡 ===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">' +
+      '<div class="qg"><b>通知辩护·应当（第25条）</b>：未成年人；视力听力言语残疾人；不能完全辨认行为的成年人；可能无期死刑；死核被告；缺席审判被告；其他法定。</div>' +
+      '<div class="qg"><b>免经济困难审查（第32条）</b>：英烈近亲属；见义勇为；再审改判无罪求赔；家暴/虐待/遗弃受害人。</div>' +
+      '<div class="qg"><b>免核查经济状况（第42条）</b>：特定困难群体；救助优抚对象；讨薪/工伤进城务工；其他。</div>' +
+      '<div class="qg"><b>申请范围·经济困难（第31条）</b>：国家赔偿；社保救助；抚恤金；三费；劳动关系/报酬；认定无/限民；事故赔偿；环损赔偿；其他。</div>' +
+      '<div class="qg"><b>关键时限</b>：办案机关通知/机构指派 3日（第25条、第28条、第36条）；审查决定 7日（第43条）；羁押申请转交 24小时（第39条）；异议审查 5日（第49条）。</div>' +
+    '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例（司法部指导案例）</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条（其他法规对照条文）
+      let relHtml = '';
+      const relKeys = art.rel || RELMAP[art.no];
+      if(relKeys){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        relKeys.forEach(function(rk){
+          const r = REL[rk]; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-title">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '>' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+                '<div class="art-text">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml + relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml('法律援助法 '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = '法律援助法学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname);
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
+
+/* ===== 启动 ===== */
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
+</body>
+</html>
