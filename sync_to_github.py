@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # 用 GitHub Contents API 同步站点文件到仓库(绕过 git push：沙箱代理禁 github.com，仅放行 api.github.com)
-import os, base64, json, subprocess, urllib.parse, sys
+import os, glob, base64, json, subprocess, urllib.parse, sys
 
 PAT = open('/Users/zf/.workbuddy/github_token').read().strip()
 REPO = '8585209713805/8585209713805.github.io'
@@ -9,9 +9,10 @@ ROOT = '/Users/zf/WorkBuddy/法规笔记网站'
 
 # 需要同步到站点的文件(相对 ROOT)
 FILES = ['index.html', 'README.md', 'add_to_site.js', 'publish_note.sh',
-         'sync_to_github.py', 'statute-study-notebook.zip',
-         'notes/法律援助法学习笔记.html',
-         'notes/超龄劳动者基本权益保障暂行规定学习笔记.html']
+         'sync_to_github.py', 'statute-study-notebook.zip']
+# 动态纳入 notes/ 下所有笔记（以后用技能新增的笔记也能自动同步）
+FILES += sorted(os.path.join('notes', os.path.basename(p))
+                for p in glob.glob(os.path.join(ROOT, 'notes', '*.html')))
 
 
 def curl(method, url, data=None):
