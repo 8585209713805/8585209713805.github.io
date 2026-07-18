@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法规学习笔记（可编辑）</title>
+<style>
+:root{
+  --bg:#eef1f5; --card:#ffffff; --ink:#1f2329; --muted:#7a8290;
+  --primary:#1f4e79; --primary-soft:#e8f0f7; --accent:#c0392b;
+  --mark:#e6a23c; --note-bg:#fffdf3; --note-bd:#e8d9a8;
+  --border:#e1e5ea; --line:#d8dde4; --shadow:0 1px 3px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  line-height:1.8; font-size:15px;
+}
+/* ===== 顶部栏 ===== */
+header{
+  position:sticky; top:0; z-index:50; background:var(--primary); color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.head-inner{max-width:1180px; margin:0 auto; padding:10px 18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.field-badge{display:inline-block; margin-left:4px; padding:2px 11px; font-size:12px; font-weight:600; color:#fff; background:var(--primary); border-radius:20px; vertical-align:middle; letter-spacing:.5px;}
+.head-inner h1{font-size:16px; margin:0; font-weight:600; letter-spacing:.5px; flex:1 1 260px;}
+.head-inner h1 small{display:block; font-size:11.5px; font-weight:400; opacity:.8; margin-top:2px;}
+.toolbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.toolbar input[type=search]{
+  padding:6px 10px; border:1px solid rgba(255,255,255,.35); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; width:160px; outline:none;
+}
+.toolbar input[type=search]::placeholder{color:rgba(255,255,255,.7);}
+.toolbar button{
+  padding:6px 12px; border:1px solid rgba(255,255,255,.4); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; cursor:pointer; white-space:nowrap;
+}
+.toolbar button:hover{background:rgba(255,255,255,.25);}
+.toolbar button.active{background:var(--mark); border-color:var(--mark); color:#fff;}
+.status{font-size:12px; opacity:.85; min-width:80px;}
+
+/* ===== 布局 ===== */
+.layout{max-width:1180px; margin:18px auto; padding:0 18px; display:flex; gap:20px; align-items:flex-start;}
+nav.toc{
+  position:sticky; top:78px; width:200px; flex:0 0 200px;
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:12px 10px; box-shadow:var(--shadow); max-height:calc(100vh - 100px); overflow:auto;
+}
+nav.toc .toc-title{font-size:12px; color:var(--muted); padding:0 8px 8px; border-bottom:1px solid var(--line); margin-bottom:6px;}
+nav.toc a{
+  display:block; padding:7px 8px; border-radius:6px; color:var(--ink); text-decoration:none;
+  font-size:13.5px; cursor:pointer;
+}
+nav.toc a:hover{background:var(--primary-soft);}
+nav.toc a.active{background:var(--primary); color:#fff; font-weight:500;}
+nav.toc a .cnt{float:right; color:var(--muted); font-size:11px;}
+nav.toc a.active .cnt{color:rgba(255,255,255,.85);}
+
+main{flex:1; min-width:0;}
+.chapter{margin-bottom:26px;}
+.chapter > h2{
+  font-size:18px; color:var(--primary); border-left:4px solid var(--primary);
+  padding-left:12px; margin:0 0 14px; font-weight:700;
+}
+.article{
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow); position:relative;
+  border-left:3px solid var(--line);
+}
+.article.marked{border-left-color:var(--mark); background:#fffdf6;}
+.art-head{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+.art-no{
+  font-weight:700; color:var(--primary); font-size:14.5px; background:var(--primary-soft);
+  padding:2px 10px; border-radius:5px;
+}
+.mark-btn{
+  margin-left:auto; border:none; background:none; cursor:pointer; font-size:18px; line-height:1;
+  color:var(--mark); padding:0 4px;
+}
+.mark-btn:hover{transform:scale(1.15);}
+.art-text{font-size:15px; color:#2b2f36; text-align:justify; white-space:pre-wrap;}
+
+/* 解读区 */
+.explain-label{font-size:12px; color:var(--primary); font-weight:600; margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+.explain{
+  font-size:13.5px; color:#3a4250; background:#f6f9fc; border-left:3px solid var(--primary);
+  border-radius:0 6px 6px 0; padding:8px 11px; white-space:pre-wrap; outline:none;
+}
+.explain:focus{background:#eef3fa; box-shadow:0 0 0 3px rgba(31,78,121,.12);}
+
+/* 关联案例 */
+.case-label{font-size:12px; color:#9a5b1e; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.case{background:#fbf6ee; border:1px solid #ecdcc0; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.case-title{font-weight:600; font-size:13.5px; color:#6b4423;}
+.case-desc{font-size:13px; color:#5a4a3a; margin-top:3px; white-space:pre-wrap;}
+.case-src{font-size:11.5px; color:#a98b5e; margin-top:4px;}
+
+/* 关联法条 */
+.rel-label{font-size:12px; color:#1f6fb2; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.rel{background:#eef4fb; border:1px solid #cfe0ef; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.rel-src{font-weight:600; font-size:13.5px; color:#14507e;}
+.rel-text{font-size:13px; color:#34404d; margin-top:4px; white-space:pre-wrap;}
+
+/* 检索按钮 */
+.tool-row{margin:10px 0 2px;}
+.search-btn{border:1px solid var(--border); background:#f3f7fb; color:var(--primary); border-radius:6px; padding:5px 10px; font-size:12.5px; cursor:pointer;}
+.search-btn:hover{background:#e3edf6;}
+
+/* 笔记区 */
+.note-label{font-size:12px; color:var(--muted); margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+
+/* 速查卡 */
+.quick{background:linear-gradient(135deg,#f0f6fc,#e8f0f7); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.quick-head{font-weight:700; color:var(--primary); padding:11px 14px; cursor:pointer; user-select:none; font-size:14.5px;}
+.quick-body{padding:2px 14px 12px;}
+.qg{font-size:13px; color:#34404d; padding:7px 0; border-top:1px dashed #d4e2ee; white-space:pre-wrap;}
+.qg:first-child{border-top:none;}
+.qg b{color:var(--primary);}
+
+/* 法规简介（发布信息） */
+.law-intro{background:linear-gradient(135deg,#f0f6fc,#eef4fb); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.law-intro-head{font-weight:700; color:var(--primary); padding:11px 14px; font-size:14.5px;}
+.law-intro-body{padding:2px 14px 12px;}
+.law-intro-desc{font-size:13.5px; color:#34404d; line-height:1.8; margin:2px 0 10px;}
+.meta-grid{display:grid; grid-template-columns:auto 1fr; gap:6px 14px; align-items:baseline;}
+.meta-grid .mk{font-size:13px; color:var(--muted); white-space:nowrap;}
+.meta-grid .mv{font-size:13px; color:#2b2f36;}
+.meta-grid .mv.ok{color:#1a9e57; font-weight:600;}
+.meta-grid .mv.no{color:#c0392b; font-weight:600;}
+
+/* 条文互链 */
+.lawlink{color:#1f6fb2; text-decoration:underline; cursor:pointer;}
+.lawlink:hover{color:#0d4f86;}
+
+/* 批注分层 */
+.notes-wrap{margin-top:2px;}
+.note-block{margin-bottom:8px;}
+.note-tag{display:inline-block; font-size:11px; font-weight:600; padding:1px 8px; border-radius:4px; margin-bottom:3px;}
+.tag-q{background:#fde8e8; color:#c0392b;}      /* 疑问 */
+.tag-c{background:#e6f4ea; color:#1e7a46;}      /* 我的案例 */
+.tag-s{background:#fef3e0; color:#b9770e;}      /* 要点总结 */
+.tag-t{background:#efe7fb; color:#6b3fa0;}      /* 待办 */
+.note.sub{background:var(--note-bg); border:1px dashed var(--note-bd); border-radius:7px; padding:7px 10px; min-height:32px; font-size:13.5px; color:#5a4a1a; white-space:pre-wrap; outline:none;}
+.note.sub:focus{border-style:solid; border-color:var(--mark); background:#fffce8; box-shadow:0 0 0 3px rgba(230,162,60,.15);}
+.note.sub:empty:before{content:attr(data-ph); color:#b9a86a;}
+
+/* 自测模式 */
+.reveal-btn{display:none; margin:10px 0 2px; border:1px solid var(--primary); background:var(--primary-soft); color:var(--primary); border-radius:6px; padding:5px 12px; font-size:12.5px; cursor:pointer;}
+.reveal-btn:hover{background:#d8e6f5;}
+body.self-test .reveal-btn{display:inline-block;}
+body.self-test .explain-label,
+body.self-test .explain,
+body.self-test .case-label,
+body.self-test .case,
+body.self-test .rel-label,
+body.self-test .rel,
+body.self-test .tool-row,
+body.self-test .note-label,
+body.self-test .notes-wrap{display:none;}
+.article.revealed .explain-label,
+.article.revealed .explain,
+.article.revealed .case-label,
+.article.revealed .case,
+.article.revealed .rel-label,
+.article.revealed .rel,
+.article.revealed .tool-row,
+.article.revealed .note-label,
+.article.revealed .notes-wrap{display:block;}
+body.self-test .article{opacity:.97;}
+body.self-test .article.revealed{border-left-color:var(--primary); background:#fff;}
+
+footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--muted); font-size:12.5px; text-align:center;}
+
+@media (max-width:860px){
+  .layout{flex-direction:column;}
+  nav.toc{position:static; width:100%; flex:none; max-height:none;}
+  .toolbar input[type=search]{width:120px;}
+}
+@media print{
+  header, nav.toc, footer, .tool-row, .quick-head{display:none !important;}
+  body{background:#fff;}
+  .layout{display:block; margin:0; padding:0;}
+  .article{break-inside:avoid; box-shadow:none; border:1px solid #ccc;}
+  .explain{background:#f4f6f9;}
+  .case{background:#fbf6ee;}
+  .mark-btn{display:none;}
+  .quick{box-shadow:none; border:1px solid #ccc;}
+  body.self-test .reveal-btn{display:none !important;}
+  body.self-test .explain, body.self-test .explain-label,
+  body.self-test .case, body.self-test .case-label,
+  body.self-test .rel, body.self-test .rel-label,
+  body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <h1><span id="lawTitle"></span><small id="lawSub"></small> <span id="lawField" class="field-badge"></span></h1>
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
+      <span class="status" id="status">已就绪</span>
+      <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
+      <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
+      <button id="btnPrint" title="打印 / 存为PDF">打印</button>
+      <button id="btnClear" title="清空本浏览器内全部笔记与标记">清空</button>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" id="toc">
+    <div class="toc-title">目录</div>
+  </nav>
+  <main id="content"></main>
+</div>
+
+<footer>
+  本笔记为个人学习用途，条文以官方公布文本为准。案例来源于司法部/最高法等公开发布的典型/指导案例。笔记与解读自动保存在本浏览器，导出可脱离浏览器长期留存。
+</footer>
+
+<script>
+/* ============ 用户定制区（由 docx 批量导入生成） ============ */
+const LAW_TITLE = "中华人民共和国社会保险法";
+const LAW_SUB   = "《劳动法规汇编（江西）》· 共99条";
+const LAW_KEY   = "jx43";
+const LAW_FIELD = "社会保障";
+
+const LAW_INTRO = "收录于《劳动法规汇编（江西）》，属「社会保障」板块，共99个条文块。";
+const LAW_META = { issuer:"\u2014", published:"\u2014", effective:"\u2014", valid:"\u6709\u6548", level:"\u6cd5\u5f8b" };
+
+const QUICK = [];
+const CASES = {};
+const REL = {};
+const DATA = [{"ch": "全文", "items": [{"no": "", "t": "中华人民共和国主席令第35号\n《中华人民共和国社会保险法》已由中华人民共和国第十一届全国人民代表大会常务 委员会第十七次会议于2010年10月28日通过，现予公布，自2011年7月1日起施行。\n中华人民共和国主席 胡锦涛\n2010年10月28日\n（2010年10月28日第十一届全国人民代表大会常务委员会第十七次会议通过  根据 2018年12月29日第十三届全国人民代表大会常务委员会第七次会议《关于修改〈中华人民 共和国社会保险法〉的决定》修正）\n目  录", "ex": ""}]}, {"ch": "第一章  总  则", "items": [{"no": "第一条", "t": "第一条 为了规范社会保险关系，维护公民参加社会保险和享受社会保险待遇的合法 权益，使公民共享发展成果，促进社会和谐稳定，根据宪法，制定本法。", "ex": ""}, {"no": "第二条", "t": "第二条 国家建立基本养老保险、基本医疗保险、工伤保险、失业保险、生育保险等 社会保险制度，保障公民在年老、疾病、工伤、失业、生育等情况下依法从国家和社会获 得物质帮助的权利。", "ex": ""}, {"no": "第三条", "t": "第三条 社会保险制度坚持广覆盖、保基本、多层次、可持续的方针，社会保险水平\n应当与经济社会发展水平相适应。", "ex": ""}, {"no": "第四条", "t": "第四条 中华人民共和国境内的用人单位和个人依法缴纳社会保险费，有权查询缴费 记录、个人权益记录，要求社会保险经办机构提供社会保险咨询等相关服务。\n个人依法享受社会保险待遇，有权监督本单位为其缴费情况。", "ex": ""}, {"no": "第五条", "t": "第五条 县级以上人民政府将社会保险事业纳入国民经济和社会发展规划。\n国家多渠道筹集社会保险资金。县级以上人民政府对社会保险事业给予必要的经费支 持。\n国家通过税收优惠政策支持社会保险事业。", "ex": ""}, {"no": "第六条", "t": "第六条 国家对社会保险基金实行严格监管。\n国务院和省、自治区、直辖市人民政府建立健全社会保险基金监督管理制度，保障社 会保险基金安全、有效运行。\n县级以上人民政府采取措施，鼓励和支持社会各方面参与社会保险基金的监督。", "ex": ""}, {"no": "第七条", "t": "第七条  国务院社会保险行政部门负责全国的社会保险管理工作，国务院其他有关部 门在各自的职责范围内负责有关的社会保险工作。\n县级以上地方人民政府社会保险行政部门负责本行政区域的社会保险管理工作，县级 以上地方人民政府其他有关部门在各自的职责范围内负责有关的社会保险工作。", "ex": ""}, {"no": "第八条", "t": "第八条 社会保险经办机构提供社会保险服务，负责社会保险登记、个人权益记录、 社会保险待遇支付等工作。", "ex": ""}, {"no": "第九条", "t": "第九条 工会依法维护职工的合法权益，有权参与社会保险重大事项的研究，参加社 会保险监督委员会，对与职工社会保险权益有关的事项进行监督。", "ex": ""}]}, {"ch": "第二章  基本养老保险", "items": [{"no": "第十条", "t": "第十条 职工应当参加基本养老保险，由用人单位和职工共同缴纳基本养老保险费。\n无雇工的个体工商户、未在用人单位参加基本养老保险的非全日制从业人员以及其他 灵活就业人员可以参加基本养老保险，由个人缴纳基本养老保险费。\n公务员和参照公务员法管理的工作人员养老保险的办法由国务院规定。", "ex": ""}, {"no": "第十一条", "t": "第十一条 基本养老保险实行社会统筹与个人账户相结合。\n基本养老保险基金由用人单位和个人缴费以及政府补贴等组成。", "ex": ""}, {"no": "第十二条", "t": "第十二条 用人单位应当按照国家规定的本单位职工工资总额的比例缴纳基本养老保 险费，记入基本养老保险统筹基金。\n职工应当按照国家规定的本人工资的比例缴纳基本养老保险费，记入个人账户。\n无雇工的个体工商户、未在用人单位参加基本养老保险的非全日制从业人员以及其他 灵活就业人员参加基本养老保险的，应当按照国家规定缴纳基本养老保险费，分别记入基 本养老保险统筹基金和个人账户。", "ex": ""}, {"no": "第十三条", "t": "第十三条  国有企业、事业单位职工参加基本养老保险前，视同缴费年限期间应当缴 纳的基本养老保险费由政府承担。\n基本养老保险基金出现支付不足时，政府给予补贴。", "ex": ""}, {"no": "第十四条", "t": "第十四条 个人账户不得提前支取，记账利率不得低于银行定期存款利率，免征利息税。个人死亡的，个人账户余额可以继承。", "ex": ""}, {"no": "第十五条", "t": "第十五条 基本养老金由统筹养老金和个人账户养老金组成。\n基本养老金根据个人累计缴费年限、缴费工资、当地职工平均工资、个人账户金额、 城镇人口平均预期寿命等因素确定。", "ex": ""}, {"no": "第十六条", "t": "第十六条  参加基本养老保险的个人，达到法定退休年龄时累计缴费满十五年的，按 月领取基本养老金。\n参加基本养老保险的个人，达到法定退休年龄时累计缴费不足十五年的，可以缴费至 满十五年，按月领取基本养老金；也可以转入新型农村社会养老保险或者城镇居民社会养 老保险，按照国务院规定享受相应的养老保险待遇。", "ex": ""}, {"no": "第十七条", "t": "第十七条 参加基本养老保险的个人，因病或者非因工死亡的，其遗属可以领取丧葬 补助金和抚恤金；在未达到法定退休年龄时因病或者非因工致残完全丧失劳动能力的，可 以领取病残津贴。所需资金从基本养老保险基金中支付。", "ex": ""}, {"no": "第十八条", "t": "第十八条 国家建立基本养老金正常调整机制。根据职工平均工资增长、物价上涨情 况，适时提高基本养老保险待遇水平。", "ex": ""}, {"no": "第十九条", "t": "第十九条 个人跨统筹地区就业的，其基本养老保险关系随本人转移，缴费年限累计 计算。个人达到法定退休年龄时，基本养老金分段计算、统一支付。具体办法由国务院规 定。", "ex": ""}, {"no": "第二十条", "t": "第二十条 国家建立和完善新型农村社会养老保险制度。\n新型农村社会养老保险实行个人缴费、集体补助和政府补贴相结合。", "ex": ""}, {"no": "第二十一条", "t": "第二十一条 新型农村社会养老保险待遇由基础养老金和个人账户养老金组成。\n参加新型农村社会养老保险的农村居民，符合国家规定条件的，按月领取新型农村社 会养老保险待遇。", "ex": ""}, {"no": "第二十二条", "t": "第二十二条 国家建立和完善城镇居民社会养老保险制度。\n省、自治区、直辖市人民政府根据实际情况，可以将城镇居民社会养老保险和新型农 村社会养老保险合并实施。", "ex": ""}]}, {"ch": "第三章  基本医疗保险", "items": [{"no": "第二十三条", "t": "第二十三条 职工应当参加职工基本医疗保险，由用人单位和职工按照国家规定共同 缴纳基本医疗保险费。\n无雇工的个体工商户、未在用人单位参加职工基本医疗保险的非全日制从业人员以及 其他灵活就业人员可以参加职工基本医疗保险，由个人按照国家规定缴纳基本医疗保险\n费。", "ex": ""}, {"no": "第二十四条", "t": "第二十四条 国家建立和完善新型农村合作医疗制度。\n新型农村合作医疗的管理办法，由国务院规定。", "ex": ""}, {"no": "第二十五条", "t": "第二十五条 国家建立和完善城镇居民基本医疗保险制度。\n城镇居民基本医疗保险实行个人缴费和政府补贴相结合。\n享受最低生活保障的人、丧失劳动能力的残疾人、低收入家庭六十周岁以上的老年人 和未成年人等所需个人缴费部分，由政府给予补贴。", "ex": ""}, {"no": "第二十六条", "t": "第二十六条  职工基本医疗保险、 新型农村合作医疗和城镇居民基本医疗保险的待遇 标准按照国家规定执行。", "ex": ""}, {"no": "第二十七条", "t": "第二十七条 参加职工基本医疗保险的个人， 达到法定退休年龄时累计缴费达到国家 规定年限的，退休后不再缴纳基本医疗保险费，按照国家规定享受基本医疗保险待遇；未 达到国家规定年限的，可以缴费至国家规定年限。", "ex": ""}, {"no": "第二十八条", "t": "第二十八条 符合基本医疗保险药品目录、诊疗项目、医疗服务设施标准以及急诊、 抢救的医疗费用，按照国家规定从基本医疗保险基金中支付。", "ex": ""}, {"no": "第二十九条", "t": "第二十九条 参保人员医疗费用中应当由基本医疗保险基金支付的部分，由社会保险 经办机构与医疗机构、药品经营单位直接结算。\n社会保险行政部门和卫生行政部门应当建立异地就医医疗费用结算制度，方便参保人 员享受基本医疗保险待遇。", "ex": ""}, {"no": "第三十条", "t": "第三十条 下列医疗费用不纳入基本医疗保险基金支付范围：\n（一）应当从工伤保险基金中支付的；\n（二）应当由第三人负担的；\n（三）应当由公共卫生负担的；\n（四）在境外就医的。\n医疗费用依法应当由第三人负担，第三人不支付或者无法确定第三人的，由基本医疗 保险基金先行支付。基本医疗保险基金先行支付后，有权向第三人追偿。", "ex": ""}, {"no": "第三十一条", "t": "第三十一条 社会保险经办机构根据管理服务的需要，可以与医疗机构、 药品经营单 位签订服务协议，规范医疗服务行为。\n医疗机构应当为参保人员提供合理、必要的医疗服务。", "ex": ""}, {"no": "第三十二条", "t": "第三十二条 个人跨统筹地区就业的，其基本医疗保险关系随本人转移，缴费年限累 计计算。", "ex": ""}]}, {"ch": "第四章  工伤保险", "items": [{"no": "第三十三条", "t": "第三十三条  职工应当参加工伤保险，由用人单位缴纳工伤保险费，职工不缴纳工伤 保险费。", "ex": ""}, {"no": "第三十四条", "t": "第三十四条 国家根据不同行业的工伤风险程度确定行业的差别费率，并根据使用工 伤保险基金、工伤发生率等情况在每个行业内确定费率档次。行业差别费率和行业内费率 档次由国务院社会保险行政部门制定，报国务院批准后公布施行。\n社会保险经办机构根据用人单位使用工伤保险基金、工伤发生率和所属行业费率档次 等情况，确定用人单位缴费费率。", "ex": ""}, {"no": "第三十五条", "t": "第三十五条 用人单位应当按照本单位职工工资总额，根据社会保险经办机构确定的 费率缴纳工伤保险费。", "ex": ""}, {"no": "第三十六条", "t": "第三十六条  职工因工作原因受到事故伤害或者患职业病，且经工伤认定的，享受工 伤保险待遇；其中，经劳动能力鉴定丧失劳动能力的，享受伤残待遇。\n工伤认定和劳动能力鉴定应当简捷、方便。", "ex": ""}, {"no": "第三十七条", "t": "第三十七条  职工因下列情形之一导致本人在工作中伤亡的，不认定为工伤：\n（一）故意犯罪；\n（二）醉酒或者吸毒；\n（三）自残或者自杀；\n（四）法律、行政法规规定的其他情形。", "ex": ""}, {"no": "第三十八条", "t": "第三十八条 因工伤发生的下列费用，按照国家规定从工伤保险基金中支付：\n（一）治疗工伤的医疗费用和康复费用；\n（二）住院伙食补助费；\n（三）到统筹地区以外就医的交通食宿费；\n（四）安装配置伤残辅助器具所需费用；\n（五）生活不能自理的，经劳动能力鉴定委员会确认的生活护理费；\n（六）一次性伤残补助金和一至四级伤残职工按月领取的伤残津贴；\n（七）终止或者解除劳动合同时，应当享受的一次性医疗补助金；\n（八）因工死亡的，其遗属领取的丧葬补助金、供养亲属抚恤金和因工死亡补助金；\n（九）劳动能力鉴定费。", "ex": ""}, {"no": "第三十九条", "t": "第三十九条 因工伤发生的下列费用，按照国家规定由用人单位支付：\n（一）治疗工伤期间的工资福利；\n（二）五级、六级伤残职工按月领取的伤残津贴；\n（三）终止或者解除劳动合同时，应当享受的一次性伤残就业补助金。", "ex": ""}, {"no": "第四十条", "t": "第四十条 工伤职工符合领取基本养老金条件的，停发伤残津贴，享受基本养老保险 待遇。基本养老保险待遇低于伤残津贴的，从工伤保险基金中补足差额。", "ex": ""}, {"no": "第四十一条", "t": "第四十一条 职工所在用人单位未依法缴纳工伤保险费，发生工伤事故的，由用人单 位支付工伤保险待遇。用人单位不支付的，从工伤保险基金中先行支付。\n从工伤保险基金中先行支付的工伤保险待遇应当由用人单位偿还。用人单位不偿还 的，社会保险经办机构可以依照本法第六十三条的规定追偿。", "ex": ""}, {"no": "第四十二条", "t": "第四十二条  由于第三人的原因造成工伤，第三人不支付工伤医疗费用或者无法确定 第三人的，由工伤保险基金先行支付。工伤保险基金先行支付后，有权向第三人追偿。", "ex": ""}, {"no": "第四十三条", "t": "第四十三条  工伤职工有下列情形之一的，停止享受工伤保险待遇：\n（一）丧失享受待遇条件的；\n（二）拒不接受劳动能力鉴定的；\n（三）拒绝治疗的。", "ex": ""}]}, {"ch": "第五章  失业保险", "items": [{"no": "第四十四条", "t": "第四十四条 职工应当参加失业保险，由用人单位和职工按照国家规定共同缴纳失业 保险费。", "ex": ""}, {"no": "第四十五条", "t": "第四十五条  失业人员符合下列条件的，从失业保险基金中领取失业保险金：\n（一）失业前用人单位和本人已经缴纳失业保险费满一年的；\n（二）非因本人意愿中断就业的；\n（三）已经进行失业登记，并有求职要求的。", "ex": ""}, {"no": "第四十六条", "t": "第四十六条  失业人员失业前用人单位和本人累计缴费满一年不足五年的，领取失业 保险金的期限最长为十二个月；累计缴费满五年不足十年的，领取失业保险金的期限最长 为十八个月；累计缴费十年以上的，领取失业保险金的期限最长为二十四个月。重新就业 后，再次失业的，缴费时间重新计算，领取失业保险金的期限与前次失业应当领取而尚未 领取的失业保险金的期限合并计算，最长不超过二十四个月。", "ex": ""}, {"no": "第四十七条", "t": "第四十七条 失业保险金的标准，由省、自治区、直辖市人民政府确定，不得低于城 市居民最低生活保障标准。", "ex": ""}, {"no": "第四十八条", "t": "第四十八条  失业人员在领取失业保险金期间，参加职工基本医疗保险，享受基本医 疗保险待遇。\n失业人员应当缴纳的基本医疗保险费从失业保险基金中支付，个人不缴纳基本医疗保 险费。", "ex": ""}, {"no": "第四十九条", "t": "第四十九条  失业人员在领取失业保险金期间死亡的，参照当地对在职职工死亡的规 定，向其遗属发给一次性丧葬补助金和抚恤金。所需资金从失业保险基金中支付。\n个人死亡同时符合领取基本养老保险丧葬补助金、工伤保险丧葬补助金和失业保险丧 葬补助金条件的，其遗属只能选择领取其中的一项。", "ex": ""}, {"no": "第五十条", "t": "第五十条 用人单位应当及时为失业人员出具终止或者解除劳动关系的证明，并将失 业人员的名单自终止或者解除劳动关系之日起十五日内告知社会保险经办机构。\n失业人员应当持本单位为其出具的终止或者解除劳动关系的证明，及时到指定的公共 就业服务机构办理失业登记。\n失业人员凭失业登记证明和个人身份证明，到社会保险经办机构办理领取失业保险金 的手续。失业保险金领取期限自办理失业登记之日起计算。", "ex": ""}, {"no": "第五十一条", "t": "第五十一条  失业人员在领取失业保险金期间有下列情形之一的，停止领取失业保险 金，并同时停止享受其他失业保险待遇：\n（一）重新就业的；\n（二）应征服兵役的；\n（三）移居境外的；\n（四）享受基本养老保险待遇的；\n（五）无正当理由，拒不接受当地人民政府指定部门或者机构介绍的适当工作或者提 供的培训的。", "ex": ""}, {"no": "第五十二条", "t": "第五十二条 职工跨统筹地区就业的，其失业保险关系随本人转移，缴费年限累计 计算。", "ex": ""}]}, {"ch": "第六章  生育保险", "items": [{"no": "第五十三条", "t": "第五十三条  职工应当参加生育保险，由用人单位按照国家规定缴纳生育保险费，职 工不缴纳生育保险费。", "ex": ""}, {"no": "第五十四条", "t": "第五十四条  用人单位已经缴纳生育保险费的，其职工享受生育保险待遇；职工未就 业配偶按照国家规定享受生育医疗费用待遇。所需资金从生育保险基金中支付。\n生育保险待遇包括生育医疗费用和生育津贴。", "ex": ""}, {"no": "第五十五条", "t": "第五十五条  生育医疗费用包括下列各项：\n（一）生育的医疗费用；\n（二）计划生育的医疗费用；\n（三）法律、法规规定的其他项目费用。", "ex": ""}, {"no": "第五十六条", "t": "第五十六条  职工有下列情形之一的，可以按照国家规定享受生育津贴：\n（一）女职工生育享受产假；\n（二）享受计划生育手术休假；\n（三）法律、法规规定的其他情形。\n生育津贴按照职工所在用人单位上年度职工月平均工资计发。", "ex": ""}]}, {"ch": "第七章  社会保险费征缴", "items": [{"no": "第五十七条", "t": "第五十七条 用人单位应当自成立之日起三十日内凭营业执照、登记证书或者单位印 章，向当地社会保险经办机构申请办理社会保险登记。社会保险经办机构应当自收到申请 之日起十五日内予以审核，发给社会保险登记证件。\n用人单位的社会保险登记事项发生变更或者用人单位依法终止的，应当自变更或者终 止之日起三十日内，到社会保险经办机构办理变更或者注销社会保险登记。\n市场监督管理部门、民政部门和机构编制管理机关应当及时向社会保险经办机构通报 用人单位的成立、终止情况，公安机关应当及时向社会保险经办机构通报个人的出生、死 亡以及户口登记、迁移、注销等情况。", "ex": ""}, {"no": "第五十八条", "t": "第五十八条 用人单位应当自用工之日起三十日内为其职工向社会保险经办机构申请 办理社会保险登记。未办理社会保险登记的，由社会保险经办机构核定其应当缴纳的社会 保险费。\n自愿参加社会保险的无雇工的个体工商户、未在用人单位参加社会保险的非全日制从 业人员以及其他灵活就业人员，应当向社会保险经办机构申请办理社会保险登记。\n国家建立全国统一的个人社会保障号码。个人社会保障号码为公民身份号码。", "ex": ""}, {"no": "第五十九条", "t": "第五十九条  县级以上人民政府加强社会保险费的征收工作。\n社会保险费实行统一征收，实施步骤和具体办法由国务院规定。", "ex": ""}, {"no": "第六十条", "t": "第六十条 用人单位应当自行申报、 按时足额缴纳社会保险费，非因不可抗力等法定 事由不得缓缴、减免。职工应当缴纳的社会保险费由用人单位代扣代缴，用人单位应当按 月将缴纳社会保险费的明细情况告知本人。\n无雇工的个体工商户、未在用人单位参加社会保险的非全日制从业人员以及其他灵活 就业人员，可以直接向社会保险费征收机构缴纳社会保险费。", "ex": ""}, {"no": "第六十一条", "t": "第六十一条  社会保险费征收机构应当依法按时足额征收社会保险费，并将缴费情况 定期告知用人单位和个人。", "ex": ""}, {"no": "第六十二条", "t": "第六十二条 用人单位未按规定申报应当缴纳的社会保险费数额的，按照该单位上月 缴费额的百分之一百一十确定应当缴纳数额；缴费单位补办申报手续后，由社会保险费征 收机构按照规定结算。", "ex": ""}, {"no": "第六十三条", "t": "第六十三条 用人单位未按时足额缴纳社会保险费的，由社会保险费征收机构责令其\n限期缴纳或者补足。\n用人单位逾期仍未缴纳或者补足社会保险费的，社会保险费征收机构可以向银行和其 他金融机构查询其存款账户；并可以申请县级以上有关行政部门作出划拨社会保险费的决 定，书面通知其开户银行或者其他金融机构划拨社会保险费。用人单位账户余额少于应当 缴纳的社会保险费的，社会保险费征收机构可以要求该用人单位提供担保，签订延期缴费 协议。\n用人单位未足额缴纳社会保险费且未提供担保的，社会保险费征收机构可以申请人民 法院扣押、查封、拍卖其价值相当于应当缴纳社会保险费的财产，以拍卖所得抵缴社会保 险费。", "ex": ""}]}, {"ch": "第八章  社会保险基金", "items": [{"no": "第六十四条", "t": "第六十四条  社会保险基金包括基本养老保险基金、基本医疗保险基金、工伤保险基 金、失业保险基金和生育保险基金。除基本医疗保险基金与生育保险基金合并建账及核算 外，其他各项社会保险基金按照社会保险险种分别建账，分账核算。社会保险基金执行国 家统一的会计制度。\n社会保险基金专款专用，任何组织和个人不得侵占或者挪用。\n基本养老保险基金逐步实行全国统筹，其他社会保险基金逐步实行省级统筹，具体时 间、步骤由国务院规定。", "ex": ""}, {"no": "第六十五条", "t": "第六十五条 社会保险基金通过预算实现收支平衡。\n县级以上人民政府在社会保险基金出现支付不足时，给予补贴。", "ex": ""}, {"no": "第六十六条", "t": "第六十六条 社会保险基金按照统筹层次设立预算。除基本医疗保险基金与生育保险 基金预算合并编制外，其他社会保险基金预算按照社会保险项目分别编制。", "ex": ""}, {"no": "第六十七条", "t": "第六十七条 社会保险基金预算、决算草案的编制、审核和批准，依照法律和国务院 规定执行。", "ex": ""}, {"no": "第六十八条", "t": "第六十八条  社会保险基金存入财政专户，具体管理办法由国务院规定。", "ex": ""}, {"no": "第六十九条", "t": "第六十九条  社会保险基金在保证安全的前提下，按照国务院规定投资运营实现保值 增值。\n社会保险基金不得违规投资运营，不得用于平衡其他政府预算，不得用于兴建、改建 办公场所和支付人员经费、运行费用、管理费用，或者违反法律、行政法规规定挪作其他 用途。", "ex": ""}, {"no": "第七十条", "t": "第七十条 社会保险经办机构应当定期向社会公布参加社会保险情况以及社会保险基 金的收入、支出、结余和收益情况。", "ex": ""}, {"no": "第七十一条", "t": "第七十一条  国家设立全国社会保障基金，由中央财政预算拨款以及国务院批准的其 他方式筹集的资金构成，用于社会保障支出的补充、调剂。全国社会保障基金由全国社会 保障基金管理运营机构负责管理运营，在保证安全的前提下实现保值增值。\n全国社会保障基金应当定期向社会公布收支、管理和投资运营的情况。国务院财政部 门、社会保险行政部门、审计机关对全国社会保障基金的收支、管理和投资运营情况实施 监督。", "ex": ""}]}, {"ch": "第九章  社会保险经办", "items": [{"no": "第七十二条", "t": "第七十二条 统筹地区设立社会保险经办机构。社会保险经办机构根据工作需要，经 所在地的社会保险行政部门和机构编制管理机关批准，可以在本统筹地区设立分支机构和 服务网点。\n社会保险经办机构的人员经费和经办社会保险发生的基本运行费用、管理费用，由同 级财政按照国家规定予以保障。", "ex": ""}, {"no": "第七十三条", "t": "第七十三条  社会保险经办机构应当建立健全业务、财务、安全和风险管理制度。 社会保险经办机构应当按时足额支付社会保险待遇。", "ex": ""}, {"no": "第七十四条", "t": "第七十四条  社会保险经办机构通过业务经办、统计、调查获取社会保险工作所需的 数据，有关单位和个人应当及时、如实提供。\n社会保险经办机构应当及时为用人单位建立档案，完整、准确地记录参加社会保险的 人员、缴费等社会保险数据，妥善保管登记、申报的原始凭证和支付结算的会计凭证。\n社会保险经办机构应当及时、完整、准确地记录参加社会保险的个人缴费和用人单位 为其缴费，以及享受社会保险待遇等个人权益记录，定期将个人权益记录单免费寄送本人。\n用人单位和个人可以免费向社会保险经办机构查询、核对其缴费和享受社会保险待遇 记录，要求社会保险经办机构提供社会保险咨询等相关服务。", "ex": ""}, {"no": "第七十五条", "t": "第七十五条  全国社会保险信息系统按照国家统一规划，由县级以上人民政府按照分 级负责的原则共同建设。", "ex": ""}]}, {"ch": "第十章  社会保险监督", "items": [{"no": "第七十六条", "t": "第七十六条 各级人民代表大会常务委员会听取和审议本级人民政府对社会保险基金 的收支、管理、投资运营以及监督检查情况的专项工作报告，组织对本法实施情况的执法 检查等，依法行使监督职权。", "ex": ""}, {"no": "第七十七条", "t": "第七十七条  县级以上人民政府社会保险行政部门应当加强对用人单位和个人遵守社 会保险法律、法规情况的监督检查。\n社会保险行政部门实施监督检查时，被检查的用人单位和个人应当如实提供与社会保 险有关的资料，不得拒绝检查或者谎报、瞒报。", "ex": ""}, {"no": "第七十八条", "t": "第七十八条 财政部门、审计机关按照各自职责，对社会保险基金的收支、管理和投 资运营情况实施监督。", "ex": ""}, {"no": "第七十九条", "t": "第七十九条 社会保险行政部门对社会保险基金的收支、管理和投资运营情况进行监 督检查，发现存在问题的，应当提出整改建议，依法作出处理决定或者向有关行政部门提 出处理建议。社会保险基金检查结果应当定期向社会公布。\n社会保险行政部门对社会保险基金实施监督检查，有权采取下列措施：\n（一）查阅、记录、复制与社会保险基金收支、管理和投资运营相关的资料，对可能 被转移、隐匿或者灭失的资料予以封存；\n（二）询问与调查事项有关的单位和个人，要求其对与调查事项有关的问题作出说 明、提供有关证明材料；\n（三）对隐匿、转移、侵占、挪用社会保险基金的行为予以制止并责令改正。", "ex": ""}, {"no": "第八十条", "t": "第八十条 统筹地区人民政府成立由用人单位代表、参保人员代表，以及工会代表、 专家等组成的社会保险监督委员会，掌握、分析社会保险基金的收支、管理和投资运营情 况，对社会保险工作提出咨询意见和建议，实施社会监督。\n社会保险经办机构应当定期向社会保险监督委员会汇报社会保险基金的收支、管理和 投资运营情况。社会保险监督委员会可以聘请会计师事务所对社会保险基金的收支、管理 和投资运营情况进行年度审计和专项审计。审计结果应当向社会公开。\n社会保险监督委员会发现社会保险基金收支、管理和投资运营中存在问题的，有权提 出改正建议；对社会保险经办机构及其工作人员的违法行为，有权向有关部门提出依法处 理建议。", "ex": ""}, {"no": "第八十一条", "t": "第八十一条 社会保险行政部门和其他有关行政部门、社会保险经办机构、社会保险 费征收机构及其工作人员，应当依法为用人单位和个人的信息保密，不得以任何形式泄露。", "ex": ""}, {"no": "第八十二条", "t": "第八十二条 任何组织或者个人有权对违反社会保险法律、法规的行为进行举报、投 诉。\n社会保险行政部门、卫生行政部门、社会保险经办机构、社会保险费征收机构和财政 部门、审计机关对属于本部门、本机构职责范围的举报、投诉，应当依法处理；对不属于 本部门、本机构职责范围的，应当书面通知并移交有权处理的部门、机构处理。有权处理 的部门、机构应当及时处理，不得推诿。", "ex": ""}, {"no": "第八十三条", "t": "第八十三条  用人单位或者个人认为社会保险费征收机构的行为侵害自己合法权益 的，可以依法申请行政复议或者提起行政诉讼。\n用人单位或者个人对社会保险经办机构不依法办理社会保险登记、核定社会保险费、 支付社会保险待遇、办理社会保险转移接续手续或者侵害其他社会保险权益的行为，可以 依法申请行政复议或者提起行政诉讼。\n个人与所在用人单位发生社会保险争议的，可以依法申请调解、仲裁，提起诉讼。用 人单位侵害个人社会保险权益的，个人也可以要求社会保险行政部门或者社会保险费征收 机构依法处理。", "ex": ""}]}, {"ch": "第十一章  法律责任", "items": [{"no": "第八十四条", "t": "第八十四条  用人单位不办理社会保险登记的，由社会保险行政部门责令限期改正； 逾期不改正的，对用人单位处应缴社会保险费数额一倍以上三倍以下的罚款，对其直接负 责的主管人员和其他直接责任人员处五百元以上三千元以下的罚款。", "ex": ""}, {"no": "第八十五条", "t": "第八十五条 用人单位拒不出具终止或者解除劳动关系证明的，依照《中华人民共和 国劳动合同法》的规定处理。", "ex": ""}, {"no": "第八十六条", "t": "第八十六条  用人单位未按时足额缴纳社会保险费的，由社会保险费征收机构责令限 期缴纳或者补足，并自欠缴之日起，按日加收万分之五的滞纳金；逾期仍不缴纳的，由有 关行政部门处欠缴数额一倍以上三倍以下的罚款。", "ex": ""}, {"no": "第八十七条", "t": "第八十七条 社会保险经办机构以及医疗机构、药品经营单位等社会保险服务机构以 欺诈、伪造证明材料或者其他手段骗取社会保险基金支出的，由社会保险行政部门责令退 回骗取的社会保险金，处骗取金额二倍以上五倍以下的罚款；属于社会保险服务机构的，\n解除服务协议；直接负责的主管人员和其他直接责任人员有执业资格的，依法吊销其执业 资格。", "ex": ""}, {"no": "第八十八条", "t": "第八十八条  以欺诈、伪造证明材料或者其他手段骗取社会保险待遇的，由社会保险 行政部门责令退回骗取的社会保险金，处骗取金额二倍以上五倍以下的罚款。", "ex": ""}, {"no": "第八十九条", "t": "第八十九条  社会保险经办机构及其工作人员有下列行为之一的，由社会保险行政部 门责令改正；给社会保险基金、用人单位或者个人造成损失的，依法承担赔偿责任；对直 接负责的主管人员和其他直接责任人员依法给予处分：\n（一）未履行社会保险法定职责的；\n（二）未将社会保险基金存入财政专户的；\n（三）克扣或者拒不按时支付社会保险待遇的；\n（四）丢失或者篡改缴费记录、享受社会保险待遇记录等社会保险数据、个人权益记 录的；\n（五）有违反社会保险法律、法规的其他行为的。", "ex": ""}, {"no": "第九十条", "t": "第九十条 社会保险费征收机构擅自更改社会保险费缴费基数、费率，导致少收或者 多收社会保险费的，由有关行政部门责令其追缴应当缴纳的社会保险费或者退还不应当缴 纳的社会保险费；对直接负责的主管人员和其他直接责任人员依法给予处分。", "ex": ""}, {"no": "第九十一条", "t": "第九十一条 违反本法规定，隐匿、转移、侵占、挪用社会保险基金或者违规投资运 营的，由社会保险行政部门、财政部门、审计机关责令追回；有违法所得的，没收违法所 得；对直接负责的主管人员和其他直接责任人员依法给予处分。", "ex": ""}, {"no": "第九十二条", "t": "第九十二条  社会保险行政部门和其他有关行政部门、社会保险经办机构、社会保险 费征收机构及其工作人员泄露用人单位和个人信息的，对直接负责的主管人员和其他直接 责任人员依法给予处分；给用人单位或者个人造成损失的，应当承担赔偿责任。", "ex": ""}, {"no": "第九十三条", "t": "第九十三条 国家工作人员在社会保险管理、监督工作中滥用职权、玩忽职守、徇私 舞弊的，依法给予处分。", "ex": ""}, {"no": "第九十四条", "t": "第九十四条  违反本法规定，构成犯罪的，依法追究刑事责任。", "ex": ""}]}, {"ch": "第十二章  附  则", "items": [{"no": "第九十五条", "t": "第九十五条  进城务工的农村居民依照本法规定参加社会保险。", "ex": ""}, {"no": "第九十六条", "t": "第九十六条 征收农村集体所有的土地，应当足额安排被征地农民的社会保险费，按 照国务院规定将被征地农民纳入相应的社会保险制度。", "ex": ""}, {"no": "第九十七条", "t": "第九十七条  外国人在中国境内就业的，参照本法规定参加社会保险。", "ex": ""}, {"no": "第九十八条", "t": "第九十八条 本法自2011年7月1日起施行。", "ex": ""}]}];
+/* =================================================== */
+
+/* ===== 存储（自动保存 + 导出烘焙）===== */
+const KEY = 'statute_note_' + LAW_KEY;
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
+})();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+                '<div class="art-text">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
+</body>
+</html>
