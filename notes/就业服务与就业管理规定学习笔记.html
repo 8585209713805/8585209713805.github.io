@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法规学习笔记（可编辑）</title>
+<style>
+:root{
+  --bg:#eef1f5; --card:#ffffff; --ink:#1f2329; --muted:#7a8290;
+  --primary:#1f4e79; --primary-soft:#e8f0f7; --accent:#c0392b;
+  --mark:#e6a23c; --note-bg:#fffdf3; --note-bd:#e8d9a8;
+  --border:#e1e5ea; --line:#d8dde4; --shadow:0 1px 3px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  line-height:1.8; font-size:15px;
+}
+/* ===== 顶部栏 ===== */
+header{
+  position:sticky; top:0; z-index:50; background:var(--primary); color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.head-inner{max-width:1180px; margin:0 auto; padding:10px 18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.field-badge{display:inline-block; margin-left:4px; padding:2px 11px; font-size:12px; font-weight:600; color:#fff; background:var(--primary); border-radius:20px; vertical-align:middle; letter-spacing:.5px;}
+.head-inner h1{font-size:16px; margin:0; font-weight:600; letter-spacing:.5px; flex:1 1 260px;}
+.head-inner h1 small{display:block; font-size:11.5px; font-weight:400; opacity:.8; margin-top:2px;}
+.toolbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.toolbar input[type=search]{
+  padding:6px 10px; border:1px solid rgba(255,255,255,.35); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; width:160px; outline:none;
+}
+.toolbar input[type=search]::placeholder{color:rgba(255,255,255,.7);}
+.toolbar button{
+  padding:6px 12px; border:1px solid rgba(255,255,255,.4); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; cursor:pointer; white-space:nowrap;
+}
+.toolbar button:hover{background:rgba(255,255,255,.25);}
+.toolbar button.active{background:var(--mark); border-color:var(--mark); color:#fff;}
+.status{font-size:12px; opacity:.85; min-width:80px;}
+
+/* ===== 布局 ===== */
+.layout{max-width:1180px; margin:18px auto; padding:0 18px; display:flex; gap:20px; align-items:flex-start;}
+nav.toc{
+  position:sticky; top:78px; width:200px; flex:0 0 200px;
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:12px 10px; box-shadow:var(--shadow); max-height:calc(100vh - 100px); overflow:auto;
+}
+nav.toc .toc-title{font-size:12px; color:var(--muted); padding:0 8px 8px; border-bottom:1px solid var(--line); margin-bottom:6px;}
+nav.toc a{
+  display:block; padding:7px 8px; border-radius:6px; color:var(--ink); text-decoration:none;
+  font-size:13.5px; cursor:pointer;
+}
+nav.toc a:hover{background:var(--primary-soft);}
+nav.toc a.active{background:var(--primary); color:#fff; font-weight:500;}
+nav.toc a .cnt{float:right; color:var(--muted); font-size:11px;}
+nav.toc a.active .cnt{color:rgba(255,255,255,.85);}
+
+main{flex:1; min-width:0;}
+.chapter{margin-bottom:26px;}
+.chapter > h2{
+  font-size:18px; color:var(--primary); border-left:4px solid var(--primary);
+  padding-left:12px; margin:0 0 14px; font-weight:700;
+}
+.article{
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow); position:relative;
+  border-left:3px solid var(--line);
+}
+.article.marked{border-left-color:var(--mark); background:#fffdf6;}
+.art-head{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+.art-no{
+  font-weight:700; color:var(--primary); font-size:14.5px; background:var(--primary-soft);
+  padding:2px 10px; border-radius:5px;
+}
+.mark-btn{
+  margin-left:auto; border:none; background:none; cursor:pointer; font-size:18px; line-height:1;
+  color:var(--mark); padding:0 4px;
+}
+.mark-btn:hover{transform:scale(1.15);}
+.art-text{font-size:15px; color:#2b2f36; text-align:justify; white-space:pre-wrap;}
+
+/* 解读区 */
+.explain-label{font-size:12px; color:var(--primary); font-weight:600; margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+.explain{
+  font-size:13.5px; color:#3a4250; background:#f6f9fc; border-left:3px solid var(--primary);
+  border-radius:0 6px 6px 0; padding:8px 11px; white-space:pre-wrap; outline:none;
+}
+.explain:focus{background:#eef3fa; box-shadow:0 0 0 3px rgba(31,78,121,.12);}
+
+/* 关联案例 */
+.case-label{font-size:12px; color:#9a5b1e; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.case{background:#fbf6ee; border:1px solid #ecdcc0; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.case-title{font-weight:600; font-size:13.5px; color:#6b4423;}
+.case-desc{font-size:13px; color:#5a4a3a; margin-top:3px; white-space:pre-wrap;}
+.case-src{font-size:11.5px; color:#a98b5e; margin-top:4px;}
+
+/* 关联法条 */
+.rel-label{font-size:12px; color:#1f6fb2; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.rel{background:#eef4fb; border:1px solid #cfe0ef; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.rel-src{font-weight:600; font-size:13.5px; color:#14507e;}
+.rel-text{font-size:13px; color:#34404d; margin-top:4px; white-space:pre-wrap;}
+
+/* 检索按钮 */
+.tool-row{margin:10px 0 2px;}
+.search-btn{border:1px solid var(--border); background:#f3f7fb; color:var(--primary); border-radius:6px; padding:5px 10px; font-size:12.5px; cursor:pointer;}
+.search-btn:hover{background:#e3edf6;}
+
+/* 笔记区 */
+.note-label{font-size:12px; color:var(--muted); margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+
+/* 速查卡 */
+.quick{background:linear-gradient(135deg,#f0f6fc,#e8f0f7); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.quick-head{font-weight:700; color:var(--primary); padding:11px 14px; cursor:pointer; user-select:none; font-size:14.5px;}
+.quick-body{padding:2px 14px 12px;}
+.qg{font-size:13px; color:#34404d; padding:7px 0; border-top:1px dashed #d4e2ee; white-space:pre-wrap;}
+.qg:first-child{border-top:none;}
+.qg b{color:var(--primary);}
+
+/* 法规简介（发布信息） */
+.law-intro{background:linear-gradient(135deg,#f0f6fc,#eef4fb); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.law-intro-head{font-weight:700; color:var(--primary); padding:11px 14px; font-size:14.5px;}
+.law-intro-body{padding:2px 14px 12px;}
+.law-intro-desc{font-size:13.5px; color:#34404d; line-height:1.8; margin:2px 0 10px;}
+.meta-grid{display:grid; grid-template-columns:auto 1fr; gap:6px 14px; align-items:baseline;}
+.meta-grid .mk{font-size:13px; color:var(--muted); white-space:nowrap;}
+.meta-grid .mv{font-size:13px; color:#2b2f36;}
+.meta-grid .mv.ok{color:#1a9e57; font-weight:600;}
+.meta-grid .mv.no{color:#c0392b; font-weight:600;}
+
+/* 条文互链 */
+.lawlink{color:#1f6fb2; text-decoration:underline; cursor:pointer;}
+.lawlink:hover{color:#0d4f86;}
+
+/* 批注分层 */
+.notes-wrap{margin-top:2px;}
+.note-block{margin-bottom:8px;}
+.note-tag{display:inline-block; font-size:11px; font-weight:600; padding:1px 8px; border-radius:4px; margin-bottom:3px;}
+.tag-q{background:#fde8e8; color:#c0392b;}      /* 疑问 */
+.tag-c{background:#e6f4ea; color:#1e7a46;}      /* 我的案例 */
+.tag-s{background:#fef3e0; color:#b9770e;}      /* 要点总结 */
+.tag-t{background:#efe7fb; color:#6b3fa0;}      /* 待办 */
+.note.sub{background:var(--note-bg); border:1px dashed var(--note-bd); border-radius:7px; padding:7px 10px; min-height:32px; font-size:13.5px; color:#5a4a1a; white-space:pre-wrap; outline:none;}
+.note.sub:focus{border-style:solid; border-color:var(--mark); background:#fffce8; box-shadow:0 0 0 3px rgba(230,162,60,.15);}
+.note.sub:empty:before{content:attr(data-ph); color:#b9a86a;}
+
+/* 自测模式 */
+.reveal-btn{display:none; margin:10px 0 2px; border:1px solid var(--primary); background:var(--primary-soft); color:var(--primary); border-radius:6px; padding:5px 12px; font-size:12.5px; cursor:pointer;}
+.reveal-btn:hover{background:#d8e6f5;}
+body.self-test .reveal-btn{display:inline-block;}
+body.self-test .explain-label,
+body.self-test .explain,
+body.self-test .case-label,
+body.self-test .case,
+body.self-test .rel-label,
+body.self-test .rel,
+body.self-test .tool-row,
+body.self-test .note-label,
+body.self-test .notes-wrap{display:none;}
+.article.revealed .explain-label,
+.article.revealed .explain,
+.article.revealed .case-label,
+.article.revealed .case,
+.article.revealed .rel-label,
+.article.revealed .rel,
+.article.revealed .tool-row,
+.article.revealed .note-label,
+.article.revealed .notes-wrap{display:block;}
+body.self-test .article{opacity:.97;}
+body.self-test .article.revealed{border-left-color:var(--primary); background:#fff;}
+
+footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--muted); font-size:12.5px; text-align:center;}
+
+@media (max-width:860px){
+  .layout{flex-direction:column;}
+  nav.toc{position:static; width:100%; flex:none; max-height:none;}
+  .toolbar input[type=search]{width:120px;}
+}
+@media print{
+  header, nav.toc, footer, .tool-row, .quick-head{display:none !important;}
+  body{background:#fff;}
+  .layout{display:block; margin:0; padding:0;}
+  .article{break-inside:avoid; box-shadow:none; border:1px solid #ccc;}
+  .explain{background:#f4f6f9;}
+  .case{background:#fbf6ee;}
+  .mark-btn{display:none;}
+  .quick{box-shadow:none; border:1px solid #ccc;}
+  body.self-test .reveal-btn{display:none !important;}
+  body.self-test .explain, body.self-test .explain-label,
+  body.self-test .case, body.self-test .case-label,
+  body.self-test .rel, body.self-test .rel-label,
+  body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <h1><span id="lawTitle"></span><small id="lawSub"></small> <span id="lawField" class="field-badge"></span></h1>
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
+      <span class="status" id="status">已就绪</span>
+      <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
+      <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
+      <button id="btnPrint" title="打印 / 存为PDF">打印</button>
+      <button id="btnClear" title="清空本浏览器内全部笔记与标记">清空</button>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" id="toc">
+    <div class="toc-title">目录</div>
+  </nav>
+  <main id="content"></main>
+</div>
+
+<footer>
+  本笔记为个人学习用途，条文以官方公布文本为准。案例来源于司法部/最高法等公开发布的典型/指导案例。笔记与解读自动保存在本浏览器，导出可脱离浏览器长期留存。
+</footer>
+
+<script>
+/* ============ 用户定制区（由 docx 批量导入生成） ============ */
+const LAW_TITLE = "就业服务与就业管理规定";
+const LAW_SUB   = "《劳动法规汇编（江西）》· 共77条";
+const LAW_KEY   = "jx55";
+const LAW_FIELD = "社会保障";
+
+const LAW_INTRO = "收录于《劳动法规汇编（江西）》，属「社会保障」板块，共77个条文块。";
+const LAW_META = { issuer:"\u2014", published:"\u2014", effective:"\u2014", valid:"\u6709\u6548", level:"\u90e8\u95e8\u89c4\u7ae0" };
+
+const QUICK = [];
+const CASES = {};
+const REL = {};
+const DATA = [{"ch": "全文", "items": [{"no": "", "t": "（2007年11月5日劳动保障部令第28号公布  根据2014年12月23日《人力资源社会保障 部关于修改<就业服务与就业管理规定>的决定》第一次修订 根据2015年4月30日《人力资 源社会保障部关于修改部分规章的决定》第二次修订  根据2018年12月14日《人力资源社 会保障部关于修改部分规章的决定》第三次修订  根据2022年1月7日《人力资源社会保障 部关于修改部分规章的决定》第四次修订）", "ex": ""}]}, {"ch": "第一章  总  则", "items": [{"no": "第一条", "t": "第一条  为了加强就业服务和就业管理，培育和完善统一开放、竞争有序的人力资源 市场，为劳动者就业和用人单位招用人员提供服务，根据就业促进法等法律、行政法规， 制定本规定。", "ex": ""}, {"no": "第二条", "t": "第二条  劳动者求职与就业，用人单位招用人员，劳动保障行政部门举办的公共就业 服务机构和经劳动保障行政部门审批的职业中介机构从事就业服务活动，适用本规定。\n本规定所称用人单位，是指在中华人民共和国境内的企业、个体经济组织、民办非企 业单位等组织，以及招用与之建立劳动关系的劳动者的国家机关、事业单位、社会团体。", "ex": ""}, {"no": "第三条", "t": "第三条  县级以上劳动保障行政部门依法开展本行政区域内的就业服务和就业管理工 作。", "ex": ""}]}, {"ch": "第二章  求职与就业", "items": [{"no": "第四条", "t": "第四条  劳动者依法享有平等就业的权利。劳动者就业，不因民族、种族、性别、宗 教信仰等不同而受歧视。", "ex": ""}, {"no": "第五条", "t": "第五条  农村劳动者进城就业享有与城镇劳动者平等的就业权利，不得对农村劳动者 进城就业设置歧视性限制。", "ex": ""}, {"no": "第六条", "t": "第六条  劳动者依法享有自主择业的权利。劳动者年满16周岁，有劳动能力且有就业 愿望的，可凭本人身份证件，通过公共就业服务机构、职业中介机构介绍或直接联系用人 单位等渠道求职。", "ex": ""}, {"no": "第七条", "t": "第七条  劳动者求职时，应当如实向公共就业服务机构或职业中介机构、用人单位提 供个人基本情况以及与应聘岗位直接相关的知识技能、工作经历、就业现状等情况，并出 示相关证明。", "ex": ""}, {"no": "第八条", "t": "第八条  劳动者应当树立正确的择业观念，提高就业能力和创业能力。\n国家鼓励劳动者在就业前接受必要的职业教育或职业培训，鼓励城镇初高中毕业生在 就业前参加劳动预备制培训。\n国家鼓励劳动者自主创业、自谋职业。各级劳动保障行政部门应当会同有关部门，简 化程序，提高效率，为劳动者自主创业、自谋职业提供便利和相应服务。", "ex": ""}]}, {"ch": "第三章  招用人员", "items": [{"no": "第九条", "t": "第九条  用人单位依法享有自主用人的权利。用人单位招用人员，应当向劳动者提 供平等的就业机会和公平的就业条件。", "ex": ""}, {"no": "第十条", "t": "第十条  用人单位可以通过下列途径自主招用人员：\n（一）委托公共就业服务机构或职业中介机构；\n（二）参加职业招聘洽谈会；\n（三）委托报纸、广播、电视、互联网站等大众传播媒介发布招聘信息；\n（四）利用本企业场所、企业网站等自有途径发布招聘信息；\n（五）其他合法途径。", "ex": ""}, {"no": "第十一条", "t": "第十一条  用人单位委托公共就业服务机构或职业中介机构招用人员，或者参加招 聘洽谈会时，应当提供招用人员简章，并出示营业执照（副本）或者有关部门批准其设立 的文件、经办人的身份证件和受用人单位委托的证明。\n招用人员简章应当包括用人单位基本情况、招用人数、工作内容、招录条件、劳动报 酬、福利待遇、社会保险等内容，以及法律、法规规定的其他内容。", "ex": ""}, {"no": "第十二条", "t": "第十二条  用人单位招用人员时，应当依法如实告知劳动者有关工作内容、工作条 件、工作地点、职业危害、安全生产状况、劳动报酬以及劳动者要求了解的其他情况。\n用人单位应当根据劳动者的要求，及时向其反馈是否录用的情况。", "ex": ""}, {"no": "第十三条", "t": "第十三条  用人单位应当对劳动者的个人资料予以保密。公开劳动者的个人资料信 息和使用劳动者的技术、智力成果，须经劳动者本人书面同意。", "ex": ""}, {"no": "第十四条", "t": "第十四条  用人单位招用人员不得有下列行为：\n（一）提供虚假招聘信息，发布虚假招聘广告；\n（二）扣押被录用人员的居民身份证和其他证件；\n（三）以担保或者其他名义向劳动者收取财物；\n（四）招用未满16周岁的未成年人以及国家法律、行政法规规定不得招用的其他人 员；\n（五）招用无合法身份证件的人员；\n（六）以招用人员为名牟取不正当利益或进行其他违法活动。", "ex": ""}, {"no": "第十五条", "t": "第十五条  用人单位不得以诋毁其他用人单位信誉、商业贿赂等不正当手段招聘人 员。", "ex": ""}, {"no": "第十六条", "t": "第十六条  用人单位在招用人员时，除国家规定的不适合妇女从事的工种或者岗位 外，不得以性别为由拒绝录用妇女或者提高对妇女的录用标准。\n用人单位录用女职工，不得在劳动合同中规定限制女职工结婚、生育的内容。", "ex": ""}, {"no": "第十七条", "t": "第十七条  用人单位招用人员，应当依法对少数民族劳动者给予适当照顾。", "ex": ""}, {"no": "第十八条", "t": "第十八条  用人单位招用人员，不得歧视残疾人。", "ex": ""}, {"no": "第十九条", "t": "第十九条  用人单位招用人员，不得以是传染病病原携带者为由拒绝录用。但是， 经医学鉴定传染病病原携带者在治愈前或者排除传染嫌疑前，不得从事法律、行政法规和 国务院卫生行政部门规定禁止从事的易使传染病扩散的工作。\n用人单位招用人员，除国家法律、行政法规和国务院卫生行政部门规定禁止乙肝病原 携带者从事的工作外，不得强行将乙肝病毒血清学指标作为体检标准。", "ex": ""}, {"no": "第二十条", "t": "第二十条  用人单位发布的招用人员简章或招聘广告，不得包含歧视性内容。", "ex": ""}, {"no": "第二十一条", "t": "第二十一条  用人单位招用从事涉及公共安全、 人身健康、生命财产安全等特殊工 种的劳动者，应当依法招用持相应工种职业资格证书的人员；招用未持相应工种职业资格 证书人员的，须组织其在上岗前参加专门培训，使其取得职业资格证书后方可上岗。", "ex": ""}, {"no": "第二十二条", "t": "第二十二条  用人单位招用台港澳人员后， 应当按有关规定到当地劳动保障行政部 门备案，并为其办理《台港澳人员就业证》。", "ex": ""}, {"no": "第二十三条", "t": "第二十三条  用人单位招用外国人，应当在外国人入境前，按有关规定到当地劳动 保障行政部门为其申请就业许可，经批准并获得《中华人民共和国外国人就业许可证书》 后方可招用。\n用人单位招用外国人的岗位必须是有特殊技能要求、国内暂无适当人选的岗位，并且 不违反国家有关规定。", "ex": ""}]}, {"ch": "第四章  公共就业服务", "items": [{"no": "第二十四条", "t": "第二十四条  县级以上劳动保障行政部门统筹管理本行政区域内的公共就业服务工 作，根据政府制定的发展计划，建立健全覆盖城乡的公共就业服务体系。\n公共就业服务机构根据政府确定的就业工作目标任务，制定就业服务计划，推动落实 就业扶持政策，组织实施就业服务项目，为劳动者和用人单位提供就业服务，开展人力资 源市场调查分析，并受劳动保障行政部门委托经办促进就业的相关事务。", "ex": ""}, {"no": "第二十五条", "t": "第二十五条  公共就业服务机构应当免费为劳动者提供以下服务：\n（一）就业政策法规咨询；\n（二）职业供求信息、市场工资指导价位信息和职业培训信息发布；\n（三）职业指导和职业介绍；\n（四）对就业困难人员实施就业援助；\n（五）办理就业登记、失业登记等事务；\n（六）其他公共就业服务。", "ex": ""}, {"no": "第二十六条", "t": "第二十六条  公共就业服务机构应当积极拓展服务功能，根据用人单位需求提供以 下服务：\n（一）招聘用人指导服务；\n（二）代理招聘服务；\n（三）跨地区人员招聘服务；\n（四）企业人力资源管理咨询等专业性服务；\n（五）劳动保障事务代理服务；\n（六）为满足用人单位需求开发的其他就业服务项目。", "ex": ""}, {"no": "第二十七条", "t": "第二十七条  公共就业服务机构应当加强职业指导工作，配备专（兼）职职业指导 工作人员，向劳动者和用人单位提供职业指导服务。\n公共就业服务机构应当为职业指导工作提供相应的设施和条件，推动职业指导工作的开展，加强对职业指导工作的宣传。", "ex": ""}, {"no": "第二十八条", "t": "第二十八条  职业指导工作包括以下内容：\n（一）向劳动者和用人单位提供国家有关劳动保障的法律法规和政策、人力资源市场 状况咨询；\n（二）帮助劳动者了解职业状况，掌握求职方法，确定择业方向，增强择业能力；\n（三）向劳动者提出培训建议，为其提供职业培训相关信息；\n（四）开展对劳动者个人职业素质和特点的测试，并对其职业能力进行评价；\n（五）对妇女、残疾人、少数民族人员及退出现役的军人等就业群体提供专门的职业 指导服务；\n（六）对大中专学校、职业院校、技工学校学生的职业指导工作提供咨询和服务；\n（七）对准备从事个体劳动或开办私营企业的劳动者提供创业咨询服务；\n（八）为用人单位提供选择招聘方法、确定用人条件和标准等方面的招聘用人指导；\n（九）为职业培训机构确立培训方向和专业设置等提供咨询参考。", "ex": ""}, {"no": "第二十九条", "t": "第二十九条  公共就业服务机构在劳动保障行政部门的指导下，组织实施劳动力资 源调查和就业、失业状况统计工作。", "ex": ""}, {"no": "第三十条", "t": "第三十条  公共就业服务机构应当针对特定就业群体的不同需求，制定并组织实施专 项计划。\n公共就业服务机构应当根据服务对象的特点，在一定时期内为不同类型的劳动者、就 业困难对象或用人单位集中组织活动，开展专项服务。\n公共就业服务机构受劳动保障行政部门委托，可以组织开展促进就业的专项工作。", "ex": ""}, {"no": "第三十一条", "t": "第三十一条  县级以上公共就业服务机构建立综合性服务场所，集中为劳动者和用 人单位提供一站式就业服务，并承担劳动保障行政部门安排的其他工作。\n街道、乡镇、社区公共就业服务机构建立基层服务窗口，开展以就业援助为重点的公 共就业服务，实施劳动力资源调查统计，并承担上级劳动保障行政部门安排的其他就业服 务工作。\n公共就业服务机构使用全国统一标识。", "ex": ""}, {"no": "第三十二条", "t": "第三十二条  公共就业服务机构应当不断提高服务的质量和效率。\n公共就业服务机构应当加强内部管理，完善服务功能，统一服务流程，按照国家制定 的服务规范和标准，为劳动者和用人单位提供优质高效的就业服务。\n公共就业服务机构应当加强工作人员的政策、业务和服务技能培训，组织职业指导人 员、职业信息分析人员、劳动保障协理员等专业人员参加相应职业资格培训。\n公共就业服务机构应当公开服务制度，主动接受社会监督。", "ex": ""}, {"no": "第三十三条", "t": "第三十三条  县级以上劳动保障行政部门和公共就业服务机构应当按照劳动保障信 息化建设的统一规划、标准和规范，建立完善人力资源市场信息网络及相关设施。\n公共就业服务机构应当逐步实行信息化管理与服务，在城市内实现就业服务、失业保 险、就业培训信息共享和公共就业服务全程信息化管理，并逐步实现与劳动工资信息、社 会保险信息的互联互通和信息共享。", "ex": ""}, {"no": "第三十四条", "t": "第三十四条  公共就业服务机构应当建立健全人力资源市场信息服务体系，完善职 业供求信息、市场工资指导价位信息、职业培训信息、人力资源市场分析信息的发布制 度，为劳动者求职择业、用人单位招用人员以及培训机构开展培训提供支持。", "ex": ""}, {"no": "第三十五条", "t": "第三十五条  县级以上劳动保障行政部门应当按照信息化建设统一要求，逐步实现 全国人力资源市场信息联网。其中，城市应当按照劳动保障数据中心建设的要求，实现网 络和数据资源的集中和共享；省、自治区应当建立人力资源市场信息网省级监测中心，对 辖区内人力资源市场信息进行监测；劳动保障部设立人力资源市场信息网全国监测中心， 对全国人力资源市场信息进行监测和分析。", "ex": ""}, {"no": "第三十六条", "t": "第三十六条  县级以上劳动保障行政部门应当对公共就业服务机构加强管理，定期 对其完成各项任务情况进行绩效考核。", "ex": ""}, {"no": "第三十七条", "t": "第三十七条  公共就业服务经费纳入同级财政预算。各级劳动保障行政部门和公共 就业服务机构应当根据财政预算编制的规定，依法编制公共就业服务年度预算，报经同级 财政部门审批后执行。\n公共就业服务机构可以按照就业专项资金管理相关规定，依法申请公共就业服务专项 扶持经费。\n公共就业服务机构接受社会各界提供的捐赠和资助，按照国家有关法律法规管理和使 用 。\n公共就业服务机构为用人单位提供的服务，应当规范管理，严格控制服务收费。确需 收费的，具体项目由省级劳动保障行政部门会同相关部门规定。", "ex": ""}, {"no": "第三十八条", "t": "第三十八条  公共就业服务机构不得从事经营性活动。\n公共就业服务机构举办的招聘会，不得向劳动者收取费用。", "ex": ""}, {"no": "第三十九条", "t": "第三十九条  各级残疾人联合会所属的残疾人就业服务机构是公共就业服务机构的 组成部分，负责为残疾劳动者提供相关就业服务，并经劳动保障行政部门委托，承担残疾 劳动者的就业登记、失业登记工作。", "ex": ""}]}, {"ch": "第五章  就业援助", "items": [{"no": "第四十条", "t": "第四十条  公共就业服务机构应当制定专门的就业援助计划，对就业援助对象实施优 先扶持和重点帮助。\n本规定所称就业援助对象包括就业困难人员和零就业家庭。就业困难对象是指因身体 状况、技能水平、家庭因素、失去土地等原因难以实现就业，以及连续失业一定时间仍未 能实现就业的人员。零就业家庭是指法定劳动年龄内的家庭人员均处于失业状况的城市居 民家庭。\n对援助对象的认定办法，由省级劳动保障行政部门依据当地人民政府规定的就业援助 对象范围制定。", "ex": ""}, {"no": "第四十一条", "t": "第四十一条  就业困难人员和零就业家庭可以向所在地街道、社区公共就业服务机 构申请就业援助。经街道、社区公共就业服务机构确认属实的，纳入就业援助范围。", "ex": ""}, {"no": "第四十二条", "t": "第四十二条  公共就业服务机构应当建立就业困难人员帮扶制度，通过落实各项就 业扶持政策、提供就业岗位信息、组织技能培训等有针对性的就业服务和公益性岗位援\n助，对就业困难人员实施优先扶持和重点帮助。\n在公益性岗位上安置的就业困难人员，按照国家规定给予岗位补贴。", "ex": ""}, {"no": "第四十三条", "t": "第四十三条  公共就业服务机构应当建立零就业家庭即时岗位援助制度，通过拓宽 公益性岗位范围，开发各类就业岗位等措施，及时向零就业家庭中的失业人员提供适当的 就业岗位，确保零就业家庭至少有一人实现就业。", "ex": ""}, {"no": "第四十四条", "t": "第四十四条  街道、社区公共就业服务机构应当对辖区内就业援助对象进行登记， 建立专门台账，实行就业援助对象动态管理和援助责任制度，提供及时、有效的就业援 助。", "ex": ""}]}, {"ch": "第六章  职业中介服务", "items": [{"no": "第四十五条", "t": "第四十五条  县级以上劳动保障行政部门应当加强对职业中介机构的管理，鼓励其 提高服务质量，发挥其在促进就业中的作用。\n本规定所称职业中介机构，是指由法人、其他组织和公民个人举办，为用人单位招用 人员和劳动者求职提供中介服务以及其他相关服务的经营性组织。\n政府部门不得举办或者与他人联合举办经营性的职业中介机构。", "ex": ""}, {"no": "第四十六条", "t": "第四十六条  从事职业中介活动，应当遵循合法、诚实信用、公平、公开的原则。 禁止任何组织或者个人利用职业中介活动侵害劳动者和用人单位的合法权益。", "ex": ""}, {"no": "第四十七条", "t": "第四十七条  职业中介实行行政许可制度。 设立职业中介机构或其他机构开展职业 中介活动，须经劳动保障行政部门批准，并获得职业中介许可证。\n未经依法许可和登记的机构，不得从事职业中介活动。\n职业中介许可证由劳动保障部统一印制并免费发放。", "ex": ""}, {"no": "第四十八条", "t": "第四十八条  设立职业中介机构应当具备下列条件：\n（一）有明确的机构章程和管理制度；\n（二）有开展业务必备的固定场所、办公设施和一定数额的开办资金；\n（三）有一定数量具备相应职业资格的专职工作人员；\n（四）法律、法规规定的其他条件。", "ex": ""}, {"no": "第四十九条", "t": "第四十九条  设立职业中介机构，应当向当地县级以上劳动保障行政部门提出申 请，提交下列文件：\n（一）设立申请书；\n（二）机构章程和管理制度草案；\n（三）场所使用权证明；\n（四）拟任负责人的基本情况、身份证明；\n（五）具备相应职业资格的专职工作人员的相关证明；\n（六）工商营业执照（副本）;\n（七）法律、法规规定的其他文件。", "ex": ""}, {"no": "第五十条", "t": "第五十条  劳动保障行政部门接到设立职业中介机构的申请后，应当自受理申请之日 起20日内审理完毕。对符合条件的，应当予以批准；不予批准的，应当说明理由。\n劳动保障行政部门对经批准设立的职业中介机构实行年度审验。\n职业中介机构的具体设立条件、审批和年度审验程序，由省级劳动保障行政部门统一 规定。", "ex": ""}, {"no": "第五十一条", "t": "第五十一条  职业中介机构变更名称、住所、法定代表人等或者终止的，应当按照 设立许可程序办理变更或者注销登记手续。\n设立分支机构的，应当在征得原审批机关的书面同意后，由拟设立分支机构所在地县 级以上劳动保障行政部门审批。", "ex": ""}, {"no": "第五十二条", "t": "第五十二条  职业中介机构可以从事下列业务：\n（一）为劳动者介绍用人单位；\n（二）为用人单位和居民家庭推荐劳动者；\n（三）开展职业指导、人力资源管理咨询服务；\n（四）收集和发布职业供求信息；\n（五）根据国家有关规定从事互联网职业信息服务；\n（六）组织职业招聘洽谈会；\n（七）经劳动保障行政部门核准的其他服务项目。", "ex": ""}, {"no": "第五十三条", "t": "第五十三条  职业中介机构应当在服务场所明示营业执照、职业中介许可证、服务 项目、收费标准、监督机关名称和监督电话等，并接受劳动保障行政部门及其他有关部门 的监督检查。", "ex": ""}, {"no": "第五十四条", "t": "第五十四条  职业中介机构应当建立服务台账，记录服务对象、服务过程、服务结 果和收费情况等，并接受劳动保障行政部门的监督检查。", "ex": ""}, {"no": "第五十五条", "t": "第五十五条  职业中介机构提供职业中介服务不成功的，应当退还向劳动者收取的 中介服务费。", "ex": ""}, {"no": "第五十六条", "t": "第五十六条  职业中介机构租用场地举办大规模职业招聘洽谈会，应当制定相应的 组织实施办法和安全保卫工作方案，并向批准其设立的机关报告。\n职业中介机构应当对入场招聘用人单位的主体资格真实性和招用人员简章真实性进行 核实。", "ex": ""}, {"no": "第五十七条", "t": "第五十七条  职业中介机构为特定对象提供公益性就业服务的，可以按照规定给予 补贴。可以给予补贴的公益性就业服务的范围、对象、服务效果和补贴办法，由省级劳动 保障行政部门会同有关部门制定。", "ex": ""}, {"no": "第五十八条", "t": "第五十八条  禁止职业中介机构有下列行为：\n（一）提供虚假就业信息；\n（二）发布的就业信息中包含歧视性内容；\n（三）伪造、涂改、转让职业中介许可证；\n（四）为无合法证照的用人单位提供职业中介服务；\n（五）介绍未满16周岁的未成年人就业；\n（六）为无合法身份证件的劳动者提供职业中介服务；\n（ 七 ）介绍劳动者从事法律、法规禁止从事的职业；\n（八）扣押劳动者的居民身份证和其他证件，或者向劳动者收取押金；\n（九）以暴力、胁迫、欺诈等方式进行职业中介活动；\n（十）超出核准的业务范围经营；\n（十一）其他违反法律、法规规定的行为。", "ex": ""}, {"no": "第五十九条", "t": "第五十九条  县级以上劳动保障行政部门应当依法对经审批设立的职业中介机构开 展职业中介活动进行监督指导，定期组织对其服务信用和服务质量进行评估，并将评估结 果向社会公布。\n县级以上劳动保障行政部门应当指导职业中介机构开展工作人员培训，提高服务质 量。\n县级以上劳动保障行政部门对在诚信服务、优质服务和公益性服务等方面表现突出的 职业中介机构和个人，报经同级人民政府批准后，给予表彰和奖励。", "ex": ""}, {"no": "第六十条", "t": "第六十条  设立外商投资职业中介机构以及职业中介机构从事境外就业中介服务的， 按照有关规定执行。", "ex": ""}]}, {"ch": "第七章  就业与失业管理", "items": [{"no": "第六十一条", "t": "第六十一条  劳动保障行政部门应当建立健全就业登记制度和失业登记制度，完善 就业管理和失业管理。\n公共就业服务机构负责就业登记与失业登记工作，建立专门台账，及时、准确地记录 劳动者就业与失业变动情况，并做好相应统计工作。\n就业登记和失业登记在各省、自治区、直辖市范围内实行统一的就业失业登记证（以 下简称登记证），向劳动者免费发放，并注明可享受的相应扶持政策。\n就业登记、失业登记的具体程序和登记证的样式，由省级劳动保障行政部门规定。", "ex": ""}, {"no": "第六十二条", "t": "第六十二条  劳动者被用人单位招用的，由用人单位为劳动者办理就业登记。用人 单位招用劳动者和与劳动者终止或者解除劳动关系，应当到当地公共就业服务机构备案， 为劳动者办理就业登记手续。用人单位招用人员后，应当于录用之日起30日内办理登记手 续；用人单位与职工终止或者解除劳动关系后，应当于15日内办理登记手续。\n劳动者从事个体经营或灵活就业的，由本人在街道、乡镇公共就业服务机构办理就业 登记。\n就业登记的内容主要包括劳动者个人信息、就业类型、就业时间、就业单位以及订 立、终止或者解除劳动合同情况等。就业登记的具体内容和所需材料由省级劳动保障行政 部门规定。\n公共就业服务机构应当对用人单位办理就业登记及相关手续设立专门服务窗口，简化 程序，方便用人单位办理。", "ex": ""}, {"no": "第六十三条", "t": "第六十三条  在法定劳动年龄内，有劳动能力，有就业要求，处于无业状态的城镇 常住人员，可以到常住地的公共就业服务机构进行失业登记。", "ex": ""}, {"no": "第六十四条", "t": "第六十四条  劳动者进行失业登记时，须持本人身份证件；有单位就业经历的，还 须持与原单位终止、解除劳动关系或者解聘的证明。\n登记失业人员凭登记证享受公共就业服务和就业扶持政策；其中符合条件的，按规定 申领失业保险金。\n登记失业人员应当定期向公共就业服务机构报告就业失业状况，积极求职，参加公共 就业服务机构安排的就业培训。", "ex": ""}, {"no": "第六十五条", "t": "第六十五条  失业登记的范围包括下列失业人员：\n（一）年满16周岁，从各类学校毕业、肄业的；\n（二）从企业、机关、事业单位等各类用人单位失业的；\n（三）个体工商户业主或私营企业业主停业、破产停止经营的；\n（四）承包土地被征用，符合当地规定条件的；\n（五）军人退出现役且未纳入国家统一安置的；\n（六）刑满释放、假释、监外执行的；\n（七）各地确定的其他失业人员。", "ex": ""}, {"no": "第六十六条", "t": "第六十六条  登记失业人员出现下列情形之一的，由公共就业服务机构注销其失业 登记：\n（一）被用人单位录用的；\n（二）从事个体经营或创办企业，并领取工商营业执照的；\n（三）已从事有稳定收入的劳动，并且月收入不低于当地最低工资标准的；\n（四）已享受基本养老保险待遇的；\n（五）完全丧失劳动能力的；\n（六）入学、服兵役、移居境外的；\n（七）被判刑收监执行的；\n（八）终止就业要求或拒绝接受公共就业服务的；\n（九）连续6个月未与公共就业服务机构联系的；\n（十）已进行就业登记的其他人员或各地规定的其他情形。", "ex": ""}]}, {"ch": "第八章 罚  则", "items": [{"no": "第六十七条", "t": "第六十七条  用人单位违反本规定第十四条第（二）、（三）项规定的，按照劳动 合同法第八十四条的规定予以处罚；用人单位违反第十四条第（四）项规定的，按照国家 禁止使用童工和其他有关法律、法规的规定予以处罚。用人单位违反第十四条第（一）、 （五）、（六）项规定的，由劳动保障行政部门责令改正，并可处以一千元以下的罚款； 对当事人造成损害的，应当承担赔偿责任。", "ex": ""}, {"no": "第六十八条", "t": "第六十八条  用人单位违反本规定第十九条第二款规定，在国家法律、行政法规和 国务院卫生行政部门规定禁止乙肝病原携带者从事的工作岗位以外招用人员时，将乙肝病 毒血清学指标作为体检标准的，由劳动保障行政部门责令改正，并可处以一千元以下的罚 款；对当事人造成损害的，应当承担赔偿责任。", "ex": ""}, {"no": "第六十九条", "t": "第六十九条  违反本规定第三十八条规定，公共就业服务机构从事经营性职业中介 活动向劳动者收取费用的，由劳动保障行政部门责令限期改正，将违法收取的费用退还劳 动者，并对直接负责的主管人员和其他直接责任人员依法给予处分。", "ex": ""}, {"no": "第七十条", "t": "第七十条  违反本规定第四十七条规定，未经许可和登记，擅自从事职业中介活动 的，由劳动保障行政部门或者其他主管部门按照就业促进法第六十四条规定予以处罚。", "ex": ""}, {"no": "第七十一条", "t": "第七十一条  职业中介机构违反本规定第五十三条规定，未明示职业中介许可证、 监督电话的，由劳动保障行政部门责令改正，并可处以一千元以下的罚款；未明示收费标 准的，提请价格主管部门依据国家有关规定处罚；未明示营业执照的，提请工商行政管理 部门依据国家有关规定处罚。", "ex": ""}, {"no": "第七十二条", "t": "第七十二条  职业中介机构违反本规定第五十四条规定，未建立服务台账，或虽建 立服务台账但未记录服务对象、服务过程、服务结果和收费情况的，由劳动保障行政部门 责令改正，并可处以一千元以下的罚款。", "ex": ""}, {"no": "第七十三条", "t": "第七十三条  职业中介机构违反本规定第五十五条规定，在职业中介服务不成功后 未向劳动者退还所收取的中介服务费的，由劳动保障行政部门责令改正，并可处以一千元 以下的罚款。", "ex": ""}, {"no": "第七十四条", "t": "第七十四条  职业中介机构违反本规定第五十八条第（ 一 ）、（三）、（四）、 （八）项规定的，按照就业促进法第六十五条、第六十六条规定予以处罚。违反本规定第 五十八条第（五）项规定的，按照国家禁止使用童工的规定予以处罚。违反本规定第五十 八条其他各项规定的，由劳动保障行政部门责令改正，没有违法所得的，可处以一万元以 下的罚款；有违法所得的，可处以不超过违法所得三倍的罚款，但最高不得超过三万元； 情节严重的，提请工商部门依法吊销营业执照；对当事人造成损害的，应当承担赔偿责 任。", "ex": ""}, {"no": "第七十五条", "t": "第七十五条  用人单位违反本规定第六十二条规定，未及时为劳动者办理就业登记 手续的，由劳动保障行政部门责令改正。", "ex": ""}]}, {"ch": "第九章  附  则", "items": [{"no": "第七十六条", "t": "第七十六条  本规定自2008年1月1日起施行。劳动部1994年10月27日颁布的《职业指 导办法》、劳动保障部2000年12月8日颁布的《劳动力市场管理规定》同时废止。\n（三）养老保险", "ex": ""}]}];
+/* =================================================== */
+
+/* ===== 存储（自动保存 + 导出烘焙）===== */
+const KEY = 'statute_note_' + LAW_KEY;
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
+})();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+                '<div class="art-text">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
+</body>
+</html>
