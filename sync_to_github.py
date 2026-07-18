@@ -55,7 +55,7 @@ def main():
             continue
         remote, _ = get_remote(rel)
         sha = remote.get('sha', '')
-        remote_b64 = remote.get('content', '')
+        remote_b64 = ''.join(remote.get('content', '').split())  # 去空白(远程可能含换行)
         local_b64 = base64.b64encode(open(localp, 'rb').read()).decode()
         if remote_b64 == local_b64:
             print('无变化跳过:', rel)
@@ -69,7 +69,7 @@ def main():
             payload['sha'] = sha
         enc = urllib.parse.quote(rel)
         ok = False
-        for attempt in range(2):
+        for attempt in range(4):
             c2, _ = curl('PUT', f'{BASE}/{enc}', json.dumps(payload, ensure_ascii=False))
             if c2 in (200, 201):
                 print(f'PUT {rel} -> HTTP {c2}')
@@ -77,13 +77,14 @@ def main():
                 break
             # 422/409：sha 过期或缺失，重新取 sha 重试
             if c2 in (422, 409):
-                time.sleep(1.5)
+                time.sleep(2)
                 remote, _ = get_remote(rel)
                 sha = remote.get('sha', '')
                 payload['sha'] = sha
                 continue
-            print(f'PUT {rel} -> HTTP {c2} (未成功)')
-            break
+            # 网络错误(0/5xx) 或 其他，退避后重试
+            time.sleep(3)
+            continue
         if not ok:
             print(f'!! 失败: {rel}')
 
