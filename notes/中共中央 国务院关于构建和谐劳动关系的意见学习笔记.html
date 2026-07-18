@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法规学习笔记（可编辑）</title>
+<style>
+:root{
+  --bg:#eef1f5; --card:#ffffff; --ink:#1f2329; --muted:#7a8290;
+  --primary:#1f4e79; --primary-soft:#e8f0f7; --accent:#c0392b;
+  --mark:#e6a23c; --note-bg:#fffdf3; --note-bd:#e8d9a8;
+  --border:#e1e5ea; --line:#d8dde4; --shadow:0 1px 3px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  line-height:1.8; font-size:15px;
+}
+/* ===== 顶部栏 ===== */
+header{
+  position:sticky; top:0; z-index:50; background:var(--primary); color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.head-inner{max-width:1180px; margin:0 auto; padding:10px 18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.field-badge{display:inline-block; margin-left:4px; padding:2px 11px; font-size:12px; font-weight:600; color:#fff; background:var(--primary); border-radius:20px; vertical-align:middle; letter-spacing:.5px;}
+.head-inner h1{font-size:16px; margin:0; font-weight:600; letter-spacing:.5px; flex:1 1 260px;}
+.head-inner h1 small{display:block; font-size:11.5px; font-weight:400; opacity:.8; margin-top:2px;}
+.toolbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.toolbar input[type=search]{
+  padding:6px 10px; border:1px solid rgba(255,255,255,.35); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; width:160px; outline:none;
+}
+.toolbar input[type=search]::placeholder{color:rgba(255,255,255,.7);}
+.toolbar button{
+  padding:6px 12px; border:1px solid rgba(255,255,255,.4); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; cursor:pointer; white-space:nowrap;
+}
+.toolbar button:hover{background:rgba(255,255,255,.25);}
+.toolbar button.active{background:var(--mark); border-color:var(--mark); color:#fff;}
+.status{font-size:12px; opacity:.85; min-width:80px;}
+
+/* ===== 布局 ===== */
+.layout{max-width:1180px; margin:18px auto; padding:0 18px; display:flex; gap:20px; align-items:flex-start;}
+nav.toc{
+  position:sticky; top:78px; width:200px; flex:0 0 200px;
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:12px 10px; box-shadow:var(--shadow); max-height:calc(100vh - 100px); overflow:auto;
+}
+nav.toc .toc-title{font-size:12px; color:var(--muted); padding:0 8px 8px; border-bottom:1px solid var(--line); margin-bottom:6px;}
+nav.toc a{
+  display:block; padding:7px 8px; border-radius:6px; color:var(--ink); text-decoration:none;
+  font-size:13.5px; cursor:pointer;
+}
+nav.toc a:hover{background:var(--primary-soft);}
+nav.toc a.active{background:var(--primary); color:#fff; font-weight:500;}
+nav.toc a .cnt{float:right; color:var(--muted); font-size:11px;}
+nav.toc a.active .cnt{color:rgba(255,255,255,.85);}
+
+main{flex:1; min-width:0;}
+.chapter{margin-bottom:26px;}
+.chapter > h2{
+  font-size:18px; color:var(--primary); border-left:4px solid var(--primary);
+  padding-left:12px; margin:0 0 14px; font-weight:700;
+}
+.article{
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow); position:relative;
+  border-left:3px solid var(--line);
+}
+.article.marked{border-left-color:var(--mark); background:#fffdf6;}
+.art-head{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+.art-no{
+  font-weight:700; color:var(--primary); font-size:14.5px; background:var(--primary-soft);
+  padding:2px 10px; border-radius:5px;
+}
+.mark-btn{
+  margin-left:auto; border:none; background:none; cursor:pointer; font-size:18px; line-height:1;
+  color:var(--mark); padding:0 4px;
+}
+.mark-btn:hover{transform:scale(1.15);}
+.art-text{font-size:15px; color:#2b2f36; text-align:justify; white-space:pre-wrap;}
+
+/* 解读区 */
+.explain-label{font-size:12px; color:var(--primary); font-weight:600; margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+.explain{
+  font-size:13.5px; color:#3a4250; background:#f6f9fc; border-left:3px solid var(--primary);
+  border-radius:0 6px 6px 0; padding:8px 11px; white-space:pre-wrap; outline:none;
+}
+.explain:focus{background:#eef3fa; box-shadow:0 0 0 3px rgba(31,78,121,.12);}
+
+/* 关联案例 */
+.case-label{font-size:12px; color:#9a5b1e; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.case{background:#fbf6ee; border:1px solid #ecdcc0; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.case-title{font-weight:600; font-size:13.5px; color:#6b4423;}
+.case-desc{font-size:13px; color:#5a4a3a; margin-top:3px; white-space:pre-wrap;}
+.case-src{font-size:11.5px; color:#a98b5e; margin-top:4px;}
+
+/* 关联法条 */
+.rel-label{font-size:12px; color:#1f6fb2; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.rel{background:#eef4fb; border:1px solid #cfe0ef; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.rel-src{font-weight:600; font-size:13.5px; color:#14507e;}
+.rel-text{font-size:13px; color:#34404d; margin-top:4px; white-space:pre-wrap;}
+
+/* 检索按钮 */
+.tool-row{margin:10px 0 2px;}
+.search-btn{border:1px solid var(--border); background:#f3f7fb; color:var(--primary); border-radius:6px; padding:5px 10px; font-size:12.5px; cursor:pointer;}
+.search-btn:hover{background:#e3edf6;}
+
+/* 笔记区 */
+.note-label{font-size:12px; color:var(--muted); margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+
+/* 速查卡 */
+.quick{background:linear-gradient(135deg,#f0f6fc,#e8f0f7); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.quick-head{font-weight:700; color:var(--primary); padding:11px 14px; cursor:pointer; user-select:none; font-size:14.5px;}
+.quick-body{padding:2px 14px 12px;}
+.qg{font-size:13px; color:#34404d; padding:7px 0; border-top:1px dashed #d4e2ee; white-space:pre-wrap;}
+.qg:first-child{border-top:none;}
+.qg b{color:var(--primary);}
+
+/* 法规简介（发布信息） */
+.law-intro{background:linear-gradient(135deg,#f0f6fc,#eef4fb); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.law-intro-head{font-weight:700; color:var(--primary); padding:11px 14px; font-size:14.5px;}
+.law-intro-body{padding:2px 14px 12px;}
+.law-intro-desc{font-size:13.5px; color:#34404d; line-height:1.8; margin:2px 0 10px;}
+.meta-grid{display:grid; grid-template-columns:auto 1fr; gap:6px 14px; align-items:baseline;}
+.meta-grid .mk{font-size:13px; color:var(--muted); white-space:nowrap;}
+.meta-grid .mv{font-size:13px; color:#2b2f36;}
+.meta-grid .mv.ok{color:#1a9e57; font-weight:600;}
+.meta-grid .mv.no{color:#c0392b; font-weight:600;}
+
+/* 条文互链 */
+.lawlink{color:#1f6fb2; text-decoration:underline; cursor:pointer;}
+.lawlink:hover{color:#0d4f86;}
+
+/* 批注分层 */
+.notes-wrap{margin-top:2px;}
+.note-block{margin-bottom:8px;}
+.note-tag{display:inline-block; font-size:11px; font-weight:600; padding:1px 8px; border-radius:4px; margin-bottom:3px;}
+.tag-q{background:#fde8e8; color:#c0392b;}      /* 疑问 */
+.tag-c{background:#e6f4ea; color:#1e7a46;}      /* 我的案例 */
+.tag-s{background:#fef3e0; color:#b9770e;}      /* 要点总结 */
+.tag-t{background:#efe7fb; color:#6b3fa0;}      /* 待办 */
+.note.sub{background:var(--note-bg); border:1px dashed var(--note-bd); border-radius:7px; padding:7px 10px; min-height:32px; font-size:13.5px; color:#5a4a1a; white-space:pre-wrap; outline:none;}
+.note.sub:focus{border-style:solid; border-color:var(--mark); background:#fffce8; box-shadow:0 0 0 3px rgba(230,162,60,.15);}
+.note.sub:empty:before{content:attr(data-ph); color:#b9a86a;}
+
+/* 自测模式 */
+.reveal-btn{display:none; margin:10px 0 2px; border:1px solid var(--primary); background:var(--primary-soft); color:var(--primary); border-radius:6px; padding:5px 12px; font-size:12.5px; cursor:pointer;}
+.reveal-btn:hover{background:#d8e6f5;}
+body.self-test .reveal-btn{display:inline-block;}
+body.self-test .explain-label,
+body.self-test .explain,
+body.self-test .case-label,
+body.self-test .case,
+body.self-test .rel-label,
+body.self-test .rel,
+body.self-test .tool-row,
+body.self-test .note-label,
+body.self-test .notes-wrap{display:none;}
+.article.revealed .explain-label,
+.article.revealed .explain,
+.article.revealed .case-label,
+.article.revealed .case,
+.article.revealed .rel-label,
+.article.revealed .rel,
+.article.revealed .tool-row,
+.article.revealed .note-label,
+.article.revealed .notes-wrap{display:block;}
+body.self-test .article{opacity:.97;}
+body.self-test .article.revealed{border-left-color:var(--primary); background:#fff;}
+
+footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--muted); font-size:12.5px; text-align:center;}
+
+@media (max-width:860px){
+  .layout{flex-direction:column;}
+  nav.toc{position:static; width:100%; flex:none; max-height:none;}
+  .toolbar input[type=search]{width:120px;}
+}
+@media print{
+  header, nav.toc, footer, .tool-row, .quick-head{display:none !important;}
+  body{background:#fff;}
+  .layout{display:block; margin:0; padding:0;}
+  .article{break-inside:avoid; box-shadow:none; border:1px solid #ccc;}
+  .explain{background:#f4f6f9;}
+  .case{background:#fbf6ee;}
+  .mark-btn{display:none;}
+  .quick{box-shadow:none; border:1px solid #ccc;}
+  body.self-test .reveal-btn{display:none !important;}
+  body.self-test .explain, body.self-test .explain-label,
+  body.self-test .case, body.self-test .case-label,
+  body.self-test .rel, body.self-test .rel-label,
+  body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <h1><span id="lawTitle"></span><small id="lawSub"></small> <span id="lawField" class="field-badge"></span></h1>
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
+      <span class="status" id="status">已就绪</span>
+      <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
+      <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
+      <button id="btnPrint" title="打印 / 存为PDF">打印</button>
+      <button id="btnClear" title="清空本浏览器内全部笔记与标记">清空</button>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" id="toc">
+    <div class="toc-title">目录</div>
+  </nav>
+  <main id="content"></main>
+</div>
+
+<footer>
+  本笔记为个人学习用途，条文以官方公布文本为准。案例来源于司法部/最高法等公开发布的典型/指导案例。笔记与解读自动保存在本浏览器，导出可脱离浏览器长期留存。
+</footer>
+
+<script>
+/* ============ 用户定制区（由 docx 批量导入生成） ============ */
+const LAW_TITLE = "中共中央 国务院关于构建和谐劳动关系的意见";
+const LAW_SUB   = "《劳动法规汇编（江西）》· 共33条";
+const LAW_KEY   = "jx108";
+const LAW_FIELD = "和谐劳动关系创建";
+
+const LAW_INTRO = "收录于《劳动法规汇编（江西）》，属「和谐劳动关系创建」板块，共33个条文块。";
+const LAW_META = { issuer:"\u2014", published:"\u2014", effective:"\u2014", valid:"\u6709\u6548", level:"\u89c4\u8303\u6027\u6587\u4ef6" };
+
+const QUICK = [];
+const CASES = {};
+const REL = {};
+const DATA = [{"ch": "全文", "items": [{"no": "", "t": "中发〔2015〕10号2015年4月8日\n为全面贯彻党的十八大和十八届二中、三中、四中全会精神，构建和谐劳动关系，推 动科学发展，促进社会和谐，现提出如下意见。", "ex": ""}, {"no": "一、", "t": "一、充分认识构建和谐劳动关系的重大意义\n劳动关系是生产关系的重要组成部分，是最基本、最重要的社会关系之一。劳动关系 是否和谐，事关广大职工和企业的切身利益，事关经济发展与社会和谐。党和国家历来高 度重视构建和谐劳动关系，制定了一系列法律法规和政策措施并作出工作部署。各级党委 和政府认真贯彻落实党中央和国务院的决策部署，取得了积极成效，总体保持了全国劳动 关系和谐稳定。但是，我国正处于经济社会转型时期，劳动关系的主体及其利益诉求越来 越多元化，劳动关系矛盾已进入凸显期和多发期，劳动争议案件居高不下，有的地方拖欠 农民工工资等损害职工利益的现象仍较突出，集体停工和群体性事件时有发生，构建和谐 劳动关系的任务艰巨繁重。\n党的十八大明确提出构建和谐劳动关系。在新的历史条件下，努力构建中国特色和谐 劳动关系，是加强和创新社会管理、保障和改善民生的重要内容，是建设社会主义和谐社 会的重要基础，是经济持续健康发展的重要保证，是增强党的执政基础、巩固党的执政地 位的必然要求。各级党委和政府要从夺取中国特色社会主义新胜利的全局和战略高度，深 刻认识构建和谐劳动关系的重大意义，切实增强责任感和使命感，把构建和谐劳动关系作 为一项紧迫任务，摆在更加突出的位置，采取有力措施抓实抓好。", "ex": ""}, {"no": "二、", "t": "二、构建和谐劳动关系的指导思想、工作原则和目标任务", "ex": ""}, {"no": "（一）", "t": "（一）指导思想。全面贯彻党的十八大和十八届二中、三中、四中全会精神，以邓小 平理论、“三个代表”重要思想、科学发展观为指导，深入贯彻习近平总书记系列重要讲 话精神，贯彻落实党中央和国务院的决策部署，坚持促进企业发展、维护职工权益，坚持 正确处理改革发展稳定关系，推动中国特色和谐劳动关系的建设和发展，最大限度增加劳 动关系和谐因素，最大限度减少不和谐因素，促进经济持续健康发展和社会和谐稳定，凝 聚广大职工为实现“两个一百年”奋斗目标、实现中华民族伟大复兴的中国梦贡献力量。", "ex": ""}, {"no": "（二）", "t": "（二）工作原则\n——坚持以人为本。把解决广大职工最关心、最直接、最现实的利益问题，切实维护 其根本权益，作为构建和谐劳动关系的根本出发点和落脚点。\n——坚持依法构建。健全劳动保障法律法规，增强企业依法用工意识，提高职工依法 维权能力，加强劳动保障执法监督和劳动纠纷调处，依法处理劳动关系矛盾，把劳动关系 的建立、运行、监督、调处的全过程纳入法治化轨道。\n——坚持共建共享。统筹处理好促进企业发展和维护职工权益的关系，调动劳动关系 主体双方的积极性、主动性，推动企业和职工协商共事、机制共建、效益共创、利益共享。\n——坚持改革创新。从我国基本经济制度出发，统筹考虑公有制经济、非公有制经济 和混合所有制经济的特点，不断探究和把握社会主义市场经济条件下劳动关系的规律性， 积极稳妥推进具有中国特色的劳动关系工作理论、体制、制度、机制和方法创新。", "ex": ""}, {"no": "（三）", "t": "（三）目标任务。加强调整劳动关系的法律、体制、制度、机制和能力建设，加快健 全党委领导、政府负责、社会协同、企业和职工参与、法治保障的工作体制，加快形成源 头治理、动态管理、应急处置相结合的工作机制，实现劳动用工更加规范，职工工资合理 增长，劳动条件不断改善，职工安全健康得到切实保障，社会保险全面覆盖，人文关怀日 益加强，有效预防和化解劳动关系矛盾，建立规范有序、公正合理、互利共赢、和谐稳定 的劳动关系。", "ex": ""}, {"no": "三、", "t": "三、依法保障职工基本权益", "ex": ""}, {"no": "（四）", "t": "（四）切实保障职工取得劳动报酬的权利。 完善并落实工资支付规定，健全工资支付 监控、工资保证金和欠薪应急周转金制度，探索建立欠薪保障金制度，落实清偿欠薪的施 工总承包企业负责制，依法惩处拒不支付劳动报酬等违法犯罪行为，保障职工特别是农民 工按时足额领到工资报酬。努力实现农民工与城镇就业人员同工同酬。", "ex": ""}, {"no": "（五）", "t": "（五）切实保障职工休息休假的权利。完善并落实国家关于职工工作时间、全国年节 及纪念日假期、带薪年休假等规定，规范企业实行特殊工时制度的审批管理，督促企业依 法安排职工休息休假。企业因生产经营需要安排职工延长工作时间的，应与工会和职工协 商，并依法足额支付加班加点工资。加强劳动定额定员标准化工作，推动劳动定额定员国 家标准、行业标准的制定修订，指导企业制定实施科学合理的劳动定额定员标准，保障职 工的休息权利。", "ex": ""}, {"no": "（六）", "t": "（六）切实保障职工获得劳动安全卫生保护的权利。加强劳动安全卫生执法监督，督 促企业健全并落实劳动安全卫生责任制，严格执行国家劳动安全卫生保护标准，加大安全 生产投入，强化安全生产和职业卫生教育培训，提供符合国家规定的劳动安全卫生条件和 劳动保护用品，对从事有职业危害作业的职工按照国家规定进行上岗前、在岗期间和离岗 时的职业健康检查，加强女职工和未成年工特殊劳动保护，最大限度地减少生产安全事故 和职业病危害。", "ex": ""}, {"no": "（七）", "t": "（七）切实保障职工享受社会保险和接受职业技能培训的权利。 认真贯彻实施社会保 险法，继续完善社会保险关系转移接续办法，努力实现社会保险全面覆盖，落实广大职工 特别是农民工和劳务派遣工的社会保险权益。督促企业依法为职工缴纳各项社会保险费， 鼓励有条件的企业按照法律法规和有关规定为职工建立补充保险。引导职工自觉履行法定 义务，积极参加社会保险。加强对职工的职业技能培训，鼓励职工参加学历教育和继续教 育，提高职工文化知识水平和技能水平。\n四 、健全劳动关系协调机制", "ex": ""}, {"no": "（八）", "t": "（八）全面实行劳动合同制度。 贯彻落实好劳动合同法等法律法规，加强对企业实行 劳动合同制度的监督、指导和服务，在用工季节性强、职工流动性大的行业推广简易劳动 合同示范文本，依法规范劳动合同订立、履行、变更、解除、终止等行为，切实提高劳动 合同签订率和履行质量。依法加强对劳务派遣的监管，规范非全日制、劳务承揽、劳务外\n包用工和企业裁员行为。指导企业建立健全劳动规章制度，提升劳动用工管理水平。全面 推进劳动用工信息申报备案制度建设，加强对企业劳动用工的动态管理。", "ex": ""}, {"no": "（九）", "t": "（九）推行集体协商和集体合同制度。 以非公有制企业为重点对象，依法推进工资集 体协商，不断扩大覆盖面、增强实效性，形成反映人力资源市场供求关系和企业经济效益 的工资决定机制和正常增长机制。完善工资指导线制度，加快建立统一规范的企业薪酬调 查和信息发布制度，为开展工资集体协商提供参考。推动企业与职工就工作条件、劳动定 额、女职工特殊保护等开展集体协商，订立集体合同。加强集体协商代表能力建设，提高 协商水平。加强对集体协商过程的指导，督促企业和职工认真履行集体合同。", "ex": ""}, {"no": "（十）", "t": "（十）健全协调劳动关系三方机制。完善协调劳动关系三方机制组织体系，建立健全 由人力资源社会保障部门会同工会和企业联合会、工商业联合会等企业代表组织组成的三 方机制，根据实际需要推动工业园区、乡镇（街道）和产业系统建立三方机制。加强和创 新三方机制组织建设，建立健全协调劳动关系三方委员会，由同级政府领导担任委员会主 任。完善三方机制职能，健全工作制度，充分发挥政府、工会和企业代表组织共同研究解 决有关劳动关系重大问题的重要作用。", "ex": ""}, {"no": "五、", "t": "五、加强企业民主管理制度建设", "ex": ""}, {"no": "（十一）", "t": "（十一）健全企业民主管理制度。 完善以职工代表大会为基本形式的企业民主管理制 度，丰富职工民主参与形式，畅通职工民主参与渠道，依法保障职工的知情权、参与权、 表达权、监督权。推进企业普遍建立职工代表大会，认真落实职工代表大会职权，充分发 挥职工代表大会在企业发展重大决策和涉及职工切身利益等重大事项上的重要作用。针对 不同所有制企业，探索符合各自特点的职工代表大会形式、权限和职能。在中小企业集中 的地方，可以建立区域性、行业性职工代表大会。", "ex": ""}, {"no": "（十二）", "t": "（十二）推进厂务公开制度化、规范化。 进一步提高厂务公开建制率，加强国有企业 改制重组过程中的厂务公开，积极稳妥推进非公有制企业厂务公开制度建设。完善公开程 序，充实公开内容，创新公开形式，探索和推行经理接待日、劳资恳谈会、总经理信箱等 多种形式的公开。", "ex": ""}, {"no": "（十三）", "t": "（十三）推行职工董事、职工监事制度。 按照公司法规定，在公司制企业建立职工董 事、职工监事制度。依法规范职工董事、职工监事履职规则。在董事会、监事会研究决定 公司重大问题时，职工董事、职工监事应充分发表意见，反映职工合理诉求，维护职工和 公司合法权益。\n六 、健全劳动关系矛盾调处机制", "ex": ""}, {"no": "（十四）", "t": "（十四）健全劳动保障监察制度。 全面推进劳动保障监察网格化、网络化管理，实现  监察执法向主动预防和统筹城乡转变。创新监察执法方式，规范执法行为，进一步畅通举 报投诉渠道，扩大日常巡视检查和书面审查覆盖范围，强化对突出问题的专项整治。建立 健全违法行为预警防控机制，完善多部门综合治理和监察执法与刑事司法联动机制，加大 对非法用工尤其是大案要案的查处力度，严厉打击使用童工、强迫劳动、拒不支付劳动报 酬等违法犯罪行为。加强劳动保障诚信评价制度建设，建立健全企业诚信档案。", "ex": ""}, {"no": "（十五）", "t": "（十五）健全劳动争议调解仲裁机制。 坚持预防为主、基层为主、调解为主的工作方针，加强企业劳动争议调解委员会建设，推动各类企业普遍建立内部劳动争议协商调解机 制。大力推动乡镇（街道）、村（社区）依法建立劳动争议调解组织，支持工会、商（协） 会依法建立行业性、区域性劳动争议调解组织。完善劳动争议调解制度，大力加强专业性 劳动争议调解工作，健全人民调解、行政调解、仲裁调解、司法调解联动工作体系，充分 发挥协商、调解在处理劳动争议中的基础性作用。完善劳动人事争议仲裁办案制度，规范 办案程序，加大仲裁办案督查力度，进一步提高仲裁效能和办案质量，促进案件仲裁终结。 加强裁审衔接与工作协调，积极探索建立诉讼与仲裁程序有效衔接、裁审标准统一的新规 则、新制度。畅通法律援助渠道，依法及时为符合条件的职工提供法律援助，切实维护当 事人合法权益。依托协调劳动关系三方机制完善协调处理集体协商争议的办法，有效调处 因签订集体合同发生的争议和集体停工事件。", "ex": ""}, {"no": "（十六）", "t": "（十六）完善劳动关系群体性事件预防和应急处置机制。 加强对劳动关系形势的分析 研判，建立劳动关系群体性纠纷的经常性排查和动态监测预警制度，及时发现和积极解决 劳动关系领域的苗头性、倾向性问题，有效防范群体性事件。完善应急预案，明确分级响 应、处置程序和处置措施。健全党委领导下的政府负责，有关部门和工会、企业代表组织 共同参与的群体性事件应急联动处置机制，形成快速反应和处置工作合力，督促指导企业 落实主体责任，及时妥善处置群体性事件。", "ex": ""}, {"no": "七、", "t": "七、营造构建和谐劳动关系的良好环境", "ex": ""}, {"no": "（十七）", "t": "（十七）加强对职工的教育引导。 在广大职工中加强思想政治教育，引导职工树立正 确的世界观、人生观、价值观，追求高尚的职业理想，培养良好的职业道德，增强对企业 的责任感、认同感和归属感，爱岗敬业、遵守纪律、诚实守信，自觉履行劳动义务。加强 有关法律法规政策宣传工作，在努力解决职工切身利益问题的同时，引导职工正确对待社 会利益关系调整，合理确定提高工资收入等诉求预期，以理性合法形式表达利益诉求、解 决利益矛盾、维护自身权益。", "ex": ""}, {"no": "（十八）", "t": "（十八）加强对职工的人文关怀。 培育富有特色的企业精神和健康向上的企业文化， 为职工构建共同的精神家园。注重职工的精神需求和心理健康，及时了解掌握职工思想动 态，有针对性地做好思想引导和心理疏导工作，建立心理危机干预预警机制。加强企业文 体娱乐设施建设，积极组织职工开展喜闻乐见、丰富多彩的文化体育活动，丰富职工文化 生活。拓宽职工的发展渠道，拓展职业发展空间。", "ex": ""}, {"no": "（十九）", "t": "（十九）教育引导企业经营者积极履行社会责任。加强广大企业经营者的思想政治教  育，引导其践行社会主义核心价值观，牢固树立爱国、敬业、诚信、守法、奉献精神，切 实承担报效国家、服务社会、造福职工的社会责任。教育引导企业经营者自觉关心爱护职 工，努力改善职工的工作、学习和生活条件，帮助他们排忧解难，加大对困难职工的帮扶 力度。建立符合我国国情的企业社会责任标准体系和评价体系，营造鼓励企业履行社会责 任的环境。加强对企业经营者尤其是中小企业经营管理人员的劳动保障法律法规教育培训， 提高他们的依法用工意识，引导他们自觉保障职工合法权益。", "ex": ""}, {"no": "（二十）", "t": "（二十）优化企业发展环境。 加强和改进政府的管理服务，减少和规范涉企行政审批  事项，提高审批事项的工作效率，激发市场主体创造活力。加大对中小企业政策扶持力度，\n特别是推进扶持小微企业发展的各项政策落实落地，进一步减轻企业负担。加强技术支持， 引导企业主动转型升级，紧紧依靠科技进步、职工素质提升和管理创新，不断提升竞争力。 通过促进企业发展，为构建和谐劳动关系创造物质条件。", "ex": ""}, {"no": "（二十一）", "t": "（二十一）加强构建和谐劳动关系的法治保障。 进一步完善劳动法、劳动合同法、劳 动争议调解仲裁法、社会保险法、职业病防治法等法律的配套法规、规章和政策，加快完 善基本劳动标准、集体协商和集体合同、企业工资、劳动保障监察、企业民主管理、协调 劳动关系三方机制等方面的制度，逐步健全劳动保障法律法规体系。深入开展法律法规宣 传教育，加强行政执法和法律监督，促进各项劳动保障法律法规贯彻实施。", "ex": ""}, {"no": "八、", "t": "八、加强组织领导和统筹协调", "ex": ""}, {"no": "（二十二）", "t": "（二十二）进一步加强领导，形成合力。 各级党委和政府要建立健全构建和谐劳动关 系的领导协调机制，形成全社会协同参与的工作合力。各级党委要统揽全局，把握方向， 及时研究和解决劳动关系中的重大问题，把党政力量、群团力量、企业力量、社会力量统 一起来，发挥人大监督、政协民主监督作用。各级政府要把构建和谐劳动关系纳入当地经 济社会发展规划和政府目标责任考核体系，切实担负起定政策、作部署、抓落实的责任。 完善并落实最低工资制度，在经济发展基础上合理调整最低工资标准。各级人力资源社会 保障等部门要充分履行职责，认真做好调查研究、决策咨询、统筹协调、指导服务、检查 督促和监察执法等工作。各级工会要积极反映职工群众呼声，依法维护职工权益，团结和 凝聚广大职工建功立业。各级工商业联合会、企业联合会等企业代表组织要积极反映企业 利益诉求，依法维护企业权益，教育和引导广大企业经营者主动承担社会责任。", "ex": ""}, {"no": "（二十三）", "t": "（二十三）加强劳动关系工作能力建设。 重视加强各级政府劳动关系协调、劳动保障 监察机构建设以及劳动人事争议仲裁委员会和仲裁院建设，配备必要的工作力量。统筹推 进乡镇（街道）、村（社区）等基层劳动就业社会保障公共服务平台建设，完善基层劳动 关系工作职能，充实基层劳动关系协调、劳动争议调解和劳动保障监察人员。加强劳动关 系工作人员业务培训，提高队伍素质。各级政府要针对劳动关系工作机构和队伍建设方面 存在的问题，从力量配置、经费投入上给予支持，保障构建和谐劳动关系工作顺利开展。", "ex": ""}, {"no": "（二十四）", "t": "（二十四）加强企业党组织和基层工会、团组织、企业代表组织建设。 加强各类企业 党建工作，重点在非公有制企业扩大党的组织覆盖和工作覆盖。坚持企业党建带群团建\n设，依法推动各类企业普遍建立工会，进一步加强非公有制企业团建工作。指导和支持企 业党群组织探索适合企业特点的工作途径和方法，不断增强企业党群组织活力，充分发挥 在推动企业发展、凝聚职工群众、促进和谐稳定中的作用。深入推进区域性、行业性工会 联合会和县（市、区）、乡镇（街道）、村（社区）、工业园区工会组织建设，健全产业 工会组织体系。完善基层工会主席民主产生机制，探索基层工会干部社会化途径，健全保 护基层工会干部合法权益制度。建立健全县级以上政府与同级总工会联席会议制度，支持 工会参与协调劳动关系。加强基层企业代表组织建设，支持企业代表组织参与协调劳动关 系 ，充分发挥企业代表组织对企业经营者的团结、服务、引导、教育作用。", "ex": ""}, {"no": "（二十五）", "t": "（二十五）深入推进和谐劳动关系创建活动。 把和谐劳动关系创建活动作为构建和谐 劳动关系的重要载体，总结创建活动经验，建立健全创建工作目标责任制，扩大创建活动\n在广大企业特别是非公有制企业和中小企业的覆盖面，推动区域性创建活动由工业园区向 企业比较集中的乡镇（街道）、村（社区）拓展，努力形成全方位、多层次的创建局面。 丰富创建内容，规范创建标准，改进创建评价，完善激励措施，按照国家有关规定定期表 彰创建活动先进单位，把对企业和企业经营者评先评优与和谐劳动关系创建结合起来，不 断推进创建活动深入开展。积极开展构建和谐劳动关系综合试验区（市）建设，为构建中 国特色和谐劳动关系创造经验。", "ex": ""}, {"no": "（二十六）", "t": "（二十六）加大构建和谐劳动关系宣传力度。 充分利用新闻媒体和网站，大力宣传构 建和谐劳动关系的重大意义、宣传党和政府的方针政策和劳动保障法律法规、宣传构建和 谐劳动关系取得的实际成效和工作经验、宣传企业关爱职工和职工奉献企业的先进典型， 形成正确舆论导向和强大舆论声势，营造全社会共同关心、支持和参与构建和谐劳动关系 的良好氛围。", "ex": ""}]}];
+/* =================================================== */
+
+/* ===== 存储（自动保存 + 导出烘焙）===== */
+const KEY = 'statute_note_' + LAW_KEY;
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
+})();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+                '<div class="art-text">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
+</body>
+</html>
