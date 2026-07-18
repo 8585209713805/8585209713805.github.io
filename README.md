@@ -53,3 +53,6 @@ bash publish_note.sh --dry    # 仅预览，不提交不推送
 - 笔记批注存在浏览器本地（localStorage），换设备 / 清缓存前，记得在各笔记里点「导出」备份。
 - 本站已部署到 GitHub Pages（固定地址 `https://8585209713805.github.io/`），每日 03:30 自动同步本地改动；公网即最新。
 - 本站为纯静态只读站点，访客无法编辑你的内容。
+
+
+<!-- pages rebuild trigger 2026-07-18T07:07:50Z -->
