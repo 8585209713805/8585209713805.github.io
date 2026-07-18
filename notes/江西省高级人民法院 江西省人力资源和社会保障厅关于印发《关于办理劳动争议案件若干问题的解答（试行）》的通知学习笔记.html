@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法规学习笔记（可编辑）</title>
+<style>
+:root{
+  --bg:#eef1f5; --card:#ffffff; --ink:#1f2329; --muted:#7a8290;
+  --primary:#1f4e79; --primary-soft:#e8f0f7; --accent:#c0392b;
+  --mark:#e6a23c; --note-bg:#fffdf3; --note-bd:#e8d9a8;
+  --border:#e1e5ea; --line:#d8dde4; --shadow:0 1px 3px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  line-height:1.8; font-size:15px;
+}
+/* ===== 顶部栏 ===== */
+header{
+  position:sticky; top:0; z-index:50; background:var(--primary); color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.head-inner{max-width:1180px; margin:0 auto; padding:10px 18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.field-badge{display:inline-block; margin-left:4px; padding:2px 11px; font-size:12px; font-weight:600; color:#fff; background:var(--primary); border-radius:20px; vertical-align:middle; letter-spacing:.5px;}
+.head-inner h1{font-size:16px; margin:0; font-weight:600; letter-spacing:.5px; flex:1 1 260px;}
+.head-inner h1 small{display:block; font-size:11.5px; font-weight:400; opacity:.8; margin-top:2px;}
+.toolbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.toolbar input[type=search]{
+  padding:6px 10px; border:1px solid rgba(255,255,255,.35); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; width:160px; outline:none;
+}
+.toolbar input[type=search]::placeholder{color:rgba(255,255,255,.7);}
+.toolbar button{
+  padding:6px 12px; border:1px solid rgba(255,255,255,.4); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; cursor:pointer; white-space:nowrap;
+}
+.toolbar button:hover{background:rgba(255,255,255,.25);}
+.toolbar button.active{background:var(--mark); border-color:var(--mark); color:#fff;}
+.status{font-size:12px; opacity:.85; min-width:80px;}
+
+/* ===== 布局 ===== */
+.layout{max-width:1180px; margin:18px auto; padding:0 18px; display:flex; gap:20px; align-items:flex-start;}
+nav.toc{
+  position:sticky; top:78px; width:200px; flex:0 0 200px;
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:12px 10px; box-shadow:var(--shadow); max-height:calc(100vh - 100px); overflow:auto;
+}
+nav.toc .toc-title{font-size:12px; color:var(--muted); padding:0 8px 8px; border-bottom:1px solid var(--line); margin-bottom:6px;}
+nav.toc a{
+  display:block; padding:7px 8px; border-radius:6px; color:var(--ink); text-decoration:none;
+  font-size:13.5px; cursor:pointer;
+}
+nav.toc a:hover{background:var(--primary-soft);}
+nav.toc a.active{background:var(--primary); color:#fff; font-weight:500;}
+nav.toc a .cnt{float:right; color:var(--muted); font-size:11px;}
+nav.toc a.active .cnt{color:rgba(255,255,255,.85);}
+
+main{flex:1; min-width:0;}
+.chapter{margin-bottom:26px;}
+.chapter > h2{
+  font-size:18px; color:var(--primary); border-left:4px solid var(--primary);
+  padding-left:12px; margin:0 0 14px; font-weight:700;
+}
+.article{
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow); position:relative;
+  border-left:3px solid var(--line);
+}
+.article.marked{border-left-color:var(--mark); background:#fffdf6;}
+.art-head{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+.art-no{
+  font-weight:700; color:var(--primary); font-size:14.5px; background:var(--primary-soft);
+  padding:2px 10px; border-radius:5px;
+}
+.mark-btn{
+  margin-left:auto; border:none; background:none; cursor:pointer; font-size:18px; line-height:1;
+  color:var(--mark); padding:0 4px;
+}
+.mark-btn:hover{transform:scale(1.15);}
+.art-text{font-size:15px; color:#2b2f36; text-align:justify; white-space:pre-wrap;}
+
+/* 解读区 */
+.explain-label{font-size:12px; color:var(--primary); font-weight:600; margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+.explain{
+  font-size:13.5px; color:#3a4250; background:#f6f9fc; border-left:3px solid var(--primary);
+  border-radius:0 6px 6px 0; padding:8px 11px; white-space:pre-wrap; outline:none;
+}
+.explain:focus{background:#eef3fa; box-shadow:0 0 0 3px rgba(31,78,121,.12);}
+
+/* 关联案例 */
+.case-label{font-size:12px; color:#9a5b1e; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.case{background:#fbf6ee; border:1px solid #ecdcc0; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.case-title{font-weight:600; font-size:13.5px; color:#6b4423;}
+.case-desc{font-size:13px; color:#5a4a3a; margin-top:3px; white-space:pre-wrap;}
+.case-src{font-size:11.5px; color:#a98b5e; margin-top:4px;}
+
+/* 关联法条 */
+.rel-label{font-size:12px; color:#1f6fb2; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.rel{background:#eef4fb; border:1px solid #cfe0ef; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.rel-src{font-weight:600; font-size:13.5px; color:#14507e;}
+.rel-text{font-size:13px; color:#34404d; margin-top:4px; white-space:pre-wrap;}
+
+/* 检索按钮 */
+.tool-row{margin:10px 0 2px;}
+.search-btn{border:1px solid var(--border); background:#f3f7fb; color:var(--primary); border-radius:6px; padding:5px 10px; font-size:12.5px; cursor:pointer;}
+.search-btn:hover{background:#e3edf6;}
+
+/* 笔记区 */
+.note-label{font-size:12px; color:var(--muted); margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+
+/* 速查卡 */
+.quick{background:linear-gradient(135deg,#f0f6fc,#e8f0f7); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.quick-head{font-weight:700; color:var(--primary); padding:11px 14px; cursor:pointer; user-select:none; font-size:14.5px;}
+.quick-body{padding:2px 14px 12px;}
+.qg{font-size:13px; color:#34404d; padding:7px 0; border-top:1px dashed #d4e2ee; white-space:pre-wrap;}
+.qg:first-child{border-top:none;}
+.qg b{color:var(--primary);}
+
+/* 法规简介（发布信息） */
+.law-intro{background:linear-gradient(135deg,#f0f6fc,#eef4fb); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.law-intro-head{font-weight:700; color:var(--primary); padding:11px 14px; font-size:14.5px;}
+.law-intro-body{padding:2px 14px 12px;}
+.law-intro-desc{font-size:13.5px; color:#34404d; line-height:1.8; margin:2px 0 10px;}
+.meta-grid{display:grid; grid-template-columns:auto 1fr; gap:6px 14px; align-items:baseline;}
+.meta-grid .mk{font-size:13px; color:var(--muted); white-space:nowrap;}
+.meta-grid .mv{font-size:13px; color:#2b2f36;}
+.meta-grid .mv.ok{color:#1a9e57; font-weight:600;}
+.meta-grid .mv.no{color:#c0392b; font-weight:600;}
+
+/* 条文互链 */
+.lawlink{color:#1f6fb2; text-decoration:underline; cursor:pointer;}
+.lawlink:hover{color:#0d4f86;}
+
+/* 批注分层 */
+.notes-wrap{margin-top:2px;}
+.note-block{margin-bottom:8px;}
+.note-tag{display:inline-block; font-size:11px; font-weight:600; padding:1px 8px; border-radius:4px; margin-bottom:3px;}
+.tag-q{background:#fde8e8; color:#c0392b;}      /* 疑问 */
+.tag-c{background:#e6f4ea; color:#1e7a46;}      /* 我的案例 */
+.tag-s{background:#fef3e0; color:#b9770e;}      /* 要点总结 */
+.tag-t{background:#efe7fb; color:#6b3fa0;}      /* 待办 */
+.note.sub{background:var(--note-bg); border:1px dashed var(--note-bd); border-radius:7px; padding:7px 10px; min-height:32px; font-size:13.5px; color:#5a4a1a; white-space:pre-wrap; outline:none;}
+.note.sub:focus{border-style:solid; border-color:var(--mark); background:#fffce8; box-shadow:0 0 0 3px rgba(230,162,60,.15);}
+.note.sub:empty:before{content:attr(data-ph); color:#b9a86a;}
+
+/* 自测模式 */
+.reveal-btn{display:none; margin:10px 0 2px; border:1px solid var(--primary); background:var(--primary-soft); color:var(--primary); border-radius:6px; padding:5px 12px; font-size:12.5px; cursor:pointer;}
+.reveal-btn:hover{background:#d8e6f5;}
+body.self-test .reveal-btn{display:inline-block;}
+body.self-test .explain-label,
+body.self-test .explain,
+body.self-test .case-label,
+body.self-test .case,
+body.self-test .rel-label,
+body.self-test .rel,
+body.self-test .tool-row,
+body.self-test .note-label,
+body.self-test .notes-wrap{display:none;}
+.article.revealed .explain-label,
+.article.revealed .explain,
+.article.revealed .case-label,
+.article.revealed .case,
+.article.revealed .rel-label,
+.article.revealed .rel,
+.article.revealed .tool-row,
+.article.revealed .note-label,
+.article.revealed .notes-wrap{display:block;}
+body.self-test .article{opacity:.97;}
+body.self-test .article.revealed{border-left-color:var(--primary); background:#fff;}
+
+footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--muted); font-size:12.5px; text-align:center;}
+
+@media (max-width:860px){
+  .layout{flex-direction:column;}
+  nav.toc{position:static; width:100%; flex:none; max-height:none;}
+  .toolbar input[type=search]{width:120px;}
+}
+@media print{
+  header, nav.toc, footer, .tool-row, .quick-head{display:none !important;}
+  body{background:#fff;}
+  .layout{display:block; margin:0; padding:0;}
+  .article{break-inside:avoid; box-shadow:none; border:1px solid #ccc;}
+  .explain{background:#f4f6f9;}
+  .case{background:#fbf6ee;}
+  .mark-btn{display:none;}
+  .quick{box-shadow:none; border:1px solid #ccc;}
+  body.self-test .reveal-btn{display:none !important;}
+  body.self-test .explain, body.self-test .explain-label,
+  body.self-test .case, body.self-test .case-label,
+  body.self-test .rel, body.self-test .rel-label,
+  body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <h1><span id="lawTitle"></span><small id="lawSub"></small> <span id="lawField" class="field-badge"></span></h1>
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
+      <span class="status" id="status">已就绪</span>
+      <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
+      <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
+      <button id="btnPrint" title="打印 / 存为PDF">打印</button>
+      <button id="btnClear" title="清空本浏览器内全部笔记与标记">清空</button>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" id="toc">
+    <div class="toc-title">目录</div>
+  </nav>
+  <main id="content"></main>
+</div>
+
+<footer>
+  本笔记为个人学习用途，条文以官方公布文本为准。案例来源于司法部/最高法等公开发布的典型/指导案例。笔记与解读自动保存在本浏览器，导出可脱离浏览器长期留存。
+</footer>
+
+<script>
+/* ============ 用户定制区（由 docx 批量导入生成） ============ */
+const LAW_TITLE = "江西省高级人民法院 江西省人力资源和社会保障厅关于印发《关于办理劳动争议案件若干问题的解答（试行）》的通知";
+const LAW_SUB   = "《劳动法规汇编（江西）》· 共57条";
+const LAW_KEY   = "jx26";
+const LAW_FIELD = "劳动争议";
+
+const LAW_INTRO = "收录于《劳动法规汇编（江西）》，属「劳动争议」板块，共57个条文块。";
+const LAW_META = { issuer:"\u2014", published:"\u2014", effective:"\u2014", valid:"\u6709\u6548", level:"\u89c4\u8303\u6027\u6587\u4ef6" };
+
+const QUICK = [];
+const CASES = {};
+const REL = {};
+const DATA = [{"ch": "全文", "items": [{"no": "", "t": "赣高法〔2020〕67号  2020年5月9日\n全省各级法院、人力资源社会保障局：\n现将《江西省高级人民法院、江西省人力资源和社会保障厅关于办理劳动争议案件若干 问题的解答（试行）》印发给你们，供参考。实践中遇到的问题，请及时层报省法院立案二 庭和省人社厅调解仲裁管理处。\n关于办理劳动争议案件若干问题的解答（试行）", "ex": ""}, {"no": "一、", "t": "一、关于劳动关系确认", "ex": ""}, {"no": "1.", "t": "1.网络平台经营者与相关从业人员之间是否成立劳动关系?\n网络平台经营者与相关从业人员之间订立书面劳动合同并按劳动合同履行的，认定为 劳动关系；双方订立承包、租赁、联营等合同，并建立营运风险共担、利益共享分配机制 的，按双方约定执行，不应认定双方存在劳动关系。实际履行与约定不一致或双方未约定 的，以实际履行情况认定。\n双方未签订书面劳动合同的，依据《劳动和社会保障部关于确立劳动关系有关事项的 通知》的有关规定，根据劳动者的工作时长、工作频次、工作场所、报酬结算、劳动工具 等，企业对劳动者的监督管理程度、惩戒措施等因素综合认定是否存在劳动关系。", "ex": ""}, {"no": "2.", "t": "2.全日制在校学生与用人单位之间是否存在劳动关系?\n全日制在校学生在用人单位参加教学实习的，双方不存在劳动关系；在校学生根据《高  等学校勤工助学管理办法（2018年修订）》（教财〔2018〕12号）第4条规定利用业余时间 在用人单位勤工助学的，双方不存在劳动关系；在校学生在用人单位以就业为目的工作的， 可根据《劳动和社会保障部关于确立劳动关系有关事项的通知》综合判断双方之间是否存  在劳动关系。", "ex": ""}, {"no": "二、", "t": "二、关于劳动合同订立与履行", "ex": ""}, {"no": "3.", "t": "3.劳动者以书面劳动合同无效为由主张未签订书面劳动合同二倍工资差额的，应如何 处理?\n劳动者以书面劳动合同无效为由主张未签订书面劳动合同二倍工资差额的，不予支持。", "ex": ""}, {"no": "4.", "t": "4.劳动者以劳动合同倒签或补签为由主张未签订书面劳动合同二倍工资差额的，应如 何处理?\n双方将劳动合同的签字日期倒签在法定期限之内，劳动者以劳动合同倒签为由主张未  签订书面劳动合同二倍工资差额的，不予支持。但有证据证明存在欺诈、胁迫情形的除外。双方补签劳动合同的，劳动者主张实际用工之日至补签前一日扣除一个月订立书面劳 动合同宽限期的二倍工资差额，应予支持。", "ex": ""}, {"no": "5.", "t": "5.劳动合同期满后未续签，劳动者继续为用人单位提供劳动，劳动者主张二倍工资差 额的，应如何处理?\n劳动合同期满后，劳动者仍在原用人单位工作，超过一个月双方仍未续签劳动合同， 劳动者主张用人单位支付劳动合同续延期间未签订劳动合同二倍工资差额的，应予支持。 但双方对续签合同另有约定的除外。\n劳动合同期满后，依照《中华人民共和国劳动合同法》第四十二条规定依法续延，劳 动者主张用人单位支付劳动合同续延期间未签订劳动合同的每月二倍工资差额的，不予支 持。", "ex": ""}, {"no": "6.", "t": "6.劳动者主张用人单位支付二倍工资差额，用人单位以因劳动者原因未订立书面劳动 合同为由抗辩的，应如何处理?\n用人单位有证据证明其已主动履行订立劳动合同义务，但劳动者拒绝订立劳动合同或 者劳动者利用主管人事等职权故意不订立劳动合同，以及因其他客观原因导致用人单位无 法及时与劳动者订立劳动合同的，劳动者主张用人单位支付二倍工资差额的，不予支持。", "ex": ""}, {"no": "7.", "t": "7.标准工时工作制下确认加班事实的证据，应如何审查认定?\n标准工时工作制下认定劳动者是否存在加班事实，应主要审查以下几个方面：（1） 劳动者的工作时间超过法定工作时间标准；（2）劳动者在超出的工作时间内是在为用人 单位提供劳动；（3）加班是由用人单位安排的或者经用人单位批准的。", "ex": ""}, {"no": "8.", "t": "8.符合条件的劳动者提出与用人单位签订无固定期限劳动合同，用人单位不予签订， 劳动者请求人民法院判令用人单位签订，应如何处理?\n符合条件的劳动者提出与用人单位签订无固定期限劳动合同，用人单位不予签订，劳  动者请求人民法院判令用人单位签订的，人民法院应向劳动者释明可以将诉讼请求变更为  要求确认双方存在无固定期限劳动合同关系，劳动者拒绝变更的，对其诉讼请求不予支持。", "ex": ""}, {"no": "9.", "t": "9.劳动者因工作原因占有、使用用人单位财物的，应如何处理?\n用人单位要求劳动者返还劳动合同存续期间因劳动合同的履行而由劳动者占有、使用 的财物的，应当按照劳动争议案件处理。\n用人单位要求劳动者返还劳动合同存续期间劳动者非因工作原因借用的财物的，应当 按照普通民事案件处理。", "ex": ""}, {"no": "10.", "t": "10.劳动合同期限内存在哪些情形，可以认定为劳动合同中止?\n劳动合同履行过程中存在以下情形之一的，可以认定为劳动合同中止履行：", "ex": ""}, {"no": "（一）", "t": "（一）经双方当事人协商一致中止履行劳动合同的；", "ex": ""}, {"no": "（二）", "t": "（二）劳动者因涉嫌违法犯罪被限制人身自由的；", "ex": ""}, {"no": "（三）", "t": "（三）劳动合同因不可抗力暂时不能履行的；", "ex": ""}, {"no": "（四）", "t": "（四）劳动者应征入伍或履行国家规定的其他法定义务的；", "ex": ""}, {"no": "（五）", "t": "（五）劳动者暂时无法履行劳动合同的义务，但仍有继续履行条件和可能的；", "ex": ""}, {"no": "（六）", "t": "（六）法律、法规规定的或劳动合同约定的其他情形。\n劳动合同中止履行期间，劳动关系保留，劳动合同暂停履行，用人单位可以不支付劳 动报酬并停止缴纳社会保险费。劳动合同中止期间不计算为劳动者在用人单位的工作年  限。劳动合同中止情形消失，除已经无法履行的外，应当恢复履行。\n三 、关于劳动报酬", "ex": ""}, {"no": "11.", "t": "11.未订立书面劳动合同二倍工资差额的计算基数应如何认定?\n二倍工资差额的计算基数应是劳动者对应月份实际发放工资，不含以下部分：（一） 延长工作时间的工资报酬；（二）因劳动者工作业绩而随机发放的效益工资、提成等；", "ex": ""}, {"no": "（三）", "t": "（三）支付周期超过一个月的劳动报酬，如季度奖、半年奖、年终奖、年底双薪以及按照 季度、半年、年结算的业务提成等；（四）未确定支付周期的劳动报酬，如一次性发放的 奖金、津贴、补贴等；（五）法律、法规和国家规定的劳动者福利待遇等。但劳动者正常 工作时间的工资低于当地最低工资标准的，以当地最低工资标准为计算基数。", "ex": ""}, {"no": "12.", "t": "12.加班工资基数应如何认定?\n双方当事人对工资构成和工作时间有明确约定的，从其约定。劳动者正常工作时间的 工资低于当地最低工资标准的，以当地最低工资标准为计算基数。\n双方当事人对工资构成和工作时间约定不明确，按实际发放工资中的正常工作时间工 资作为加班工资的计算基数。折算后的正常工作时间工资低于当地最低工资标准的，以当 地最低工资标准为计算基数。", "ex": ""}, {"no": "13.", "t": "13.工伤职工在停工留薪期内的工资如何确定?\n根据《工伤保险条例》第三十三条的规定，工伤职工在停工留薪期内“原工资福利待 遇不变”，其中“原工资”按照工伤职工因工作遭受事故伤害或者患职业病前12个月的平 均月工资计算，但不包括加班工资。", "ex": ""}, {"no": "14.", "t": "14.用人单位安排劳动者休息日加班后安排了补休，劳动者拒绝补休的，用人单位能否 免除支付加班费义务?\n用人单位安排劳动者休息日加班后安排了补休，劳动者拒绝补休并要求用人单位支付 加班费的，不予支持。", "ex": ""}, {"no": "四、", "t": "四、关于劳动合同解除和终止", "ex": ""}, {"no": "15.", "t": "15.用人单位以劳动者存在劳动合同法第三十九条规定情形为由解除劳动合同，在仲裁 或诉讼程序中，用人单位又补充提出劳动者存在用人单位可单方解除劳动合同的其他事由 或情形，应如何处理?\n用人单位以劳动者存在《中华人民共和国劳动合同法》第三十九条规定情形为由解除 劳动合同，应当围绕用人单位在解除劳动合同当时所提出的事由或情形，审查用人单位是 否构成违法解除劳动合同。在仲裁或诉讼程序中，用人单位事后补充的劳动者存在用人单 位可单方解除劳动合同的其他事由或情形，均不纳入审查范围。", "ex": ""}, {"no": "16.", "t": "16.用人单位单方调整工作岗位，劳动者不服，导致解除劳动合同的，应如何处理?\n用人单位调整劳动者工作岗位，牵涉用人单位用工自主权及劳动权益的平衡。同时符 合以下情形的，视为用人单位合法行使用工自主权，劳动者以用人单位擅自调整其工作岗 位为由要求解除劳动合同并请求用人单位支付经济补偿的，不予支持：\n（1）符合劳动合同的约定或者用人单位规章制度的规定；\n（2）符合用人单位生产经营的客观需要；\n（3）调整后的工作岗位的劳动待遇水平与原岗位基本相当，但根据《中华人民共和国 劳动合同法》第四十条第一项和第二项，因劳动者患病或者非因工负伤，在规定的医疗期 满后不能从事原工作而被调整岗位，或者因劳动者不能胜任工作而调整岗位的除外；\n（4）调整工作岗位不具有歧视性、侮辱性；\n（5）不违反法律法规的规定。\n用人单位主张调整劳动者工作岗位合法，应承担举证证明责任。\n用人单位调整劳动者的工作岗位且不具有上述规定的情形，劳动者超过一个月未明确 提出异议，后又以《中华人民共和国劳动合同法》第三十八条第一款第一项规定要求解除 劳动合同并请求用人单位支付经济补偿的，不予支持。\n劳动者既未到新的工作岗位报到也未到原岗位出勤的，按照用人单位规章制度规定确 属严重违纪的，用人单位主张解除劳动合同的，应予支持。", "ex": ""}, {"no": "17.", "t": "17.劳动者未提前通知用人单位而擅自离职的，应如何处理?\n劳动者未提前三十天（在试用期内提前三天）书面通知用人单位解除劳动合同，自行 离职，或虽然履行通知义务，但未履行办理工作交接等相关义务，给用人单位造成损失， 用人单位主张劳动者赔偿直接经济损失的，应予支持。对所造成的经济损失，用人单位负 有举证责任。\n劳动者以《中华人民共和国劳动合同法》第三十八条第二款规定为由解除劳动合同 的，可以不需要事先通知用人单位。", "ex": ""}, {"no": "18.", "t": "18.劳动合同不能继续履行的具体情形有哪些?\n《中华人民共和国劳动合同法》第四十八条中“劳动合同已经不能继续履行的”情形 包括：", "ex": ""}, {"no": "（一）", "t": "（一）用人单位被依法宣告破产、吊销营业执照、责令关闭、撤销或者用人单位决定 提前解散的；", "ex": ""}, {"no": "（二）", "t": "（二）劳动者在仲裁或者诉讼过程中达到法定退休年龄的；", "ex": ""}, {"no": "（三）", "t": "（三）劳动合同在仲裁或者诉讼过程中到期终止且不存在《中华人民共和国劳动合同 法》第十四条规定应当订立无固定期限劳动合同情形的；", "ex": ""}, {"no": "（四）", "t": "（四）劳动者原岗位对用人单位的正常业务开展具有较强的不可替代性和唯一性（如 总经理、财务负责人等），且劳动者原岗位已被他人替代，双方不能就新岗位达成一致意 见的；", "ex": ""}, {"no": "（五）", "t": "（五）劳动者已入职新用人单位的；", "ex": ""}, {"no": "（六）", "t": "（六）仲裁或者诉讼过程中，用人单位有证据证明向劳动者提供合理工作岗位，但劳 动者拒绝的；", "ex": ""}, {"no": "（七）", "t": "（七）其他明显不具备继续履行劳动合同条件的。\n用人单位仅以劳动者原岗位已被他人替代为由进行抗辩的，不宜认定为“劳动合同已 经不能继续履行的”情形。", "ex": ""}, {"no": "19.", "t": "19.劳动者主张继续履行劳动合同，但劳动合同已无法继续履行的，应如何处理?\n劳动者主张继续履行劳动合同，但劳动合同确已无法继续履行的，应当向劳动者进行 释明，告知其可以变更请求为要求用人单位支付违法解除劳动合同的赔偿金，如果劳动者 坚持不变更，应当驳回其继续履行劳动合同的请求，并告知劳动者可以另行主张违法解除 劳动合同的赔偿金。", "ex": ""}, {"no": "20.", "t": "20.劳动者要求用人单位支付加付赔偿金的，应如何处理?\n用人单位存在《中华人民共和国劳动合同法》第八十五条规定的违法情形，劳动者向 人民法院起诉要求用人单位支付加付赔偿金的，劳动者应当就劳动行政部门责令用人单位 限期支付劳动报酬、加班费、经济补偿、工资差额的相关事实和用人单位逾期未履行的相 关事实承担举证责任。", "ex": ""}, {"no": "五、", "t": "五、关于社会保险待遇", "ex": ""}, {"no": "21.", "t": "21.用人单位未缴、欠缴社会保险费或未按规定的工资基数足额缴纳社会保险费的，劳 动者主张予以补缴的，应如何处理?\n用人单位未缴、欠缴社会保险费或未按规定的工资基数足额缴纳社会保险费的，劳动 者主张予以补缴的，告知劳动者不属于劳动争议案件的受案范围，应裁定不予受理。已经 受理的，应裁定驳回起诉。", "ex": ""}, {"no": "22.", "t": "22.达到法定退休年龄的人员向用人单位主张工伤待遇的，应如何处理?\n达到法定退休年龄的人员向用人单位主张工伤待遇，未能提供劳动行政部门作出的工  伤认定的，不予支持。但用人单位对构成工伤不持异议的除外。符合人身损害赔偿条件的， 应向其释明可以另行提起侵权之诉。坚持主张工伤待遇的，驳回其诉讼请求。", "ex": ""}, {"no": "23.", "t": "23.非法用工单位伤残职工或者死亡职工的近亲属直接向人民法院起诉要求用工单位支 付一次性赔偿的，应如何处理?\n非法用工单位伤残职工或者死亡职工的近亲属依据相关行政部门出具的非法用工处理 意见要求单位支付一次性赔偿的，应予支持。非法用工单位伤残职工或者死亡职工的近亲 属不能提供相关行政部门出具的非法用工处理意见，人民法院根据查明的事实及《非法用 工单位伤亡人员一次性赔偿办法》的规定认定非法用工关系成立的，非法用工单位应承担 相应赔偿责任。人民法院可以委托非法用工单位所在地设区的市级劳动能力鉴定委员会进 行伤残职工的劳动能力鉴定。", "ex": ""}, {"no": "六、", "t": "六、关于裁审衔接", "ex": ""}, {"no": "24.", "t": "24. 确认劳动关系争议的申请仲裁时效应如何确定?\n确认劳动关系争议应当适用《中华人民共和国劳动争议调解仲裁法》第二十七条第一 款规定的申请仲裁时效。", "ex": ""}, {"no": "25.", "t": "25.劳动者主张未休年休假补偿工资的仲裁时效及起算点应如何确立?\n劳动者要求用人单位支付其未休带薪年休假工资诉请的仲裁时效期间应适用《中华人 民共和国劳动争议调解仲裁法》第二十七条第一款之规定，从应休年休假年度次年的1月 1日起计算；用人单位允许跨年度安排劳动者休年休假的，请求权时效顺延至下一年度的 1月1日起计算；劳动关系已经解除或者终止的，从劳动关系解除或者终止之日起计算。", "ex": ""}, {"no": "26.", "t": "26.当事人撤诉或按撤诉处理后，再次直接提起诉讼的，应如何处理?\n当事人不服劳动人事仲裁机构作出的仲裁裁决向人民法院起诉后，在诉讼过程中撤回 起诉或被人民法院按撤诉处理的，原仲裁裁决自人民法院裁定送达当事人之日起发生法律 效力。当事人又直接提起诉讼的，人民法院不予受理。已经受理的，裁定驳回起诉。", "ex": ""}, {"no": "27.", "t": "27.当事人在仲裁阶段未提出仲裁时效抗辩，在诉讼阶段提出的，应如何处理?\n劳动人事仲裁机构受理劳动争议案件并作出实体裁决，当事人在仲裁审理过程中没有 提出仲裁时效抗辩的，但在一审时提出的，不予支持。\n劳动人事仲裁机构未经审理直接作出不予受理通知的，当事人在一审时提出仲裁时效 抗辩的，人民法院应予审理。\n当事人未按照规定提出仲裁时效抗辩，又以仲裁时效期间届满为由申请再审或者提出 再审抗辩的，不予支持。", "ex": ""}, {"no": "28.", "t": "28.当事人在仲裁阶段未提供的证据，在诉讼阶段提交的，应如何处理?\n依法负有举证责任的当事人，在仲裁过程中未提交或拒不提交证据，在诉讼阶段提交 该证据且不能说明正当理由的，按照《中华人民共和国民事诉讼法》、《最高人民法院关 于民事诉讼证据的若干规定》等法律和司法解释关于逾期提交证据的相关规定作出认定和 处理。", "ex": ""}, {"no": "29.", "t": "29.当事人在诉讼阶段否认在仲裁阶段的自认，应如何处理?\n在诉讼阶段，对当事人在仲裁阶段作出自认行为的效力，适用《中华人民共和国民事  诉讼法》、《最高人民法院关于民事诉讼证据的若干规定》等法律和司法解释的相关规定。", "ex": ""}, {"no": "30.", "t": "30.当事人在仲裁阶段主张经济补偿金，后在诉讼阶段增加主张违法解除劳动关系的赔 偿金的，应如何处理?\n当事人在仲裁阶段主张经济补偿金，后在诉讼阶段增加主张违法解除劳动关系的赔偿 金的，可认定该诉讼请求与讼争劳动争议具有不可分性，应予合并审理。", "ex": ""}, {"no": "31.", "t": "31.当事人主张用人单位支付赔偿金，经审理认为理由不成立，但符合用人单位应当支 付经济补偿金的情形，应如何处理?\n劳动人事仲裁机构或人民法院在审理中向劳动者释明赔偿金和经济补偿金的区别后， 劳动者仍坚持只要求用人单位支付赔偿金的，不能径行裁判由用人单位支付经济补偿金。", "ex": ""}, {"no": "32.", "t": "32.仲裁裁决有多项内容，当事人仅就部分内容提起诉讼的，应如何处理?\n仲裁裁决有多项内容，当事人仅就部分内容提起诉讼的，人民法院对双方当事人均未 起诉的仲裁结果部分，可在“本院认为”中予以确认，并直接写入判决主文。\n人民法院对仲裁裁决确认是否存在劳动关系一项认为有误的，无论当事人是否提出诉 讼请求，均可以直接予以认定，并根据所认定的事实作出相应判决。\n当事人在诉讼中提出仲裁阶段未申请的新的诉讼请求的，告知其另行申请仲裁。但该 诉讼请求与讼争劳动争议具有不可分性的除外。", "ex": ""}, {"no": "33.", "t": "33.劳动者与用人单位达成调解协议后，如何适用仲裁及司法程序?\n劳动者与用人单位可以在劳动争议调解委员会、人民调解委员会、工会等有具有劳动 争议调解职能的调解组织的主持下达成调解协议。\n仅就给付义务情形达成的调解协议，劳动者与用人单位可依据《最高人民法院关于审 理劳动争议案件适用法律若干问题的解释（四）》第四条等法律规定，向人民法院申请司 法确认。劳动者与用人单位达成的其他内容的调解协议，也可向人民法院申请司法确认。 人民法院予以确认的，当事人可申请强制执行。人民法院不予确认的，当事人可以向劳动 争议仲裁委员会申请仲裁。\n就支付劳动报酬、工伤医疗费、经济补偿或者赔偿金达成调解协议的，劳动者可依据 《中华人民共和国劳动合同法》第三十条、《中华人民共和国劳动争议调解仲裁法》第十 六条等法律规定向人民法院申请支付令。支付令被人民法院裁定终结督促程序后，按照 《最高人民法院关于审理劳动争议案件适用法律若干问题的解释（三）》第十七条执行。\n仅就劳动报酬达成调解协议，双方不涉及劳动关系其他争议的，用人单位不履行调解 协议确定的给付义务，劳动者可依据《最高人民法院关于审理劳动争议案件适用法律若干 问题的解释（二）》第三条、第十七条等法律规定，直接向人民法院起诉。", "ex": ""}, {"no": "34.", "t": "34. 调解协议的效力如何认定?\n劳动者与用人单位根据本解答第33条达成的调解协议，经审查不违反法律、行政法规 的强制性规定，且不存在欺诈、胁迫或者乘人之危情形的，应当认定有效。如果存在重大 误解或者显失公平情形，当事人请求撤销的，人民法院应予支持。", "ex": ""}, {"no": "35.", "t": "35.人民法院在案件审理过程中，是否可以向仲裁机构查阅复制有关内容?\n劳动人事仲裁机构和人民法院可以根据案情需要，相互发函查阅、复制相关案件的内 容，双方应予相互配合。", "ex": ""}, {"no": "七、", "t": "七、其  他", "ex": ""}, {"no": "36.", "t": "36.重大突发性公共安全事件期间劳动争议纠纷应如何处理?\n涉及新冠肺炎等重大突发性公共安全事件期间的劳动争议纠纷，依据劳动法、劳动合 同法等相关法律法规、司法解释，并结合国家和本省有关规定办理。\n本解答自印发之日起供全省各级人民法院、仲裁机构参照执行。法律法规、司法解 释有新规定的，按法律法规、司法解释的规定执行。", "ex": ""}]}];
+/* =================================================== */
+
+/* ===== 存储（自动保存 + 导出烘焙）===== */
+const KEY = 'statute_note_' + LAW_KEY;
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
+})();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+                '<div class="art-text">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
+</body>
+</html>
