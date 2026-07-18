@@ -16,7 +16,8 @@ FILES += sorted(os.path.join('notes', os.path.basename(p))
 
 
 def curl(method, url, data=None):
-    cmd = ['curl', '-s', '-o', '-', '-w', '\n%{http_code}',
+    cmd = ['curl', '-s', '--max-time', '40', '--retry', '2', '--retry-delay', '1',
+           '-o', '-', '-w', '\n%{http_code}',
            '-H', f'Authorization: Bearer {PAT}']
     if method == 'PUT':
         cmd += ['-X', 'PUT', '-H', 'Content-Type: application/json', '--data', data]
