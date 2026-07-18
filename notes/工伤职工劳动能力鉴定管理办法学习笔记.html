@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法规学习笔记（可编辑）</title>
+<style>
+:root{
+  --bg:#eef1f5; --card:#ffffff; --ink:#1f2329; --muted:#7a8290;
+  --primary:#1f4e79; --primary-soft:#e8f0f7; --accent:#c0392b;
+  --mark:#e6a23c; --note-bg:#fffdf3; --note-bd:#e8d9a8;
+  --border:#e1e5ea; --line:#d8dde4; --shadow:0 1px 3px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  line-height:1.8; font-size:15px;
+}
+/* ===== 顶部栏 ===== */
+header{
+  position:sticky; top:0; z-index:50; background:var(--primary); color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.head-inner{max-width:1180px; margin:0 auto; padding:10px 18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.field-badge{display:inline-block; margin-left:4px; padding:2px 11px; font-size:12px; font-weight:600; color:#fff; background:var(--primary); border-radius:20px; vertical-align:middle; letter-spacing:.5px;}
+.head-inner h1{font-size:16px; margin:0; font-weight:600; letter-spacing:.5px; flex:1 1 260px;}
+.head-inner h1 small{display:block; font-size:11.5px; font-weight:400; opacity:.8; margin-top:2px;}
+.toolbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.toolbar input[type=search]{
+  padding:6px 10px; border:1px solid rgba(255,255,255,.35); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; width:160px; outline:none;
+}
+.toolbar input[type=search]::placeholder{color:rgba(255,255,255,.7);}
+.toolbar button{
+  padding:6px 12px; border:1px solid rgba(255,255,255,.4); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; cursor:pointer; white-space:nowrap;
+}
+.toolbar button:hover{background:rgba(255,255,255,.25);}
+.toolbar button.active{background:var(--mark); border-color:var(--mark); color:#fff;}
+.status{font-size:12px; opacity:.85; min-width:80px;}
+
+/* ===== 布局 ===== */
+.layout{max-width:1180px; margin:18px auto; padding:0 18px; display:flex; gap:20px; align-items:flex-start;}
+nav.toc{
+  position:sticky; top:78px; width:200px; flex:0 0 200px;
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:12px 10px; box-shadow:var(--shadow); max-height:calc(100vh - 100px); overflow:auto;
+}
+nav.toc .toc-title{font-size:12px; color:var(--muted); padding:0 8px 8px; border-bottom:1px solid var(--line); margin-bottom:6px;}
+nav.toc a{
+  display:block; padding:7px 8px; border-radius:6px; color:var(--ink); text-decoration:none;
+  font-size:13.5px; cursor:pointer;
+}
+nav.toc a:hover{background:var(--primary-soft);}
+nav.toc a.active{background:var(--primary); color:#fff; font-weight:500;}
+nav.toc a .cnt{float:right; color:var(--muted); font-size:11px;}
+nav.toc a.active .cnt{color:rgba(255,255,255,.85);}
+
+main{flex:1; min-width:0;}
+.chapter{margin-bottom:26px;}
+.chapter > h2{
+  font-size:18px; color:var(--primary); border-left:4px solid var(--primary);
+  padding-left:12px; margin:0 0 14px; font-weight:700;
+}
+.article{
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow); position:relative;
+  border-left:3px solid var(--line);
+}
+.article.marked{border-left-color:var(--mark); background:#fffdf6;}
+.art-head{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+.art-no{
+  font-weight:700; color:var(--primary); font-size:14.5px; background:var(--primary-soft);
+  padding:2px 10px; border-radius:5px;
+}
+.mark-btn{
+  margin-left:auto; border:none; background:none; cursor:pointer; font-size:18px; line-height:1;
+  color:var(--mark); padding:0 4px;
+}
+.mark-btn:hover{transform:scale(1.15);}
+.art-text{font-size:15px; color:#2b2f36; text-align:justify; white-space:pre-wrap;}
+
+/* 解读区 */
+.explain-label{font-size:12px; color:var(--primary); font-weight:600; margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+.explain{
+  font-size:13.5px; color:#3a4250; background:#f6f9fc; border-left:3px solid var(--primary);
+  border-radius:0 6px 6px 0; padding:8px 11px; white-space:pre-wrap; outline:none;
+}
+.explain:focus{background:#eef3fa; box-shadow:0 0 0 3px rgba(31,78,121,.12);}
+
+/* 关联案例 */
+.case-label{font-size:12px; color:#9a5b1e; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.case{background:#fbf6ee; border:1px solid #ecdcc0; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.case-title{font-weight:600; font-size:13.5px; color:#6b4423;}
+.case-desc{font-size:13px; color:#5a4a3a; margin-top:3px; white-space:pre-wrap;}
+.case-src{font-size:11.5px; color:#a98b5e; margin-top:4px;}
+
+/* 关联法条 */
+.rel-label{font-size:12px; color:#1f6fb2; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.rel{background:#eef4fb; border:1px solid #cfe0ef; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.rel-src{font-weight:600; font-size:13.5px; color:#14507e;}
+.rel-text{font-size:13px; color:#34404d; margin-top:4px; white-space:pre-wrap;}
+
+/* 检索按钮 */
+.tool-row{margin:10px 0 2px;}
+.search-btn{border:1px solid var(--border); background:#f3f7fb; color:var(--primary); border-radius:6px; padding:5px 10px; font-size:12.5px; cursor:pointer;}
+.search-btn:hover{background:#e3edf6;}
+
+/* 笔记区 */
+.note-label{font-size:12px; color:var(--muted); margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+
+/* 速查卡 */
+.quick{background:linear-gradient(135deg,#f0f6fc,#e8f0f7); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.quick-head{font-weight:700; color:var(--primary); padding:11px 14px; cursor:pointer; user-select:none; font-size:14.5px;}
+.quick-body{padding:2px 14px 12px;}
+.qg{font-size:13px; color:#34404d; padding:7px 0; border-top:1px dashed #d4e2ee; white-space:pre-wrap;}
+.qg:first-child{border-top:none;}
+.qg b{color:var(--primary);}
+
+/* 法规简介（发布信息） */
+.law-intro{background:linear-gradient(135deg,#f0f6fc,#eef4fb); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.law-intro-head{font-weight:700; color:var(--primary); padding:11px 14px; font-size:14.5px;}
+.law-intro-body{padding:2px 14px 12px;}
+.law-intro-desc{font-size:13.5px; color:#34404d; line-height:1.8; margin:2px 0 10px;}
+.meta-grid{display:grid; grid-template-columns:auto 1fr; gap:6px 14px; align-items:baseline;}
+.meta-grid .mk{font-size:13px; color:var(--muted); white-space:nowrap;}
+.meta-grid .mv{font-size:13px; color:#2b2f36;}
+.meta-grid .mv.ok{color:#1a9e57; font-weight:600;}
+.meta-grid .mv.no{color:#c0392b; font-weight:600;}
+
+/* 条文互链 */
+.lawlink{color:#1f6fb2; text-decoration:underline; cursor:pointer;}
+.lawlink:hover{color:#0d4f86;}
+
+/* 批注分层 */
+.notes-wrap{margin-top:2px;}
+.note-block{margin-bottom:8px;}
+.note-tag{display:inline-block; font-size:11px; font-weight:600; padding:1px 8px; border-radius:4px; margin-bottom:3px;}
+.tag-q{background:#fde8e8; color:#c0392b;}      /* 疑问 */
+.tag-c{background:#e6f4ea; color:#1e7a46;}      /* 我的案例 */
+.tag-s{background:#fef3e0; color:#b9770e;}      /* 要点总结 */
+.tag-t{background:#efe7fb; color:#6b3fa0;}      /* 待办 */
+.note.sub{background:var(--note-bg); border:1px dashed var(--note-bd); border-radius:7px; padding:7px 10px; min-height:32px; font-size:13.5px; color:#5a4a1a; white-space:pre-wrap; outline:none;}
+.note.sub:focus{border-style:solid; border-color:var(--mark); background:#fffce8; box-shadow:0 0 0 3px rgba(230,162,60,.15);}
+.note.sub:empty:before{content:attr(data-ph); color:#b9a86a;}
+
+/* 自测模式 */
+.reveal-btn{display:none; margin:10px 0 2px; border:1px solid var(--primary); background:var(--primary-soft); color:var(--primary); border-radius:6px; padding:5px 12px; font-size:12.5px; cursor:pointer;}
+.reveal-btn:hover{background:#d8e6f5;}
+body.self-test .reveal-btn{display:inline-block;}
+body.self-test .explain-label,
+body.self-test .explain,
+body.self-test .case-label,
+body.self-test .case,
+body.self-test .rel-label,
+body.self-test .rel,
+body.self-test .tool-row,
+body.self-test .note-label,
+body.self-test .notes-wrap{display:none;}
+.article.revealed .explain-label,
+.article.revealed .explain,
+.article.revealed .case-label,
+.article.revealed .case,
+.article.revealed .rel-label,
+.article.revealed .rel,
+.article.revealed .tool-row,
+.article.revealed .note-label,
+.article.revealed .notes-wrap{display:block;}
+body.self-test .article{opacity:.97;}
+body.self-test .article.revealed{border-left-color:var(--primary); background:#fff;}
+
+footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--muted); font-size:12.5px; text-align:center;}
+
+@media (max-width:860px){
+  .layout{flex-direction:column;}
+  nav.toc{position:static; width:100%; flex:none; max-height:none;}
+  .toolbar input[type=search]{width:120px;}
+}
+@media print{
+  header, nav.toc, footer, .tool-row, .quick-head{display:none !important;}
+  body{background:#fff;}
+  .layout{display:block; margin:0; padding:0;}
+  .article{break-inside:avoid; box-shadow:none; border:1px solid #ccc;}
+  .explain{background:#f4f6f9;}
+  .case{background:#fbf6ee;}
+  .mark-btn{display:none;}
+  .quick{box-shadow:none; border:1px solid #ccc;}
+  body.self-test .reveal-btn{display:none !important;}
+  body.self-test .explain, body.self-test .explain-label,
+  body.self-test .case, body.self-test .case-label,
+  body.self-test .rel, body.self-test .rel-label,
+  body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <h1><span id="lawTitle"></span><small id="lawSub"></small> <span id="lawField" class="field-badge"></span></h1>
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
+      <span class="status" id="status">已就绪</span>
+      <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
+      <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
+      <button id="btnPrint" title="打印 / 存为PDF">打印</button>
+      <button id="btnClear" title="清空本浏览器内全部笔记与标记">清空</button>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" id="toc">
+    <div class="toc-title">目录</div>
+  </nav>
+  <main id="content"></main>
+</div>
+
+<footer>
+  本笔记为个人学习用途，条文以官方公布文本为准。案例来源于司法部/最高法等公开发布的典型/指导案例。笔记与解读自动保存在本浏览器，导出可脱离浏览器长期留存。
+</footer>
+
+<script>
+/* ============ 用户定制区（由 docx 批量导入生成） ============ */
+const LAW_TITLE = "工伤职工劳动能力鉴定管理办法";
+const LAW_SUB   = "《劳动法规汇编（江西）》· 共34条";
+const LAW_KEY   = "jx68";
+const LAW_FIELD = "社会保障";
+
+const LAW_INTRO = "收录于《劳动法规汇编（江西）》，属「社会保障」板块，共34个条文块。";
+const LAW_META = { issuer:"\u2014", published:"\u2014", effective:"\u2014", valid:"\u6709\u6548", level:"\u90e8\u95e8\u89c4\u7ae0" };
+
+const QUICK = [];
+const CASES = {};
+const REL = {};
+const DATA = [{"ch": "全文", "items": [{"no": "", "t": "中华人民共和国人力资源和社会保障部\n中华人民共和国国家卫生和计划生育委员会令第21号\n《工伤职工劳动能力鉴定管理办法》已经人力资源社会保障部部务会、国家卫生计生 委委主任会议讨论通过，现予公布，自2014年4月1日起施行。\n人力资源社会保障部部长 尹蔚民 国家卫生计生委主任 李斌\n2014年2月20日\n（2014年2月20日人力资源社会保障部、国家卫生和计划生育委员会令第21号公布根 据2018年12月14日《人力资源社会保障部关于修改部分规章的决定》修订）", "ex": ""}]}, {"ch": "第一章  总  则", "items": [{"no": "第一条", "t": "第一条  为了加强劳动能力鉴定管理，规范劳动能力鉴定程序，根据《中华人民共和 国社会保险法》、《中华人民共和国职业病防治法》和《工伤保险条例》，制定本办法。", "ex": ""}, {"no": "第二条", "t": "第二条  劳动能力鉴定委员会依据《劳动能力鉴定职工工伤与职业病致残等级》国家 标准，对工伤职工劳动功能障碍程度和生活自理障碍程度组织进行技术性等级鉴定，适用 本办法。", "ex": ""}, {"no": "第三条", "t": "第三条  省、自治区、直辖市劳动能力鉴定委员会和设区的市级（含直辖市的市辖 区、县，下同）劳动能力鉴定委员会分别由省、自治区、直辖市和设区的市级人力资源社 会保障行政部门、卫生计生行政部门、工会组织、用人单位代表以及社会保险经办机构代 表组成。\n承担劳动能力鉴定委员会日常工作的机构，其设置方式由各地根据实际情况决定。", "ex": ""}, {"no": "第四条", "t": "第四条  劳动能力鉴定委员会履行下列职责：\n（一）选聘医疗卫生专家，组建医疗卫生专家库，对专家进行培训和管理；\n（二）组织劳动能力鉴定；\n（三）根据专家组的鉴定意见作出劳动能力鉴定结论；\n（四）建立完整的鉴定数据库，保管鉴定工作档案50年；\n（五）法律、法规、规章规定的其他职责。", "ex": ""}, {"no": "第五条", "t": "第五条  设区的市级劳动能力鉴定委员会负责本辖区内的劳动能力初次鉴定、复查鉴 定。\n省、自治区、直辖市劳动能力鉴定委员会负责对初次鉴定或者复查鉴定结论不服提出\n的再次鉴定。", "ex": ""}, {"no": "第六条", "t": "第六条  劳动能力鉴定相关政策、工作制度和业务流程应当向社会公开。", "ex": ""}]}, {"ch": "第二章  鉴定程序", "items": [{"no": "第七条", "t": "第七条  职工发生工伤，经治疗伤情相对稳定后存在残疾、影响劳动能力的，或者停 工留薪期满（含劳动能力鉴定委员会确认的延长期限），工伤职工或者其用人单位应当及 时向设区的市级劳动能力鉴定委员会提出劳动能力鉴定申请。", "ex": ""}, {"no": "第八条", "t": "第八条  申请劳动能力鉴定应当填写劳动能力鉴定申请表，并提交下列材料：\n（一）有效的诊断证明、按照医疗机构病历管理有关规定复印或者复制的检查、检验 报告等完整病历材料；\n（二）工伤职工的居民身份证或者社会保障卡等其他有效身份证明原件。", "ex": ""}, {"no": "第九条", "t": "第九条  劳动能力鉴定委员会收到劳动能力鉴定申请后，应当及时对申请人提交的材 料进行审核；申请人提供材料不完整的，劳动能力鉴定委员会应当自收到劳动能力鉴定申 请之日起5个工作日内一次性书面告知申请人需要补正的全部材料。\n申请人提供材料完整的，劳动能力鉴定委员会应当及时组织鉴定，并在收到劳动能力 鉴定申请之日起60日内作出劳动能力鉴定结论。伤情复杂、涉及医疗卫生专业较多的，作 出劳动能力鉴定结论的期限可以延长30日。", "ex": ""}, {"no": "第十条", "t": "第十条  劳动能力鉴定委员会应当视伤情程度等从医疗卫生专家库中随机抽取3名或 者5名与工伤职工伤情相关科别的专家组成专家组进行鉴定。", "ex": ""}, {"no": "第十一条", "t": "第十一条  劳动能力鉴定委员会应当提前通知工伤职工进行鉴定的时间、地点以及应 当携带的材料。工伤职工应当按照通知的时间、地点参加现场鉴定。对行动不便的工伤职 工，劳动能力鉴定委员会可以组织专家上门进行劳动能力鉴定。组织劳动能力鉴定的工作 人员应当对工伤职工的身份进行核实。\n工伤职工因故不能按时参加鉴定的，经劳动能力鉴定委员会同意，可以调整现场鉴定 的时间，作出劳动能力鉴定结论的期限相应顺延。", "ex": ""}, {"no": "第十二条", "t": "第十二条  因鉴定工作需要，专家组提出应当进行有关检查和诊断的，劳动能力鉴定 委员会可以委托具备资格的医疗机构协助进行有关的检查和诊断。", "ex": ""}, {"no": "第十三条", "t": "第十三条  专家组根据工伤职工伤情，结合医疗诊断情况，依据《劳动能力鉴定职工 工伤与职业病致残等级》国家标准提出鉴定意见。参加鉴定的专家都应当签署意见并签 名。\n专家意见不一致时，按照少数服从多数的原则确定专家组的鉴定意见。", "ex": ""}, {"no": "第十四条", "t": "第十四条  劳动能力鉴定委员会根据专家组的鉴定意见作出劳动能力鉴定结论。劳动 能力鉴定结论书应当载明下列事项：\n（一）工伤职工及其用人单位的基本信息；\n（二）伤情介绍，包括伤残部位、器官功能障碍程度、诊断情况等；\n（三）作出鉴定的依据；\n（四）鉴定结论。", "ex": ""}, {"no": "第十五条", "t": "第十五条  劳动能力鉴定委员会应当自作出鉴定结论之日起20日内将劳动能力鉴定结\n论及时送达工伤职工及其用人单位，并抄送社会保险经办机构。", "ex": ""}, {"no": "第十六条", "t": "第十六条  工伤职工或者其用人单位对初次鉴定结论不服的，可以在收到该鉴定结论 之日起15日内向省、自治区、直辖市劳动能力鉴定委员会申请再次鉴定。\n申请再次鉴定，应当提供劳动能力鉴定申请表，以及工伤职工的居民身份证或者社会 保障卡等有效身份证明原件。\n省、自治区、直辖市劳动能力鉴定委员会作出的劳动能力鉴定结论为最终结论。", "ex": ""}, {"no": "第十七条", "t": "第十七条  自劳动能力鉴定结论作出之日起1年后，工伤职工、用人单位或者社会保 险经办机构认为伤残情况发生变化的，可以向设区的市级劳动能力鉴定委员会申请劳动能 力复查鉴定。\n对复查鉴定结论不服的，可以按照本办法第十六条规定申请再次鉴定。", "ex": ""}, {"no": "第十八条", "t": "第十八条  工伤职工本人因身体等原因无法提出劳动能力初次鉴定、复查鉴定、再次 鉴定申请的，可由其近亲属代为提出。", "ex": ""}, {"no": "第十九条", "t": "第十九条  再次鉴定和复查鉴定的程序、 期限等按照本办法第九条至第十五条的规定 执行。", "ex": ""}]}, {"ch": "第三章  监督管理", "items": [{"no": "第二十条", "t": "第二十条  劳动能力鉴定委员会应当每3年对专家库进行一次调整和补充，实行动态 管理。确有需要的，可以根据实际情况适时调整。", "ex": ""}, {"no": "第二十一条", "t": "第二十一条  劳动能力鉴定委员会选聘医疗卫生专家，聘期一般为3年，可以连续聘 任。\n聘任的专家应当具备下列条件：\n（一）具有医疗卫生高级专业技术职务任职资格；\n（二）掌握劳动能力鉴定的相关知识；\n（三）具有良好的职业品德。", "ex": ""}, {"no": "第二十二条", "t": "第二十二条  参加劳动能力鉴定的专家应当按照规定的时间、地点进行现场鉴定，严 格执行劳动能力鉴定政策和标准，客观、公正地提出鉴定意见。", "ex": ""}, {"no": "第二十三条", "t": "第二十三条  用人单位、工伤职工或者其近亲属应当如实提供鉴定需要的材料，遵守 劳动能力鉴定相关规定，按照要求配合劳动能力鉴定工作。\n工伤职工有下列情形之一的，当次鉴定终止：\n（一）无正当理由不参加现场鉴定的；\n（二）拒不参加劳动能力鉴定委员会安排的检查和诊断的。", "ex": ""}, {"no": "第二十四条", "t": "第二十四条  医疗机构及其医务人员应当如实出具与劳动能力鉴定有关的各项诊断证 明和病历材料。", "ex": ""}, {"no": "第二十五条", "t": "第二十五条  劳动能力鉴定委员会组成人员、劳动能力鉴定工作人员以及参加鉴定的 专家与当事人有利害关系的，应当回避。", "ex": ""}, {"no": "第二十六条", "t": "第二十六条  任何组织或者个人有权对劳动能力鉴定中的违法行为进行举报、投诉。", "ex": ""}]}, {"ch": "第四章  法律责任", "items": [{"no": "第二十七条", "t": "第二十七条  劳动能力鉴定委员会和承担劳动能力鉴定委员会日常工作的机构及其工\n作人员在从事或者组织劳动能力鉴定时，有下列行为之一的，由人力资源社会保障行政部 门或者有关部门责令改正，对直接负责的主管人员和其他直接责任人员依法给予相应处 分；构成犯罪的，依法追究刑事责任：\n（一）未及时审核并书面告知申请人需要补正的全部材料的；\n（二）未在规定期限内作出劳动能力鉴定结论的；\n（三）未按照规定及时送达劳动能力鉴定结论的；\n（四）未按照规定随机抽取相关科别专家进行鉴定的；\n（五）擅自篡改劳动能力鉴定委员会作出的鉴定结论的；\n（六）利用职务之便非法收受当事人财物的；\n（七）有违反法律法规和本办法的其他行为的。", "ex": ""}, {"no": "第二十八条", "t": "第二十八条  从事劳动能力鉴定的专家有下列行为之一的，劳动能力鉴定委员会应当 予以解聘；情节严重的，由卫生计生行政部门依法处理：\n（一）提供虚假鉴定意见的；\n（二）利用职务之便非法收受当事人财物的；\n（三）无正当理由不履行职责的；\n（四）有违反法律法规和本办法的其他行为的。", "ex": ""}, {"no": "第二十九条", "t": "第二十九条  参与工伤救治、检查、诊断等活动的医疗机构及其医务人员有下列情形 之一的，由卫生计生行政部门依法处理：\n（一）提供与病情不符的虚假诊断证明的；\n（二）篡改、伪造、隐匿、销毁病历材料的；\n（三）无正当理由不履行职责的。", "ex": ""}, {"no": "第三十条", "t": "第三十条 以欺诈、伪造证明材料或者其他手段骗取鉴定结论、领取工伤保险待遇的， 按照《中华人民共和国社会保险法》第八十八条的规定，由人力资源社会保障行政部门责  令退回骗取的社会保险金，处骗取金额2倍以上5倍以下的罚款。", "ex": ""}]}, {"ch": "第五章  附  则", "items": [{"no": "第三十一条", "t": "第三十一条  未参加工伤保险的公务员和参照公务员法管理的事业单位、社会团体工 作人员因工（公）致残的劳动能力鉴定，参照本办法执行。", "ex": ""}, {"no": "第三十二条", "t": "第三十二条  本办法中的劳动能力鉴定申请表、初次（复查）鉴定结论书、再次鉴定 结论书、劳动能力鉴定材料收讫补正告知书等文书基本样式由人力资源社会保障部制定。", "ex": ""}, {"no": "第三十三条", "t": "第三十三条  本办法自2014年4月1日起施行。\n附件：\n1.劳动能力鉴定申请表\n2.初次（复查）鉴定结论书\n3.再次鉴定结论书\n4.劳动能力鉴定材料收讫补正告知书", "ex": ""}]}];
+/* =================================================== */
+
+/* ===== 存储（自动保存 + 导出烘焙）===== */
+const KEY = 'statute_note_' + LAW_KEY;
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
+})();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+                '<div class="art-text">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
+</body>
+</html>
