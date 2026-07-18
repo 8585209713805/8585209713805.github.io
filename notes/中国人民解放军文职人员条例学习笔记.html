@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法规学习笔记（可编辑）</title>
+<style>
+:root{
+  --bg:#eef1f5; --card:#ffffff; --ink:#1f2329; --muted:#7a8290;
+  --primary:#1f4e79; --primary-soft:#e8f0f7; --accent:#c0392b;
+  --mark:#e6a23c; --note-bg:#fffdf3; --note-bd:#e8d9a8;
+  --border:#e1e5ea; --line:#d8dde4; --shadow:0 1px 3px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  line-height:1.8; font-size:15px;
+}
+/* ===== 顶部栏 ===== */
+header{
+  position:sticky; top:0; z-index:50; background:var(--primary); color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.head-inner{max-width:1180px; margin:0 auto; padding:10px 18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.field-badge{display:inline-block; margin-left:4px; padding:2px 11px; font-size:12px; font-weight:600; color:#fff; background:var(--primary); border-radius:20px; vertical-align:middle; letter-spacing:.5px;}
+.head-inner h1{font-size:16px; margin:0; font-weight:600; letter-spacing:.5px; flex:1 1 260px;}
+.head-inner h1 small{display:block; font-size:11.5px; font-weight:400; opacity:.8; margin-top:2px;}
+.toolbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.toolbar input[type=search]{
+  padding:6px 10px; border:1px solid rgba(255,255,255,.35); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; width:160px; outline:none;
+}
+.toolbar input[type=search]::placeholder{color:rgba(255,255,255,.7);}
+.toolbar button{
+  padding:6px 12px; border:1px solid rgba(255,255,255,.4); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; cursor:pointer; white-space:nowrap;
+}
+.toolbar button:hover{background:rgba(255,255,255,.25);}
+.toolbar button.active{background:var(--mark); border-color:var(--mark); color:#fff;}
+.status{font-size:12px; opacity:.85; min-width:80px;}
+
+/* ===== 布局 ===== */
+.layout{max-width:1180px; margin:18px auto; padding:0 18px; display:flex; gap:20px; align-items:flex-start;}
+nav.toc{
+  position:sticky; top:78px; width:200px; flex:0 0 200px;
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:12px 10px; box-shadow:var(--shadow); max-height:calc(100vh - 100px); overflow:auto;
+}
+nav.toc .toc-title{font-size:12px; color:var(--muted); padding:0 8px 8px; border-bottom:1px solid var(--line); margin-bottom:6px;}
+nav.toc a{
+  display:block; padding:7px 8px; border-radius:6px; color:var(--ink); text-decoration:none;
+  font-size:13.5px; cursor:pointer;
+}
+nav.toc a:hover{background:var(--primary-soft);}
+nav.toc a.active{background:var(--primary); color:#fff; font-weight:500;}
+nav.toc a .cnt{float:right; color:var(--muted); font-size:11px;}
+nav.toc a.active .cnt{color:rgba(255,255,255,.85);}
+
+main{flex:1; min-width:0;}
+.chapter{margin-bottom:26px;}
+.chapter > h2{
+  font-size:18px; color:var(--primary); border-left:4px solid var(--primary);
+  padding-left:12px; margin:0 0 14px; font-weight:700;
+}
+.article{
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow); position:relative;
+  border-left:3px solid var(--line);
+}
+.article.marked{border-left-color:var(--mark); background:#fffdf6;}
+.art-head{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+.art-no{
+  font-weight:700; color:var(--primary); font-size:14.5px; background:var(--primary-soft);
+  padding:2px 10px; border-radius:5px;
+}
+.mark-btn{
+  margin-left:auto; border:none; background:none; cursor:pointer; font-size:18px; line-height:1;
+  color:var(--mark); padding:0 4px;
+}
+.mark-btn:hover{transform:scale(1.15);}
+.art-text{font-size:15px; color:#2b2f36; text-align:justify; white-space:pre-wrap;}
+
+/* 解读区 */
+.explain-label{font-size:12px; color:var(--primary); font-weight:600; margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+.explain{
+  font-size:13.5px; color:#3a4250; background:#f6f9fc; border-left:3px solid var(--primary);
+  border-radius:0 6px 6px 0; padding:8px 11px; white-space:pre-wrap; outline:none;
+}
+.explain:focus{background:#eef3fa; box-shadow:0 0 0 3px rgba(31,78,121,.12);}
+
+/* 关联案例 */
+.case-label{font-size:12px; color:#9a5b1e; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.case{background:#fbf6ee; border:1px solid #ecdcc0; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.case-title{font-weight:600; font-size:13.5px; color:#6b4423;}
+.case-desc{font-size:13px; color:#5a4a3a; margin-top:3px; white-space:pre-wrap;}
+.case-src{font-size:11.5px; color:#a98b5e; margin-top:4px;}
+
+/* 关联法条 */
+.rel-label{font-size:12px; color:#1f6fb2; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.rel{background:#eef4fb; border:1px solid #cfe0ef; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.rel-src{font-weight:600; font-size:13.5px; color:#14507e;}
+.rel-text{font-size:13px; color:#34404d; margin-top:4px; white-space:pre-wrap;}
+
+/* 检索按钮 */
+.tool-row{margin:10px 0 2px;}
+.search-btn{border:1px solid var(--border); background:#f3f7fb; color:var(--primary); border-radius:6px; padding:5px 10px; font-size:12.5px; cursor:pointer;}
+.search-btn:hover{background:#e3edf6;}
+
+/* 笔记区 */
+.note-label{font-size:12px; color:var(--muted); margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+
+/* 速查卡 */
+.quick{background:linear-gradient(135deg,#f0f6fc,#e8f0f7); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.quick-head{font-weight:700; color:var(--primary); padding:11px 14px; cursor:pointer; user-select:none; font-size:14.5px;}
+.quick-body{padding:2px 14px 12px;}
+.qg{font-size:13px; color:#34404d; padding:7px 0; border-top:1px dashed #d4e2ee; white-space:pre-wrap;}
+.qg:first-child{border-top:none;}
+.qg b{color:var(--primary);}
+
+/* 法规简介（发布信息） */
+.law-intro{background:linear-gradient(135deg,#f0f6fc,#eef4fb); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.law-intro-head{font-weight:700; color:var(--primary); padding:11px 14px; font-size:14.5px;}
+.law-intro-body{padding:2px 14px 12px;}
+.law-intro-desc{font-size:13.5px; color:#34404d; line-height:1.8; margin:2px 0 10px;}
+.meta-grid{display:grid; grid-template-columns:auto 1fr; gap:6px 14px; align-items:baseline;}
+.meta-grid .mk{font-size:13px; color:var(--muted); white-space:nowrap;}
+.meta-grid .mv{font-size:13px; color:#2b2f36;}
+.meta-grid .mv.ok{color:#1a9e57; font-weight:600;}
+.meta-grid .mv.no{color:#c0392b; font-weight:600;}
+
+/* 条文互链 */
+.lawlink{color:#1f6fb2; text-decoration:underline; cursor:pointer;}
+.lawlink:hover{color:#0d4f86;}
+
+/* 批注分层 */
+.notes-wrap{margin-top:2px;}
+.note-block{margin-bottom:8px;}
+.note-tag{display:inline-block; font-size:11px; font-weight:600; padding:1px 8px; border-radius:4px; margin-bottom:3px;}
+.tag-q{background:#fde8e8; color:#c0392b;}      /* 疑问 */
+.tag-c{background:#e6f4ea; color:#1e7a46;}      /* 我的案例 */
+.tag-s{background:#fef3e0; color:#b9770e;}      /* 要点总结 */
+.tag-t{background:#efe7fb; color:#6b3fa0;}      /* 待办 */
+.note.sub{background:var(--note-bg); border:1px dashed var(--note-bd); border-radius:7px; padding:7px 10px; min-height:32px; font-size:13.5px; color:#5a4a1a; white-space:pre-wrap; outline:none;}
+.note.sub:focus{border-style:solid; border-color:var(--mark); background:#fffce8; box-shadow:0 0 0 3px rgba(230,162,60,.15);}
+.note.sub:empty:before{content:attr(data-ph); color:#b9a86a;}
+
+/* 自测模式 */
+.reveal-btn{display:none; margin:10px 0 2px; border:1px solid var(--primary); background:var(--primary-soft); color:var(--primary); border-radius:6px; padding:5px 12px; font-size:12.5px; cursor:pointer;}
+.reveal-btn:hover{background:#d8e6f5;}
+body.self-test .reveal-btn{display:inline-block;}
+body.self-test .explain-label,
+body.self-test .explain,
+body.self-test .case-label,
+body.self-test .case,
+body.self-test .rel-label,
+body.self-test .rel,
+body.self-test .tool-row,
+body.self-test .note-label,
+body.self-test .notes-wrap{display:none;}
+.article.revealed .explain-label,
+.article.revealed .explain,
+.article.revealed .case-label,
+.article.revealed .case,
+.article.revealed .rel-label,
+.article.revealed .rel,
+.article.revealed .tool-row,
+.article.revealed .note-label,
+.article.revealed .notes-wrap{display:block;}
+body.self-test .article{opacity:.97;}
+body.self-test .article.revealed{border-left-color:var(--primary); background:#fff;}
+
+footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--muted); font-size:12.5px; text-align:center;}
+
+@media (max-width:860px){
+  .layout{flex-direction:column;}
+  nav.toc{position:static; width:100%; flex:none; max-height:none;}
+  .toolbar input[type=search]{width:120px;}
+}
+@media print{
+  header, nav.toc, footer, .tool-row, .quick-head{display:none !important;}
+  body{background:#fff;}
+  .layout{display:block; margin:0; padding:0;}
+  .article{break-inside:avoid; box-shadow:none; border:1px solid #ccc;}
+  .explain{background:#f4f6f9;}
+  .case{background:#fbf6ee;}
+  .mark-btn{display:none;}
+  .quick{box-shadow:none; border:1px solid #ccc;}
+  body.self-test .reveal-btn{display:none !important;}
+  body.self-test .explain, body.self-test .explain-label,
+  body.self-test .case, body.self-test .case-label,
+  body.self-test .rel, body.self-test .rel-label,
+  body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <h1><span id="lawTitle"></span><small id="lawSub"></small> <span id="lawField" class="field-badge"></span></h1>
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
+      <span class="status" id="status">已就绪</span>
+      <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
+      <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
+      <button id="btnPrint" title="打印 / 存为PDF">打印</button>
+      <button id="btnClear" title="清空本浏览器内全部笔记与标记">清空</button>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" id="toc">
+    <div class="toc-title">目录</div>
+  </nav>
+  <main id="content"></main>
+</div>
+
+<footer>
+  本笔记为个人学习用途，条文以官方公布文本为准。案例来源于司法部/最高法等公开发布的典型/指导案例。笔记与解读自动保存在本浏览器，导出可脱离浏览器长期留存。
+</footer>
+
+<script>
+/* ============ 用户定制区（由 docx 批量导入生成） ============ */
+const LAW_TITLE = "中国人民解放军文职人员条例";
+const LAW_SUB   = "《劳动法规汇编（江西）》· 共77条";
+const LAW_KEY   = "jx14";
+const LAW_FIELD = "劳动争议";
+
+const LAW_INTRO = "收录于《劳动法规汇编（江西）》，属「劳动争议」板块，共77个条文块。";
+const LAW_META = { issuer:"\u2014", published:"\u2014", effective:"\u2014", valid:"\u6709\u6548", level:"\u884c\u653f\u6cd5\u89c4" };
+
+const QUICK = [];
+const CASES = {};
+const REL = {};
+const DATA = [{"ch": "全文", "items": [{"no": "", "t": "中华人民共和国国务院  中华人民共和国中央军事委员会令第757号\n现公布修订后的《中国人民解放军文职人员条例》，自2023年1月1日起施行。\n中央军委主席 习近平 国务院总理  李克强\n2022年12月10日\n（2005年6月23日中华人民共和国国务院、中华人民共和国中央军事委员会令第438号公布 2017年9月27日中华人民共和国国务院、中华人民共和国中央军事委员会令第689号 第一次修订 2022年12月10日中华人民共和国国务院、中华人民共和国中央军事委员会令 第757号第二次修订）", "ex": ""}]}, {"ch": "第一章 总 则", "items": [{"no": "第一条", "t": "第一条 为了规范文职人员的管理，保障文职人员合法权益，建设德才兼备的高素\n质、专业化文职人员队伍，促进军事人员现代化建设，根据《中华人民共和国国防法》等 有关法律，制定本条例。", "ex": ""}, {"no": "第二条", "t": "第二条 本条例所称文职人员，是指在军队编制岗位依法履行职责的非服兵役人员，是 军队人员的组成部分，依法享有国家工作人员相应的权利、履行相应的义务。", "ex": ""}, {"no": "第三条", "t": "第三条 文职人员管理坚持中国共产党的绝对领导，深入贯彻习近平强军思想，贯彻 军委主席负责制，落实新时代党的组织路线，坚持党管干部、党管人才，坚持人才是第一 资源，坚持公开、平等、竞争、择优，依照法定的权限、条件、标准和程序进行。", "ex": ""}, {"no": "第四条", "t": "第四条 文职人员主要编配在军民通用、非直接参与作战，且专业性、保障性、稳定 性较强的岗位，按照岗位性质分为管理类文职人员、专业技术类文职人员、专业技能类文 职人员。管理类文职人员和专业技术类文职人员是党的干部队伍的重要组成部分。", "ex": ""}, {"no": "第五条", "t": "第五条 军队建立与军人、公务员、事业单位工作人员相独立的文职人员政策制度体 系。文职人员政策制度应当体现军事职业特点，构建完善的管理、保障机制。\n军队对文职人员实行分类分级管理，提高管理效能和科学化水平。", "ex": ""}, {"no": "第六条", "t": "第六条 中央军事委员会统一领导全军文职人员管理工作，中央军事委员会政治工作 部负责组织指导全军文职人员管理工作。团级以上单位的政治工作部门在党委领导下，负 责本单位的文职人员管理工作。\n中央和国家有关机关、地方有关机关、军队有关单位应当按照职责分工，做好文职人 员的招录聘用、教育培训、户籍管理、社会保障、人力资源管理、抚恤优待、退休管理等 工作，为文职人员提供公共服务和便利。", "ex": ""}, {"no": "第七条", "t": "第七条 国家和军队依法保障文职人员享有与其身份属性、职业特点、职责使命和所 作贡献相称的地位和权益，鼓励文职人员长期稳定地为国防和军队建设服务。\n军队有关单位会同中央和国家有关机关、地方有关机关建立文职人员联合工作机制， 协调做好跨军地文职人员管理有关工作。", "ex": ""}, {"no": "第八条", "t": "第八条 对在文职人员管理工作中作出突出贡献的单位和个人，按照国家和军队有关 规定给予表彰、奖励。", "ex": ""}]}, {"ch": "第二章 基本条件、职责、义务和权利", "items": [{"no": "第九条", "t": "第九条 文职人员应当具备下列基本条件：\n（一）具有中华人民共和国国籍；\n（二）年满18周岁；\n（三）符合军队招录聘用文职人员的政治条件；\n（四）志愿服务国防和军队建设；\n（五）符合岗位要求的文化程度、专业水平和工作能力；\n（六）具有正常履行职责的身体条件和心理素质；\n（七）法律、法规规定的其他条件。", "ex": ""}, {"no": "第十条", "t": "第十条 文职人员主要履行下列职责：\n（一）根据所任岗位，从事行政事务等管理工作，教育教学、科学研究、工程技术、医 疗卫生等专业技术工作，操作维护、勤务保障等专业技能工作；\n（二）根据需要，参加军事训练和战备值勤；\n（三）根据需要，在作战和有作战背景的军事行动中承担支援保障任务，以及参加非 战争军事行动；\n（四）法律、法规规定的其他职责。", "ex": ""}, {"no": "第十一条", "t": "第十一条 文职人员应当履行下列义务：\n（一）忠于中国共产党，忠于社会主义，忠于祖国，忠于人民，努力为国防和军队建 设服务；\n（二）遵守宪法、法律、法规和军队有关规章制度；\n（三）服从命令，听从指挥，遵守纪律，保守秘密，发扬军队优良传统，维护军队良 好形象；\n（四）认真履职尽责，团结协作，勤奋敬业，努力提高工作质量和效率；\n（五）学习和掌握履行职责所需要的科学文化、专业知识和技术技能，提高职业能力；\n（六）清正廉洁，公道正派，恪守职业道德，模范遵守社会公德、家庭美德；\n（七）根据需要，依法转服现役；\n（八）法律、法规规定的其他义务。", "ex": ""}, {"no": "第十二条", "t": "第十二条 文职人员享有下列权利：\n（一）获得勋章、荣誉称号、奖励、表彰以及纪念章等；\n（二）获得工资报酬，享受相应的福利待遇、抚恤优待和社会保障；\n（三）获得履行职责应当具有的工作条件和劳动保护；\n（四）参加培训；\n（五）非因法定事由、非经法定程序，不被免职、降职（级）、辞退、终止或者解除 聘用合同、处分等；\n（六）申请辞职或者解除聘用合同，申请人事争议处理，提出申诉和控告；\n（七）法律、法规规定的其他权利。", "ex": ""}]}, {"ch": "第三章 岗位设置与级别", "items": [{"no": "第十三条", "t": "第十三条 军队建立文职人员岗位管理制度。\n军队根据职责任务、人员编制设定文职人员岗位，明确岗位类别、岗位职务层级、岗 位等级。\n文职人员岗位类别，分为管理岗位、专业技术岗位、专业技能岗位。根据岗位特点和 管理需要，可以划分若干具体类别。\n文职人员岗位职务层级，在管理岗位和专业技术岗位设置。\n文职人员岗位等级，根据岗位类别，分为文员等级、专业技术岗位等级、专业技能岗 位等级。", "ex": ""}, {"no": "第十四条", "t": "第十四条  管理类文职人员实行岗位职务层级与文员等级并行制度。\n担任领导职务的管理类文职人员的岗位职务层级，由高到低分为七个层级，即军队文 职部级副职、军队文职局级正职、军队文职局级副职、军队文职处级正职、军队文职处级 副职、军队文职科级正职、军队文职科级副职。\n文员等级在军队文职局级以下设置，由高到低分为十二个等级，即一级文员至十二级 文员。\n军队文职局级以下岗位职务层级对应的最低文员等级是：\n（一）军队文职局级正职： 一级文员；\n（二）军队文职局级副职：二级文员；\n（三）军队文职处级正职：四级文员；\n（四）军队文职处级副职：六级文员；\n（五）军队文职科级正职：八级文员；\n（六）军队文职科级副职：十级文员。", "ex": ""}, {"no": "第十五条", "t": "第十五条 专业技术类文职人员实行岗位职务层级和专业技术岗位等级管理制度。 专业技术类文职人员岗位职务层级的设置和管理，按照军队有关规定执行。\n专业技术类文职人员的专业技术岗位等级，由高到低分为十三个等级，即专业技术一 级至十三级。", "ex": ""}, {"no": "第十六条", "t": "第十六条 专业技能类文职人员岗位分为技术工岗位和普通工岗位。\n技术工岗位文职人员实行专业技能岗位等级管理制度，由高到低分为五个等级，即专 业技能一级至五级；普通工岗位文职人员不分等级。", "ex": ""}, {"no": "第十七条", "t": "第十七条 文职人员实行级别管理制度。\n文职人员级别，根据所任岗位职务层级、岗位等级及其德才表现、工作实绩和资历确定。\n文职人员级别的设置和管理，以及与岗位职务层级、岗位等级的对应关系，按照军队 有关规定执行。\n文职人员的岗位职务层级、岗位等级与级别是确定文职人员工资以及其他待遇的主要 依据。", "ex": ""}]}, {"ch": "第四章 招录聘用", "items": [{"no": "第十八条", "t": "第十八条 军队实行公开招考、直接引进、专项招录相结合的文职人员招录聘用制度。\n公开招考，适用于新招录聘用七级文员、专业技术八级、专业技能三级以下和普通工 岗位的文职人员。\n直接引进，适用于选拔高层次人才和特殊专业人才。\n专项招录，适用于从退役军人等特定群体中招录聘用文职人员。", "ex": ""}, {"no": "第十九条", "t": "第十九条  新招录聘用的文职人员，除应当具备本条例第九条规定的基本条件以外， 还应当具备军队规定的拟任岗位有关资格条件。其中，文职人员首次招录聘用的最高年龄 分别为：\n（一）军队文职局级副职、二级文员以上岗位，以及专业技术七级以上岗位的，50周 岁；\n（二）军队文职处级正职至军队文职科级正职、三级文员至八级文员、专业技术八级 至专业技术十级岗位，以及专业技能二级以上岗位的，45周岁；\n（三）军队文职科级副职、九级文员至十二级文员、专业技术十一级至专业技术十三 级岗位，以及专业技能三级以下和普通工岗位的，35周岁。\n根据军队建设和执行任务需要，可以按照军队有关规定适当放宽文职人员招录聘用的 最高年龄限制等条件。\n文职人员岗位应当优先招录聘用符合条件的退役军人。", "ex": ""}, {"no": "第二十条", "t": "第二十条 公开招考文职人员，一般按照制定计划、发布信息、资格审查、统一笔试、 面试、体格检查、政治考核、结果公示、审批备案的程序进行。\n直接引进和专项招录文职人员的程序，按照国家和军队有关规定执行。", "ex": ""}, {"no": "第二十一条", "t": "第二十一条  招录聘用军队文职部级副职和专业技术三级以上岗位文职人员，由中央 军事委员会审批。招录聘用其他管理类文职人员和专业技术类文职人员，由中央军事委员 会机关部委、中央军事委员会直属机构、战区、军兵种、中央军事委员会直属单位审批。 招录聘用专业技能类文职人员，由师级以上单位审批。", "ex": ""}, {"no": "第二十二条", "t": "第二十二条 新招录聘用的文职人员按照军队有关规定实行试用期。试用期满考核合 格的，按照规定任职定级；考核不合格的或者试用期内本人自愿放弃的，取消录用。", "ex": ""}]}, {"ch": "第五章 培 训", "items": [{"no": "第二十三条", "t": "第二十三条 军队根据文职人员履行职责、改善知识结构和提高职业能力需要，对文 职人员实施分类分级培训。\n文职人员的培训，坚持军队院校教育、部队训练实践、军事职业教育相结合。", "ex": ""}, {"no": "第二十四条", "t": "第二十四条 文职人员的培训，分为初任培训、晋升培训、岗位培训。\n对新招录聘用的文职人员应当进行初任培训，使其具备适应岗位必备的军政素质和基本业务能力。\n对拟晋升岗位职务层级的文职人员应当进行晋升培训，提高其政治能力、管理能力和 专业能力。\n根据岗位特点和工作需要，应当对文职人员进行岗位培训，提高其履行职责能力。", "ex": ""}, {"no": "第二十五条", "t": "第二十五条  文职人员培训纳入军队人员培训体系统一组织实施。\n军队可以利用国家和社会资源，对文职人员进行培训。中央和国家有关机关、地方有 关机关应当积极支持军队开展文职人员培训工作。", "ex": ""}, {"no": "第二十六条", "t": "第二十六条 军队根据工作需要，可以安排文职人员参加学历升级教育，选派文职人 员参加有关学习培训。", "ex": ""}, {"no": "第二十七条", "t": "第二十七条 用人单位应当对文职人员培训情况进行登记，并归入文职人员人事档案。 培训情况作为文职人员资格评定、考核、任用等的依据之一。", "ex": ""}]}, {"ch": "第六章 考 核", "items": [{"no": "第二十八条", "t": "第二十八条  文职人员实行分类分级考核。\n文职人员的考核，应当全面考核文职人员的政治品质、专业能力、担当精神、工作实 绩、廉洁自律等情况。", "ex": ""}, {"no": "第二十九条", "t": "第二十九条 文职人员的考核，分为年度考核、聘（任）期考核、专项考核。\n年度考核，主要考核文职人员年度履行职责的总体情况。\n聘（任）期考核，主要考核文职人员在一个聘（任）期内的总体情况。\n专项考核，主要考核拟任用文职人员的总体情况，以及文职人员执行任务、参加教育 培训、试用期表现等情况。", "ex": ""}, {"no": "第三十条", "t": "第三十条 文职人员的考核工作，由用人单位或者其上级单位按照军队有关规定组织 实施。", "ex": ""}, {"no": "第三十一条", "t": "第三十一条  文职人员的考核，应当形成考核报告、评语、鉴定或者等次等结果。其 中，文职人员年度考核结果，分为优秀、称职、基本称职、不称职四个等次；聘（任）期 考核和专项考核，根据需要明确考核结果等次。\n考核结果作为文职人员任用、工资待遇确定、奖惩实施、续聘竞聘和辞退解聘等的主 要依据。", "ex": ""}]}, {"ch": "第七章 任 用", "items": [{"no": "第三十二条", "t": "第三十二条  文职人员的任用，包括岗位职务任免、岗位职务层级升降，以及岗位等 级和级别的确定与调整。", "ex": ""}, {"no": "第三十三条", "t": "第三十三条 文职人员实行委任制和聘用制相结合的任用方式。对实行聘用制的文职 人员，用人单位应当与其签订聘用合同。\n担任领导职务的管理类文职人员实行任期制。\n文职人员的任用条件、权限和办理程序，以及聘用合同管理和领导职务任期管理的具 体办法，由中央军事委员会规定。", "ex": ""}, {"no": "第三十四条", "t": "第三十四条 对不适宜或者不胜任现岗位的文职人员，用人单位应当调整其岗位，并 重新确定其岗位职务层级、岗位等级和级别。\n文职人员调整任职、辞职、被辞退、终止和解除聘用合同、退休、岗位编制撤销，以 及受到开除处分的，原职务自行免除；因其他情形需要免职的，按照军队有关规定执行。", "ex": ""}, {"no": "第三十五条", "t": "第三十五条 文职人员职称、职业资格和职业技能等级的取得，按照国家和军队有关 规定执行。\n文职人员在招录聘用前取得的职称、职业资格和职业技能等级，用人单位应当予以认 可。\n文职人员退出军队后，在军队工作期间取得的职称、职业资格和职业技能等级仍然有 效。", "ex": ""}]}, {"ch": "第八章  交 流", "items": [{"no": "第三十六条", "t": "第三十六条 文职人员在用人单位本专业领域岗位长期稳定工作，根据需要可以组织 交流。", "ex": ""}, {"no": "第三十七条", "t": "第三十七条 文职人员的交流分为军队内部交流和跨军地交流两种方式，以军队内部 交流为主。\n文职人员交流，应当具备拟任岗位资格条件，且相应岗位编制有空缺。", "ex": ""}, {"no": "第三十八条", "t": "第三十八条 符合下列情形之一的，文职人员可以在军队内部交流：\n（一）因执行任务需要充实力量的；\n（二）本单位无合适人选且不宜通过招录聘用补充的；\n（三）改善队伍结构需要调整任职的；\n（四）任期届满需要调整任职，或者按照规定需要任职回避的；\n（五）法律、法规等有关规定明确的其他情形。", "ex": ""}, {"no": "第三十九条", "t": "第三十九条 因国家重大战略以及重大工程、重大项目、重大任务急需干部或者紧缺 专业技术人才的，军队有关单位可以根据具体需求，按照干部管理权限商中央和国家有关 机关、地方有关机关、国有企业和事业单位选调干部或者专业技术人才到文职人员岗位工 作。\n根据工作需要，中央和国家有关机关、地方有关机关、国有企业和事业单位可以按照 干部管理权限，根据国家和军队有关规定，通过“一事一议”方式选调文职人员到有关单 位工作。", "ex": ""}, {"no": "第四十条", "t": "第四十条  文职人员有下列情形之一的，除本条例第三十八条第一项规定情形外，不 得交流：\n（一）招录聘用后工作未满2年的；\n（二）工作特别需要、暂无合适接替人选的；\n（三）因涉嫌违纪违法正在接受纪律审查、监察调查，或者涉嫌犯罪，司法程序尚未 终结的；\n（四）法律、法规规定其他不得交流的情形。", "ex": ""}]}, {"ch": "第九章 教育管理", "items": [{"no": "第四十一条", "t": "第四十一条 用人单位应当根据军队有关规定，结合文职人员身份属性和岗位职责， 坚持统分结合、注重效能原则，坚持尊重激励与监督约束并重，做好文职人员的教育管理工作，营造干事创业的良好环境。", "ex": ""}, {"no": "第四十二条", "t": "第四十二条 用人单位应当加强文职人员队伍的思想政治建设，引导文职人员投身强 军兴军实践，培养政治合格、业务熟练、敢于担当、积极作为、恪尽职守、遵规守纪的职 业操守，培育热爱军队、服务国防的职业认同。", "ex": ""}, {"no": "第四十三条", "t": "第四十三条 用人单位应当加强对文职人员的安全管理和保密教育，对涉密岗位文职 人员，按照国家和军队有关规定进行管理。\n文职人员因公、因私出国（境）的管理，按照国家和军队有关规定执行。", "ex": ""}, {"no": "第四十四条", "t": "第四十四条 文职人员可以按照军队有关规定，参加军地本专业领域学术组织，以及 社会团体的组织及其活动。军队鼓励支持从事专业技术工作的文职人员参加国家和地方的 人才工程计划、军民科技协同创新等活动。\n从事专业技术工作的文职人员，在履行好岗位职责、完成本职工作的前提下，经批准 可以到军队以外单位兼职。", "ex": ""}, {"no": "第四十五条", "t": "第四十五条  军队建立文职人员宣誓制度。\n文职人员应当严格遵守军队内务管理有关规定。\n文职人员服装的制式及其标志服饰由中央军事委员会规定。", "ex": ""}, {"no": "第四十六条", "t": "第四十六条 对在国防和军队建设中取得突出成绩、 为国家和人民作出突出贡献的文 职人员，按照国家和军队有关规定给予勋章、荣誉称号、奖励、表彰以及纪念章等。\n文职人员可以按照国家和军队有关规定接受地方人民政府、群团组织和社会组织，以 及国际组织和其他国家、军队给予的荣誉。", "ex": ""}, {"no": "第四十七条", "t": "第四十七条 文职人员与用人单位发生的人事争议，按照国家和军队有关规定依法处 理。\n文职人员对涉及本人的考核结果、辞职辞退、处分决定等不服的，可以申请复核、提 出申诉。\n文职人员认为用人单位及有关人员侵犯其合法权益的，可以依法提出控告。\n对文职人员的复核申请、申诉或者控告，军队有关单位应当及时受理。", "ex": ""}, {"no": "第四十八条", "t": "第四十八条  文职人员招录聘用、考核、任用、奖惩、人事争议处理等工作，实行回 避制度。", "ex": ""}, {"no": "第四十九条", "t": "第四十九条  文职人员的人事档案，按照军队有关规定进行管理。", "ex": ""}, {"no": "第五十条", "t": "第五十条 军队用人单位按照国家有关规定，进行组织机构登记。", "ex": ""}]}, {"ch": "第十章 待遇保障", "items": [{"no": "第五十一条", "t": "第五十一条 军队建立与国家机关事业单位工作人员待遇政策相衔接、体现“优才优 待、优绩优奖”激励导向的文职人员待遇保障体系。", "ex": ""}, {"no": "第五十二条", "t": "第五十二条  文职人员依法享受相应的政治待遇、工作待遇和生活待遇。 文职人员的政治待遇，按照国家和军队有关规定执行。\n文职人员在军队工作期间根据所任岗位职务层级和岗位等级等，享受军队规定的办公 用房、公务用车等工作待遇；免职、退出军队的，调整或者取消相应的工作待遇。", "ex": ""}, {"no": "第五十三条", "t": "第五十三条 军队建立统一的文职人员工资制度。文职人员工资包括基本工资、津贴、补贴等。\n在军队技术密集型单位，可以实行文职人员绩效工资。", "ex": ""}, {"no": "第五十四条", "t": "第五十四条 用人单位及其文职人员应当按照国家有关规定参加社会保险，依法缴纳 社会保险费。\n军队根据国家有关规定，为文职人员建立补充保障。", "ex": ""}, {"no": "第五十五条", "t": "第五十五条  文职人员享受国家和军队规定的社会化、货币化住房保障政策。\n用人单位及其文职人员应当按照规定缴存、使用住房公积金，缴存的住房公积金由所 在地住房公积金管理中心统一管理。\n文职人员可以按照军队有关规定租住军队集体宿舍或者公寓住房。", "ex": ""}, {"no": "第五十六条", "t": "第五十六条 文职人员享受国家和军队规定的医疗补助和医疗保健政策。 文职人员在 作战和有作战背景的军事行动中承担支援保障任务，以及参加非战争军事行动期间，实行 军队免费医疗。", "ex": ""}, {"no": "第五十七条", "t": "第五十七条 文职人员的抚恤优待，按照国家和军队有关规定执行。\n文职人员因在作战和有作战背景的军事行动中承担支援保障任务，参加非战争军事行 动以及军级以上单位批准且列入军事训练计划的军事训练造成伤亡的，其抚恤优待参照有 关军人抚恤优待的规定执行。", "ex": ""}, {"no": "第五十八条", "t": "第五十八条  文职人员按照军队有关规定享受探亲休假、交通补助、看望慰问、困难 救济和子女入托等福利待遇。", "ex": ""}, {"no": "第五十九条", "t": "第五十九条 文职人员办理落户，以及配偶子女随迁等，按照国家和军队有关规定执 行。", "ex": ""}, {"no": "第六十条", "t": "第六十条 对文职人员中的高层次人才和特殊专业人才，按照国家和军队有关规定给 予相关优惠待遇。对符合规定条件的，军队可以实行年薪制、协议工资、项目工资等市场 化薪酬制度。\n军队可以为文职人员岗位重要人才购买相关保险。文职人员可以享受科技成果转化收 益。", "ex": ""}]}, {"ch": "第十一章 退  出", "items": [{"no": "第六十一条", "t": "第六十一条 实行委任制的文职人员辞职，或者被用人单位辞退的；实行聘用制的文 职人员解除、终止聘用合同，或者用人单位解除、终止聘用合同的，按照军队有关规定执 行。", "ex": ""}, {"no": "第六十二条", "t": "第六十二条 文职人员因用人单位精简整编等原因需要退出军队的，由军队有关单位 会同中央和国家有关机关、地方有关机关根据不同情形按照有关政策予以妥善安排。", "ex": ""}, {"no": "第六十三条", "t": "第六十三条 用人单位可以依法辞退文职人员或者单方面解除聘用合同。  有下列情形之一的，用人单位不得辞退文职人员或者单方面解除聘用合同：\n（一）因公（工）负伤或者患职业病，经劳动能力鉴定机构鉴定为一级至六级伤残的；\n（二）患病或者负伤，在规定的医疗期内的；\n（三）女性文职人员在孕期、产期、哺乳期内的；\n（四）法律、法规规定的其他情形。", "ex": ""}, {"no": "第六十四条", "t": "第六十四条  文职人员可以依法辞职或者单方面解除聘用合同。\n有下列情形之一的，文职人员不得辞职或者单方面解除聘用合同：\n（一）未满军队规定最低工作年限的；\n（二）国家发布动员令或者宣布进入战争状态时；\n（三）部队受领作战任务或者遭敌突然袭击时；\n（四）在作战和有作战背景的军事行动中承担支援保障任务，参加非战争军事行动以 及军级以上单位批准且列入军事训练计划的军事训练期间；\n（五）在涉及核心、重要军事秘密等特殊岗位任职或者离开上述岗位不满军队规定的 脱密期限的；\n（六）正在接受审计、纪律审查、监察调查，或者涉嫌犯罪，司法程序尚未终结的；\n（七）法律、法规规定或者聘用合同约定的其他情形。", "ex": ""}, {"no": "第六十五条", "t": "第六十五条  文职人员符合国家和军队规定退休条件的，应当退休。\n文职人员退休后，享受国家和军队规定的相应待遇。各级人民政府退役军人工作主管 部门牵头承担退休文职人员服务管理工作，人力资源社会保障、医保等相关部门和街道（乡 镇）、社区（村）按照职责分工做好相关工作。", "ex": ""}, {"no": "第六十六条", "t": "第六十六条  文职人员退出军队的，由军队有关单位按照任用权限审批。", "ex": ""}, {"no": "第六十七条", "t": "第六十七条 文职人员自退出军队之日起，与用人单位的人事关系即行终止。用人单 位应当按照国家和军队有关规定，及时办理文职人员人事档案、社会保险、住房公积金等 关系转移的相关手续。\n符合国家和军队规定的补偿情形的，用人单位应当给予文职人员经济补偿。\n文职人员退出军队后，从业限制和脱密期管理按照国家和军队有关规定执行。", "ex": ""}]}, {"ch": "第十二章 法律责任", "items": [{"no": "第六十八条", "t": "第六十八条 军队有关单位及其工作人员，在文职人员管理工作中违反本条例规定，\n有下列情形之一的，由其所在单位或者上级单位给予通报批评，责令限期改正；对负有责任 的领导人员和直接责任人员，依法给予处分；构成犯罪的，依法追究刑事责任：\n（一）不按照编制限额、资格条件、规定程序进行文职人员招录聘用的；\n（二）在招录聘用等工作中发生泄露试题、违反考场纪律以及其他严重影响公开、公 正行为的；\n（三）不按照规定进行文职人员培训、考核、任用、交流、回避、奖惩以及办理退出 的；\n（四）违反规定调整文职人员工资、福利、保险待遇标准的；\n（五）不按照规定受理和处理文职人员申诉、控告的；\n（六）违反本条例规定的其他情形。", "ex": ""}, {"no": "第六十九条", "t": "第六十九条 中央和国家有关机关、地方有关机关及其工作人员，在文职人员管理工 作中滥用职权、玩忽职守、徇私舞弊的，对负有责任的领导人员和直接责任人员依法给予 处分；构成犯罪的，依法追究刑事责任。", "ex": ""}, {"no": "第七十条", "t": "第七十条  文职人员违纪违法、失职失责的，按照规定给予处理；构成犯罪的，依法追究刑事责任。\n文职人员违反国家和军队有关规定或者聘用合同约定，给用人单位造成损失的，依法 承担赔偿责任。", "ex": ""}, {"no": "第七十一条", "t": "第七十一条 文职人员辞职或者被辞退、解除聘用合同，且存在严重违约失信行为的， 或者被军队开除的，不得再次进入军队工作。", "ex": ""}]}, {"ch": "第十三章 附 则", "items": [{"no": "第七十二条", "t": "第七十二条  对军队建设急需的高层次人才和特殊专业人才，可以在文职人员岗位设 置、人事管理和待遇保障等方面采取特殊措施，具体办法由中央军事委员会规定。", "ex": ""}, {"no": "第七十三条", "t": "第七十三条 国家和军队对深化国防和军队改革期间现役军人转改的文职人员另有规 定的，从其规定。", "ex": ""}, {"no": "第七十四条", "t": "第七十四条  本条例下列用语的含义：\n（一）用人单位，是指与文职人员建立人事关系的军队团级以上建制单位；\n（二）聘用制，是指以签订聘用合同的形式确定用人单位与文职人员基本人事关系的 用人方式；\n（三）委任制，是指不签订聘用合同、以直接任用的形式确定用人单位与文职人员基 本人事关系的用人方式。", "ex": ""}, {"no": "第七十五条", "t": "第七十五条 中国人民武装警察部队文职人员，适用本条例。", "ex": ""}, {"no": "第七十六条", "t": "第七十六条 本条例自2023年1月1日起施行。", "ex": ""}]}];
+/* =================================================== */
+
+/* ===== 存储（自动保存 + 导出烘焙）===== */
+const KEY = 'statute_note_' + LAW_KEY;
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
+})();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+                '<div class="art-text">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
+</body>
+</html>
