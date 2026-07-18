@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法规学习笔记（可编辑）</title>
+<style>
+:root{
+  --bg:#eef1f5; --card:#ffffff; --ink:#1f2329; --muted:#7a8290;
+  --primary:#1f4e79; --primary-soft:#e8f0f7; --accent:#c0392b;
+  --mark:#e6a23c; --note-bg:#fffdf3; --note-bd:#e8d9a8;
+  --border:#e1e5ea; --line:#d8dde4; --shadow:0 1px 3px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  line-height:1.8; font-size:15px;
+}
+/* ===== 顶部栏 ===== */
+header{
+  position:sticky; top:0; z-index:50; background:var(--primary); color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.head-inner{max-width:1180px; margin:0 auto; padding:10px 18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.field-badge{display:inline-block; margin-left:4px; padding:2px 11px; font-size:12px; font-weight:600; color:#fff; background:var(--primary); border-radius:20px; vertical-align:middle; letter-spacing:.5px;}
+.head-inner h1{font-size:16px; margin:0; font-weight:600; letter-spacing:.5px; flex:1 1 260px;}
+.head-inner h1 small{display:block; font-size:11.5px; font-weight:400; opacity:.8; margin-top:2px;}
+.toolbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.toolbar input[type=search]{
+  padding:6px 10px; border:1px solid rgba(255,255,255,.35); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; width:160px; outline:none;
+}
+.toolbar input[type=search]::placeholder{color:rgba(255,255,255,.7);}
+.toolbar button{
+  padding:6px 12px; border:1px solid rgba(255,255,255,.4); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; cursor:pointer; white-space:nowrap;
+}
+.toolbar button:hover{background:rgba(255,255,255,.25);}
+.toolbar button.active{background:var(--mark); border-color:var(--mark); color:#fff;}
+.status{font-size:12px; opacity:.85; min-width:80px;}
+
+/* ===== 布局 ===== */
+.layout{max-width:1180px; margin:18px auto; padding:0 18px; display:flex; gap:20px; align-items:flex-start;}
+nav.toc{
+  position:sticky; top:78px; width:200px; flex:0 0 200px;
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:12px 10px; box-shadow:var(--shadow); max-height:calc(100vh - 100px); overflow:auto;
+}
+nav.toc .toc-title{font-size:12px; color:var(--muted); padding:0 8px 8px; border-bottom:1px solid var(--line); margin-bottom:6px;}
+nav.toc a{
+  display:block; padding:7px 8px; border-radius:6px; color:var(--ink); text-decoration:none;
+  font-size:13.5px; cursor:pointer;
+}
+nav.toc a:hover{background:var(--primary-soft);}
+nav.toc a.active{background:var(--primary); color:#fff; font-weight:500;}
+nav.toc a .cnt{float:right; color:var(--muted); font-size:11px;}
+nav.toc a.active .cnt{color:rgba(255,255,255,.85);}
+
+main{flex:1; min-width:0;}
+.chapter{margin-bottom:26px;}
+.chapter > h2{
+  font-size:18px; color:var(--primary); border-left:4px solid var(--primary);
+  padding-left:12px; margin:0 0 14px; font-weight:700;
+}
+.article{
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow); position:relative;
+  border-left:3px solid var(--line);
+}
+.article.marked{border-left-color:var(--mark); background:#fffdf6;}
+.art-head{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+.art-no{
+  font-weight:700; color:var(--primary); font-size:14.5px; background:var(--primary-soft);
+  padding:2px 10px; border-radius:5px;
+}
+.mark-btn{
+  margin-left:auto; border:none; background:none; cursor:pointer; font-size:18px; line-height:1;
+  color:var(--mark); padding:0 4px;
+}
+.mark-btn:hover{transform:scale(1.15);}
+.art-text{font-size:15px; color:#2b2f36; text-align:justify; white-space:pre-wrap;}
+
+/* 解读区 */
+.explain-label{font-size:12px; color:var(--primary); font-weight:600; margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+.explain{
+  font-size:13.5px; color:#3a4250; background:#f6f9fc; border-left:3px solid var(--primary);
+  border-radius:0 6px 6px 0; padding:8px 11px; white-space:pre-wrap; outline:none;
+}
+.explain:focus{background:#eef3fa; box-shadow:0 0 0 3px rgba(31,78,121,.12);}
+
+/* 关联案例 */
+.case-label{font-size:12px; color:#9a5b1e; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.case{background:#fbf6ee; border:1px solid #ecdcc0; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.case-title{font-weight:600; font-size:13.5px; color:#6b4423;}
+.case-desc{font-size:13px; color:#5a4a3a; margin-top:3px; white-space:pre-wrap;}
+.case-src{font-size:11.5px; color:#a98b5e; margin-top:4px;}
+
+/* 关联法条 */
+.rel-label{font-size:12px; color:#1f6fb2; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.rel{background:#eef4fb; border:1px solid #cfe0ef; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.rel-src{font-weight:600; font-size:13.5px; color:#14507e;}
+.rel-text{font-size:13px; color:#34404d; margin-top:4px; white-space:pre-wrap;}
+
+/* 检索按钮 */
+.tool-row{margin:10px 0 2px;}
+.search-btn{border:1px solid var(--border); background:#f3f7fb; color:var(--primary); border-radius:6px; padding:5px 10px; font-size:12.5px; cursor:pointer;}
+.search-btn:hover{background:#e3edf6;}
+
+/* 笔记区 */
+.note-label{font-size:12px; color:var(--muted); margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+
+/* 速查卡 */
+.quick{background:linear-gradient(135deg,#f0f6fc,#e8f0f7); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.quick-head{font-weight:700; color:var(--primary); padding:11px 14px; cursor:pointer; user-select:none; font-size:14.5px;}
+.quick-body{padding:2px 14px 12px;}
+.qg{font-size:13px; color:#34404d; padding:7px 0; border-top:1px dashed #d4e2ee; white-space:pre-wrap;}
+.qg:first-child{border-top:none;}
+.qg b{color:var(--primary);}
+
+/* 法规简介（发布信息） */
+.law-intro{background:linear-gradient(135deg,#f0f6fc,#eef4fb); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.law-intro-head{font-weight:700; color:var(--primary); padding:11px 14px; font-size:14.5px;}
+.law-intro-body{padding:2px 14px 12px;}
+.law-intro-desc{font-size:13.5px; color:#34404d; line-height:1.8; margin:2px 0 10px;}
+.meta-grid{display:grid; grid-template-columns:auto 1fr; gap:6px 14px; align-items:baseline;}
+.meta-grid .mk{font-size:13px; color:var(--muted); white-space:nowrap;}
+.meta-grid .mv{font-size:13px; color:#2b2f36;}
+.meta-grid .mv.ok{color:#1a9e57; font-weight:600;}
+.meta-grid .mv.no{color:#c0392b; font-weight:600;}
+
+/* 条文互链 */
+.lawlink{color:#1f6fb2; text-decoration:underline; cursor:pointer;}
+.lawlink:hover{color:#0d4f86;}
+
+/* 批注分层 */
+.notes-wrap{margin-top:2px;}
+.note-block{margin-bottom:8px;}
+.note-tag{display:inline-block; font-size:11px; font-weight:600; padding:1px 8px; border-radius:4px; margin-bottom:3px;}
+.tag-q{background:#fde8e8; color:#c0392b;}      /* 疑问 */
+.tag-c{background:#e6f4ea; color:#1e7a46;}      /* 我的案例 */
+.tag-s{background:#fef3e0; color:#b9770e;}      /* 要点总结 */
+.tag-t{background:#efe7fb; color:#6b3fa0;}      /* 待办 */
+.note.sub{background:var(--note-bg); border:1px dashed var(--note-bd); border-radius:7px; padding:7px 10px; min-height:32px; font-size:13.5px; color:#5a4a1a; white-space:pre-wrap; outline:none;}
+.note.sub:focus{border-style:solid; border-color:var(--mark); background:#fffce8; box-shadow:0 0 0 3px rgba(230,162,60,.15);}
+.note.sub:empty:before{content:attr(data-ph); color:#b9a86a;}
+
+/* 自测模式 */
+.reveal-btn{display:none; margin:10px 0 2px; border:1px solid var(--primary); background:var(--primary-soft); color:var(--primary); border-radius:6px; padding:5px 12px; font-size:12.5px; cursor:pointer;}
+.reveal-btn:hover{background:#d8e6f5;}
+body.self-test .reveal-btn{display:inline-block;}
+body.self-test .explain-label,
+body.self-test .explain,
+body.self-test .case-label,
+body.self-test .case,
+body.self-test .rel-label,
+body.self-test .rel,
+body.self-test .tool-row,
+body.self-test .note-label,
+body.self-test .notes-wrap{display:none;}
+.article.revealed .explain-label,
+.article.revealed .explain,
+.article.revealed .case-label,
+.article.revealed .case,
+.article.revealed .rel-label,
+.article.revealed .rel,
+.article.revealed .tool-row,
+.article.revealed .note-label,
+.article.revealed .notes-wrap{display:block;}
+body.self-test .article{opacity:.97;}
+body.self-test .article.revealed{border-left-color:var(--primary); background:#fff;}
+
+footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--muted); font-size:12.5px; text-align:center;}
+
+@media (max-width:860px){
+  .layout{flex-direction:column;}
+  nav.toc{position:static; width:100%; flex:none; max-height:none;}
+  .toolbar input[type=search]{width:120px;}
+}
+@media print{
+  header, nav.toc, footer, .tool-row, .quick-head{display:none !important;}
+  body{background:#fff;}
+  .layout{display:block; margin:0; padding:0;}
+  .article{break-inside:avoid; box-shadow:none; border:1px solid #ccc;}
+  .explain{background:#f4f6f9;}
+  .case{background:#fbf6ee;}
+  .mark-btn{display:none;}
+  .quick{box-shadow:none; border:1px solid #ccc;}
+  body.self-test .reveal-btn{display:none !important;}
+  body.self-test .explain, body.self-test .explain-label,
+  body.self-test .case, body.self-test .case-label,
+  body.self-test .rel, body.self-test .rel-label,
+  body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <h1><span id="lawTitle"></span><small id="lawSub"></small> <span id="lawField" class="field-badge"></span></h1>
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
+      <span class="status" id="status">已就绪</span>
+      <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
+      <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
+      <button id="btnPrint" title="打印 / 存为PDF">打印</button>
+      <button id="btnClear" title="清空本浏览器内全部笔记与标记">清空</button>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" id="toc">
+    <div class="toc-title">目录</div>
+  </nav>
+  <main id="content"></main>
+</div>
+
+<footer>
+  本笔记为个人学习用途，条文以官方公布文本为准。案例来源于司法部/最高法等公开发布的典型/指导案例。笔记与解读自动保存在本浏览器，导出可脱离浏览器长期留存。
+</footer>
+
+<script>
+/* ============ 用户定制区（由 docx 批量导入生成） ============ */
+const LAW_TITLE = "中共中央组织部 人力资源社会保障部 关于印发《事业单位工作人员处分规定》的通知";
+const LAW_SUB   = "《劳动法规汇编（江西）》· 共46条";
+const LAW_KEY   = "jx19";
+const LAW_FIELD = "劳动争议";
+
+const LAW_INTRO = "收录于《劳动法规汇编（江西）》，属「劳动争议」板块，共46个条文块。";
+const LAW_META = { issuer:"\u2014", published:"\u2014", effective:"\u2014", valid:"\u6709\u6548", level:"\u90e8\u95e8\u89c4\u7ae0" };
+
+const QUICK = [];
+const CASES = {};
+const REL = {};
+const DATA = [{"ch": "全文", "items": [{"no": "", "t": "人社部发〔2023〕58号  2023年11月6日\n各省、自治区、直辖市党委组织部、政府人力资源社会保障厅（局），新疆生产建设兵团党 委组织部、人力资源社会保障局，中央和国家机关各部委、各人民团体组织人事部门，部分 高等学校党委：\n为严明事业单位纪律规矩，规范事业单位工作人员行为，保证事业单位及其工作人员依 法履职，根据《中华人民共和国公职人员政务处分法》和《事业单位人事管理条例》等法律 法规，中央组织部、人力资源社会保障部共同研究制定了《事业单位工作人员处分规定》， 现印发给你们，请结合本地区、本部门、本单位实际认真贯彻执行。\n事业单位工作人员处分规定", "ex": ""}]}, {"ch": "第一章  总  则", "items": [{"no": "第一条", "t": "第一条  为严明事业单位纪律规矩，规范事业单位工作人员行为，保证事业单位及其工 作人员依法履职，根据《中华人民共和国公职人员政务处分法》和《事业单位人事管理条 例》，制定本规定。", "ex": ""}, {"no": "第二条", "t": "第二条 事业单位工作人员违规违纪违法，应当承担纪律责任的，依照本规定给予处 分。\n任免机关、事业单位对事业单位中从事管理的人员给予处分，适用《中华人民共和国公 职人员政务处分法》第二章、第三章规定。处分的程序、申诉等适用本规定。", "ex": ""}, {"no": "第三条", "t": "第三条  给予事业单位工作人员处分，应当坚持党管干部、党管人才原则；坚持公正、 公平；坚持惩治与教育相结合。\n给予事业单位工作人员处分，应当与其违规违纪违法行为的性质、情节、危害程度相适 应。\n给予事业单位工作人员处分，应当事实清楚、证据确凿、定性准确、处理恰当、程序合 法、手续完备。", "ex": ""}]}, {"ch": "第二章  处分的种类和适用", "items": [{"no": "第四条", "t": "第四条 事业单位工作人员处分的种类为：\n（一）警告；\n（二）记过；\n（三）降低岗位等级；\n（四）开除。", "ex": ""}, {"no": "第五条", "t": "第五条 事业单位工作人员受处分的期间为：\n（一）警告，六个月；\n（二）记过，十二个月；\n（三）降低岗位等级，二十四个月。\n处分决定自作出之日起生效，处分期自处分决定生效之日起计算。", "ex": ""}, {"no": "第六条", "t": "第六条 事业单位工作人员受到警告处分的，在作出处分决定的当年，参加年度考核， 不能确定为优秀档次；受到记过处分的当年，受到降低岗位等级处分的当年及第二年，参加 年度考核，只写评语，不确定档次。\n事业单位工作人员受到降低岗位等级处分的，自处分决定生效之日起降低一个以上岗位 和职员等级聘用，按照事业单位收入分配有关规定确定其工资待遇；对同时在管理和专业技 术两类岗位任职的事业单位工作人员发生违规违纪违法行为的，给予降低岗位等级处分时， 应当同时降低两类岗位的等级，并根据违规违纪违法的情形与岗位性质的关联度确定降低岗 位类别的主次。\n事业单位工作人员在受处分期间，不得聘用到高于现聘岗位和职员等级。受到开除处分 的，自处分决定生效之日起，终止其与事业单位的人事关系。", "ex": ""}, {"no": "第七条", "t": "第七条  事业单位工作人员受到记过以上处分的，在受处分期间不得参加专业技术职称 评审或者工勤技能人员职业技能等级认定。", "ex": ""}, {"no": "第八条", "t": "第八条  事业单位工作人员同时有两种以上需要给予处分的行为的，应当分别确定其处 分。应当给予的处分种类不同的，执行其中最重的处分；应当给予开除以外多个相同种类处 分的，执行该处分，处分期应当按照一个处分期以上、多个处分期之和以下确定，但是最长 不得超过四十八个月。\n事业单位工作人员在受处分期间受到新的处分的，其处分期为原处分期尚未执行的期限 与新处分期限之和，但是最长不得超过四十八个月。", "ex": ""}, {"no": "第九条", "t": "第九条  事业单位工作人员二人以上共同违规违纪违法，需要给予处分的，按照各自应 当承担的责任，分别给予相应的处分。", "ex": ""}, {"no": "第十条", "t": "第十条 有下列情形之一的，应当从重处分：\n（一）在处分期内再次故意违规违纪违法，应当受到处分的；\n（二）在二人以上的共同违规违纪违法行为中起主要作用的；\n（三）隐匿、伪造、销毁证据的；\n（四）串供或者阻止他人揭发检举、提供证据材料的；\n（五）包庇同案人员的；\n（六）胁迫、唆使他人实施违规违纪违法行为的；\n（七）拒不上交或者退赔违规违纪违法所得的；\n（八）法律、法规、规章规定的其他从重情节。", "ex": ""}, {"no": "第十一条", "t": "第十一条 有下列情形之一的，可以从轻或者减轻给予处分：\n（一）主动交代本人应当受到处分的违规违纪违法行为的；\n（二）配合调查，如实说明本人违规违纪违法事实的；\n（三）主动采取措施，有效避免、挽回损失或者消除不良影响的；\n（四）检举他人违规违纪违法行为，情况属实的；\n（五）在共同违规违纪违法行为中起次要或者辅助作用的；\n（六）主动上交或者退赔违规违纪违法所得的；\n（七）其他从轻或者减轻情节。", "ex": ""}, {"no": "第十二条", "t": "第十二条 违规违纪违法行为情节轻微，且具有本规定第十一条的情形之一的，可以对 其进行谈话提醒、批评教育、责令检查或者予以诫勉，免予或者不予处分。\n事业单位工作人员因不明真相被裹挟或者被胁迫参与违规违纪违法活动，经批评教育后 确有悔改表现的，可以减轻、免予或者不予处分。", "ex": ""}, {"no": "第十三条", "t": "第十三条  事业单位工作人员违规违纪违法取得的财物和用于违规违纪违法的财物，除 依法应当由其他机关没收、追缴或者责令退赔的，由处分决定单位没收、追缴或者责令退 赔；应当退还原所有人或者原持有人的，依法予以退还；属于国家财产或者不应当退还以及 无法退还的，上缴国库。", "ex": ""}, {"no": "第十四条", "t": "第十四条  已经退休的事业单位工作人员退休前或者退休后有违规违纪违法行为应当受 到处分的，不再作出处分决定，但是可以对其立案调查；依规依纪依法应当给予降低岗位等 级以上处分的，应当按照规定相应调整其享受的待遇。", "ex": ""}, {"no": "第十五条", "t": "第十五条 事业单位有违规违纪违法行为，应当追究纪律责任的，依规依纪依法对负有 责任的领导人员和直接责任人员给予处分。", "ex": ""}]}, {"ch": "第三章  违规违纪违法行为及其适用的处分", "items": [{"no": "第十六条", "t": "第十六条  有下列行为之一的，给予记过处分；情节较重的，给予降低岗位等级处分； 情节严重的，给予开除处分：\n（一）散布有损宪法权威、中国共产党领导和国家声誉的言论的；\n（二）参加旨在反对宪法、中国共产党领导和国家的集会、游行、示威等活动的；\n（三）拒不执行或者变相不执行中国共产党和国家的路线方针政策、重大决策部署的；\n（四）参加非法组织、非法活动的；\n（五）利用宗教活动破坏民族团结和社会稳定的；挑拨、破坏民族关系，或者参加民族 分裂活动的；\n（六）在对外交往中损害国家荣誉和利益的；\n（七）携带含有依法禁止内容的书刊、音像制品、电子出版物进入境内的；\n（八）其他违反政治纪律的行为。\n有前款第二项、第四项、第五项行为之一的，对策划者、组织者和骨干分子，给予开除 处分。\n公开发表反对宪法确立的国家指导思想，反对中国共产党领导，反对社会主义制度，反 对改革开放的文章、演说、宣言、声明等的，给予开除处分。", "ex": ""}, {"no": "第十七条", "t": "第十七条 有下列行为之一的，给予警告或者记过处分；情节较重的，给予降低岗位等 级处分；情节严重的，给予开除处分：\n（一）采取不正当手段为本人或者他人谋取岗位；\n（二）在事业单位选拔任用、公开招聘、考核、培训、回避、奖励、申诉、职称评审等 人事管理工作中有违反组织人事纪律行为的；\n（三）其他违反组织人事纪律的行为。\n篡改、伪造本人档案资料的，给予记过处分；情节严重的，给予降低岗位等级处分。\n违反规定出境或者办理因私出境证件的，给予记过处分；情节严重的，给予降低岗位等 级处分。\n违反规定取得外国国籍或者获取境外永久居留资格、长期居留许可的，给予降低岗位等 级以上处分。", "ex": ""}, {"no": "第十八条", "t": "第十八条  有下列行为之一的，给予警告或者记过处分；情节较重的，给予降低岗位等 级处分；情节严重的，给予开除处分：\n（一）在执行国家重要任务、应对公共突发事件中，不服从指挥、调遣或者消极对抗 的；\n（二）破坏正常工作秩序，给国家或者公共利益造成损失的；\n（三）违章指挥、违规操作，致使人民生命财产遭受损失的；\n（四）发生重大事故、灾害、事件，擅离职守或者不按规定报告、不采取措施处置或者 处置不力的；\n（五）在项目评估评审、产品认证、设备检测检验等工作中徇私舞弊，或者违反规定造 成不良影响的；\n（六）泄露国家秘密，或者泄露因工作掌握的内幕信息、个人隐私，造成不良后果的；\n（七）其他违反工作纪律失职渎职的行为。", "ex": ""}, {"no": "第十九条", "t": "第十九条 有下列行为之一的，给予警告或者记过处分；情节较重的，给予降低岗位等 级处分；情节严重的，给予开除处分：\n（一）贪污、索贿、受贿、行贿、介绍贿赂、挪用公款的；\n（二）利用工作之便为本人或者他人谋取不正当利益的；\n（三）在公务活动或者工作中接受礼品、礼金、各种有价证券、支付凭证的；\n（四）利用知悉或者掌握的内幕信息谋取利益的；\n（五）用公款旅游或者变相用公款旅游的；\n（六）违反国家规定，从事、参与营利性活动或者兼任职务领取报酬的；\n（七）其他违反廉洁从业纪律的行为。", "ex": ""}, {"no": "第二十条", "t": "第二十条  有下列行为之一的，给予警告或者记过处分；情节较重的，给予降低岗位等 级处分；情节严重的，给予开除处分：\n（一）违反国家财政收入上缴有关规定的；\n（二）违反规定使用、骗取财政资金或者违反规定使用、骗取、隐匿、转移、侵占、挪 用社会保险基金的；\n（三）擅自设定收费项目或者擅自改变收费项目的范围、标准和对象的；\n（四）挥霍、浪费国家资财或者造成国有资产流失的；\n（五）违反国有资产管理规定，擅自占有、使用、处置国有资产的；\n（六）在招标投标和物资采购工作中违反有关规定，造成不良影响或者损失的；\n（七）其他违反财经纪律的行为。", "ex": ""}, {"no": "第二十一条", "t": "第二十一条  有下列行为之一的，给予警告或者记过处分；情节较重的，给予降低岗位 等级处分；情节严重的，给予开除处分：\n（一）利用专业技术或者技能实施违规违纪违法行为的；\n（二）有抄袭、剽窃、侵吞他人学术成果，伪造、篡改数据文献，或者捏造事实等学术 不端行为的；\n（三）利用职业身份进行利诱、威胁或者误导，损害他人合法权益的；\n（四）利用权威、地位或者掌控的资源，压制不同观点，限制学术自由，造成重大损失 或者不良影响的；\n（五）在申报岗位、项目、荣誉等过程中弄虚作假的；\n（六）工作态度恶劣，造成不良社会影响的；\n（七）其他严重违反职业道德的行为。\n有前款第一项规定行为的，给予记过以上处分。", "ex": ""}, {"no": "第二十二条", "t": "第二十二条  有下列行为之一的，给予警告或者记过处分；情节较重的，给予降低岗位 等级处分；情节严重的，给予开除处分：\n（一）违背社会公序良俗，在公共场所有不当行为，造成不良影响的；\n（二）制造、传播违法违禁物品及信息的；\n（三）参与赌博活动的；\n（四）有实施家庭暴力，虐待、遗弃家庭成员，或者拒不承担赡养、抚养、扶养义务等 的；\n（五）其他严重违反公共秩序、社会公德的行为。\n吸食、注射毒品，组织赌博，组织、支持、参与卖淫、嫖娼、色情淫乱活动的，给予降 低岗位等级以上处分。", "ex": ""}, {"no": "第二十三条", "t": "第二十三条 事业单位工作人员犯罪，有下列情形之一的，给予开除处分：\n（一）因故意犯罪被判处管制、拘役或者有期徒刑以上刑罚（含宣告缓刑）的；\n（二）因过失犯罪被判处有期徒刑，刑期超过三年的；\n（三）因犯罪被单处或者并处剥夺政治权利的。\n因过失犯罪被判处管制、拘役或者三年以下有期徒刑的，一般应当给予开除处分；案件 情况特殊，给予降低岗位等级处分更为适当的，可以不予开除，但是应当报请事业单位主管 部门批准，并报同级事业单位人事综合管理部门备案。\n事业单位工作人员因犯罪被单处罚金，或者犯罪情节轻微，人民检察院依法作出不起诉 决定或者人民法院依法免予刑事处罚的，给予降低岗位等级处分；造成不良影响的，给予开 除处分。", "ex": ""}]}, {"ch": "第四章  处分的权限和程序", "items": [{"no": "第二十四条", "t": "第二十四条 对事业单位工作人员的处分，按照干部人事管理权限，由事业单位或者事 业单位主管部门决定。\n开除处分由事业单位主管部门决定，并报同级事业单位人事综合管理部门备案。\n对中央和地方直属事业单位工作人员的处分，按照干部人事管理权限，由本单位或者有关部门决定；其中，由本单位作出开除处分决定的，报同级事业单位人事综合管理部门备案。", "ex": ""}, {"no": "第二十五条", "t": "第二十五条 对事业单位工作人员的处分，按照以下程序办理：\n（一）对事业单位工作人员违规违纪违法行为初步调查后，需要进一步查证的，应当按照 干部人事管理权限，经事业单位负责人批准或者有关部门同意后立案；\n（二）对被调查的事业单位工作人员的违规违纪违法行为作进一步调查，收集、查证有关 证据材料，并形成书面调查报告；\n（三）将调查认定的事实及拟给予处分的依据告知被调查的事业单位工作人员，听取其陈 述和申辩，并对其所提出的事实、理由和证据进行复核，记录在案。被调查的事业单位工作人 员提出的事实、理由和证据成立的，应予采信；\n（四）按照处分决定权限，作出对该事业单位工作人员给予处分、免予不予处分或者撤销 案件的决定；\n（五）处分决定单位印发处分决定；\n（六）将处分决定以书面形式通知受处分事业单位工作人员本人和有关单位，并在一定范 围内宣布；\n（七）将处分决定存入受处分事业单位工作人员的档案。", "ex": ""}, {"no": "第二十六条", "t": "第二十六条  事业单位工作人员已经被立案调查，不宜继续履职的，可以按照干部人事管 理权限，由事业单位或者有关部门暂停其职责。\n被调查的事业单位工作人员在案件立案调查期间，不得解除聘用合同、出境，所在单位不 得对其交流、晋升、奖励或者办理退休手续。", "ex": ""}, {"no": "第二十七条", "t": "第二十七条 对事业单位工作人员案件进行调查，应当由二名以上办案人员进行；接受调 查的单位和个人应当如实提供情况。\n以暴力、威胁、引诱、欺骗等非法方式收集的证据不得作为定案的根据。\n在调查中发现事业单位工作人员受到不实检举、控告或者诬告陷害，造成不良影响的，应 当按照规定及时澄清事实，恢复名誉，消除不良影响。", "ex": ""}, {"no": "第二十八条", "t": "第二十八条 参与事业单位工作人员案件调查、处理的人员应当回避的，执行《事业单位 人事管理回避规定》等有关规定。", "ex": ""}, {"no": "第二十九条", "t": "第二十九条  给予事业单位工作人员处分，应当自批准立案之日起六个月内作出决定；案 情复杂或者遇有其他特殊情形的可以延长，但是办案期限最长不得超过十二个月。", "ex": ""}, {"no": "第三十条", "t": "第三十条 处分决定应当包括下列内容：\n（一）受处分事业单位工作人员的姓名、工作单位、原所聘岗位（所任职务）名称及等 级、职员等级等基本情况；\n（二）经查证的违规违纪违法事实；\n（三）处分的种类、受处分的期间和依据；\n（四）不服处分决定的申诉途径和期限；\n（五）处分决定单位的名称、印章和作出决定的日期。", "ex": ""}, {"no": "第三十一条", "t": "第三十一条  事业单位工作人员受到处分，应当办理岗位、职员等级、工资及其他有关待 遇等的变更手续的，由人事部门按照管理权限在作出处分决定后一个月内办理；特殊情况下，经批准可以适当延长办理期限，但是最长不得超过六个月。", "ex": ""}, {"no": "第三十二条", "t": "第三十二条 事业单位工作人员受开除以外的处分，在受处分期间有悔改表现，并且没 有再出现违规违纪违法情形的，处分期满后自动解除处分。\n处分解除后，考核及晋升岗位和职员等级、职称、工资待遇按照国家有关规定执行，不 再受原处分的影响。但是，受到降低岗位等级处分的，不恢复受处分前的岗位、职员等级、 工资待遇；无岗位、职员等级可降而降低薪级工资的，处分解除后，不恢复受处分前的薪级 工资。", "ex": ""}, {"no": "第三十三条", "t": "第三十三条  事业单位工作人员受到开除处分后，事业单位应当及时办理档案和社会保 险关系转移手续，具体办法按照有关规定执行。", "ex": ""}]}, {"ch": "第五章  复核和申诉", "items": [{"no": "第三十四条", "t": "第三十四条 受到处分的事业单位工作人员对处分决定不服的，可以自知道或者应当知 道该处分决定之日起三十日内向原处分决定单位申请复核。对复核结果不服的，可以自接到 复核决定之日起三十日内，按照《事业单位工作人员申诉规定》等有关规定向原处分决定单 位的主管部门或者同级事业单位人事综合管理部门提出申诉。\n受到处分的中央和地方直属事业单位工作人员的申诉，按照干部人事管理权限，由同级 事业单位人事综合管理部门受理。", "ex": ""}, {"no": "第三十五条", "t": "第三十五条  原处分决定单位应当自接到复核申请后的三十日内作出复核决定。 受理申 诉的单位应当自受理之日起六十日内作出处理决定；案情复杂的，可以适当延长，但是延长 期限最多不超过三十日。\n复核、申诉期间不停止处分的执行。\n事业单位工作人员不因提出复核、申诉而被加重处分。", "ex": ""}, {"no": "第三十六条", "t": "第三十六条  有下列情形之一的，受理处分复核、申诉的单位应当撤销处分决定，重新 作出决定或者责令原处分决定单位重新作出决定：\n（一）处分所依据的事实不清、证据不足的；\n（二）违反规定程序，影响案件公正处理的；\n（三）超越职权或者滥用职权作出处分决定的。", "ex": ""}, {"no": "第三十七条", "t": "第三十七条 有下列情形之一的，受理复核、申诉的单位应当变更处分决定或者责令原 处分决定单位变更处分决定：\n（一）适用法律、法规、规章错误的；\n（二）对违规违纪违法行为的情节认定有误的；\n（三）处分不当的。", "ex": ""}, {"no": "第三十八条", "t": "第三十八条  事业单位工作人员的处分决定被变更，需要调整该工作人员的岗位、职员 等级或者工资待遇的，应当按照规定予以调整；事业单位工作人员的处分决定被撤销的，需 要恢复该工作人员的岗位、职员等级、工资待遇的，按照原岗位、职员等级安排相应的岗 位、职员等级，恢复相应的工资待遇，并在原处分决定公布范围内为其恢复名誉。\n被撤销处分或者被减轻处分的事业单位工作人员工资待遇受到损失的，应当予以补偿。 没收、追缴财物错误的，应当依规依纪依法予以返还、赔偿。", "ex": ""}]}, {"ch": "第六章  附  则", "items": [{"no": "第三十九条", "t": "第三十九条  对事业单位工作人员处分工作中有滥用职权、玩忽职守、徇私舞弊、收受 贿赂等违规违纪违法行为的工作人员，按照有关规定给予处分；涉嫌犯罪的，依法追究刑事 责任。", "ex": ""}, {"no": "第四十条", "t": "第四十条 对机关工勤人员给予处分，参照本规定执行。", "ex": ""}, {"no": "第四十一条", "t": "第四十一条  教育、科研、文化、医疗卫生、体育等部门，可以依据本规定，结合自身 工作的实际情况，与中央事业单位人事综合管理部门联合制定具体办法。", "ex": ""}, {"no": "第四十二条", "t": "第四十二条 本规定实施前，已经结案的案件如果需要复核、申诉，适用当时的规定。 尚未结案的案件，如果行为发生时的规定不认为是违规违纪违法的，适用当时的规定；如果 行为发生时的规定认定是违规违纪违法的，依照当时的规定处理，但是如果本规定不认为是 违规违纪违法的或者根据本规定处理较轻的，适用本规定。", "ex": ""}, {"no": "第四十三条", "t": "第四十三条 本规定所称以上、以下，包括本数。", "ex": ""}, {"no": "第四十四条", "t": "第四十四条  本规定由中共中央组织部、人力资源社会保障部负责解释。", "ex": ""}, {"no": "第四十五条", "t": "第四十五条 本规定自发布之日起施行。", "ex": ""}]}];
+/* =================================================== */
+
+/* ===== 存储（自动保存 + 导出烘焙）===== */
+const KEY = 'statute_note_' + LAW_KEY;
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
+})();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+                '<div class="art-text">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
+</body>
+</html>
