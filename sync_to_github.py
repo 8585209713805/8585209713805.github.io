@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # 用 GitHub Contents API 同步站点文件到仓库(绕过 git push：沙箱代理禁 github.com，仅放行 api.github.com)
-import os, glob, base64, json, subprocess, urllib.parse, sys
+import os, glob, base64, json, subprocess, urllib.parse, sys, time
 
 PAT = open('/Users/zf/.workbuddy/github_token').read().strip()
 REPO = '8585209713805/8585209713805.github.io'
@@ -16,7 +16,7 @@ FILES += sorted(os.path.join('notes', os.path.basename(p))
 
 
 def curl(method, url, data=None):
-    cmd = ['curl', '-s', '--max-time', '40', '--retry', '2', '--retry-delay', '1',
+    cmd = ['curl', '-s', '--max-time', '60', '--retry', '3', '--retry-delay', '2',
            '-o', '-', '-w', '\n%{http_code}',
            '-H', f'Authorization: Bearer {PAT}']
     if method == 'PUT':
@@ -27,6 +27,25 @@ def curl(method, url, data=None):
     return int(code.strip() or 0), body
 
 
+def get_remote(rel):
+    """GET 远程文件元信息，带重试，直到拿到可解析的 JSON 或确认 404。"""
+    enc = urllib.parse.quote(rel)
+    last = {}
+    last_code = 0
+    for _ in range(4):
+        code, body = curl('GET', f'{BASE}/{enc}')
+        last_code = code
+        if body:
+            try:
+                obj = json.loads(body)
+                if isinstance(obj, dict) and ('sha' in obj or 'content' in obj or code == 404):
+                    return obj, code
+            except Exception:
+                pass
+        time.sleep(1.5)
+    return last, last_code
+
+
 def main():
     dry = '--dry' in sys.argv
     for rel in FILES:
@@ -34,9 +53,7 @@ def main():
         if not os.path.exists(localp):
             print('跳过(本地不存在):', rel)
             continue
-        enc = urllib.parse.quote(rel)
-        code, body = curl('GET', f'{BASE}/{enc}')
-        remote = json.loads(body) if body else {}
+        remote, _ = get_remote(rel)
         sha = remote.get('sha', '')
         remote_b64 = remote.get('content', '')
         local_b64 = base64.b64encode(open(localp, 'rb').read()).decode()
@@ -44,14 +61,31 @@ def main():
             print('无变化跳过:', rel)
             continue
         if dry:
-            print(f'[dry] 将更新: {rel} (远程sha={sha[:8]})')
+            print(f'[dry] 将更新: {rel} (远程sha={sha[:8] if sha else "无"})')
             continue
         msg = f'auto-sync: 更新 {rel}'
         payload = {'message': msg, 'content': local_b64}
         if sha:
             payload['sha'] = sha
-        c2, _ = curl('PUT', f'{BASE}/{enc}', json.dumps(payload, ensure_ascii=False))
-        print(f'PUT {rel} -> HTTP {c2}')
+        enc = urllib.parse.quote(rel)
+        ok = False
+        for attempt in range(2):
+            c2, _ = curl('PUT', f'{BASE}/{enc}', json.dumps(payload, ensure_ascii=False))
+            if c2 in (200, 201):
+                print(f'PUT {rel} -> HTTP {c2}')
+                ok = True
+                break
+            # 422/409：sha 过期或缺失，重新取 sha 重试
+            if c2 in (422, 409):
+                time.sleep(1.5)
+                remote, _ = get_remote(rel)
+                sha = remote.get('sha', '')
+                payload['sha'] = sha
+                continue
+            print(f'PUT {rel} -> HTTP {c2} (未成功)')
+            break
+        if not ok:
+            print(f'!! 失败: {rel}')
 
 
 if __name__ == '__main__':
