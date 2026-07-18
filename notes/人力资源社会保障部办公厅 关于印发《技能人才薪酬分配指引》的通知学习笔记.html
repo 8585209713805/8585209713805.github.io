@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法规学习笔记（可编辑）</title>
+<style>
+:root{
+  --bg:#eef1f5; --card:#ffffff; --ink:#1f2329; --muted:#7a8290;
+  --primary:#1f4e79; --primary-soft:#e8f0f7; --accent:#c0392b;
+  --mark:#e6a23c; --note-bg:#fffdf3; --note-bd:#e8d9a8;
+  --border:#e1e5ea; --line:#d8dde4; --shadow:0 1px 3px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  line-height:1.8; font-size:15px;
+}
+/* ===== 顶部栏 ===== */
+header{
+  position:sticky; top:0; z-index:50; background:var(--primary); color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.head-inner{max-width:1180px; margin:0 auto; padding:10px 18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.field-badge{display:inline-block; margin-left:4px; padding:2px 11px; font-size:12px; font-weight:600; color:#fff; background:var(--primary); border-radius:20px; vertical-align:middle; letter-spacing:.5px;}
+.head-inner h1{font-size:16px; margin:0; font-weight:600; letter-spacing:.5px; flex:1 1 260px;}
+.head-inner h1 small{display:block; font-size:11.5px; font-weight:400; opacity:.8; margin-top:2px;}
+.toolbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.toolbar input[type=search]{
+  padding:6px 10px; border:1px solid rgba(255,255,255,.35); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; width:160px; outline:none;
+}
+.toolbar input[type=search]::placeholder{color:rgba(255,255,255,.7);}
+.toolbar button{
+  padding:6px 12px; border:1px solid rgba(255,255,255,.4); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; cursor:pointer; white-space:nowrap;
+}
+.toolbar button:hover{background:rgba(255,255,255,.25);}
+.toolbar button.active{background:var(--mark); border-color:var(--mark); color:#fff;}
+.status{font-size:12px; opacity:.85; min-width:80px;}
+
+/* ===== 布局 ===== */
+.layout{max-width:1180px; margin:18px auto; padding:0 18px; display:flex; gap:20px; align-items:flex-start;}
+nav.toc{
+  position:sticky; top:78px; width:200px; flex:0 0 200px;
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:12px 10px; box-shadow:var(--shadow); max-height:calc(100vh - 100px); overflow:auto;
+}
+nav.toc .toc-title{font-size:12px; color:var(--muted); padding:0 8px 8px; border-bottom:1px solid var(--line); margin-bottom:6px;}
+nav.toc a{
+  display:block; padding:7px 8px; border-radius:6px; color:var(--ink); text-decoration:none;
+  font-size:13.5px; cursor:pointer;
+}
+nav.toc a:hover{background:var(--primary-soft);}
+nav.toc a.active{background:var(--primary); color:#fff; font-weight:500;}
+nav.toc a .cnt{float:right; color:var(--muted); font-size:11px;}
+nav.toc a.active .cnt{color:rgba(255,255,255,.85);}
+
+main{flex:1; min-width:0;}
+.chapter{margin-bottom:26px;}
+.chapter > h2{
+  font-size:18px; color:var(--primary); border-left:4px solid var(--primary);
+  padding-left:12px; margin:0 0 14px; font-weight:700;
+}
+.article{
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow); position:relative;
+  border-left:3px solid var(--line);
+}
+.article.marked{border-left-color:var(--mark); background:#fffdf6;}
+.art-head{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+.art-no{
+  font-weight:700; color:var(--primary); font-size:14.5px; background:var(--primary-soft);
+  padding:2px 10px; border-radius:5px;
+}
+.mark-btn{
+  margin-left:auto; border:none; background:none; cursor:pointer; font-size:18px; line-height:1;
+  color:var(--mark); padding:0 4px;
+}
+.mark-btn:hover{transform:scale(1.15);}
+.art-text{font-size:15px; color:#2b2f36; text-align:justify; white-space:pre-wrap;}
+
+/* 解读区 */
+.explain-label{font-size:12px; color:var(--primary); font-weight:600; margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+.explain{
+  font-size:13.5px; color:#3a4250; background:#f6f9fc; border-left:3px solid var(--primary);
+  border-radius:0 6px 6px 0; padding:8px 11px; white-space:pre-wrap; outline:none;
+}
+.explain:focus{background:#eef3fa; box-shadow:0 0 0 3px rgba(31,78,121,.12);}
+
+/* 关联案例 */
+.case-label{font-size:12px; color:#9a5b1e; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.case{background:#fbf6ee; border:1px solid #ecdcc0; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.case-title{font-weight:600; font-size:13.5px; color:#6b4423;}
+.case-desc{font-size:13px; color:#5a4a3a; margin-top:3px; white-space:pre-wrap;}
+.case-src{font-size:11.5px; color:#a98b5e; margin-top:4px;}
+
+/* 关联法条 */
+.rel-label{font-size:12px; color:#1f6fb2; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.rel{background:#eef4fb; border:1px solid #cfe0ef; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.rel-src{font-weight:600; font-size:13.5px; color:#14507e;}
+.rel-text{font-size:13px; color:#34404d; margin-top:4px; white-space:pre-wrap;}
+
+/* 检索按钮 */
+.tool-row{margin:10px 0 2px;}
+.search-btn{border:1px solid var(--border); background:#f3f7fb; color:var(--primary); border-radius:6px; padding:5px 10px; font-size:12.5px; cursor:pointer;}
+.search-btn:hover{background:#e3edf6;}
+
+/* 笔记区 */
+.note-label{font-size:12px; color:var(--muted); margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+
+/* 速查卡 */
+.quick{background:linear-gradient(135deg,#f0f6fc,#e8f0f7); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.quick-head{font-weight:700; color:var(--primary); padding:11px 14px; cursor:pointer; user-select:none; font-size:14.5px;}
+.quick-body{padding:2px 14px 12px;}
+.qg{font-size:13px; color:#34404d; padding:7px 0; border-top:1px dashed #d4e2ee; white-space:pre-wrap;}
+.qg:first-child{border-top:none;}
+.qg b{color:var(--primary);}
+
+/* 法规简介（发布信息） */
+.law-intro{background:linear-gradient(135deg,#f0f6fc,#eef4fb); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.law-intro-head{font-weight:700; color:var(--primary); padding:11px 14px; font-size:14.5px;}
+.law-intro-body{padding:2px 14px 12px;}
+.law-intro-desc{font-size:13.5px; color:#34404d; line-height:1.8; margin:2px 0 10px;}
+.meta-grid{display:grid; grid-template-columns:auto 1fr; gap:6px 14px; align-items:baseline;}
+.meta-grid .mk{font-size:13px; color:var(--muted); white-space:nowrap;}
+.meta-grid .mv{font-size:13px; color:#2b2f36;}
+.meta-grid .mv.ok{color:#1a9e57; font-weight:600;}
+.meta-grid .mv.no{color:#c0392b; font-weight:600;}
+
+/* 条文互链 */
+.lawlink{color:#1f6fb2; text-decoration:underline; cursor:pointer;}
+.lawlink:hover{color:#0d4f86;}
+
+/* 批注分层 */
+.notes-wrap{margin-top:2px;}
+.note-block{margin-bottom:8px;}
+.note-tag{display:inline-block; font-size:11px; font-weight:600; padding:1px 8px; border-radius:4px; margin-bottom:3px;}
+.tag-q{background:#fde8e8; color:#c0392b;}      /* 疑问 */
+.tag-c{background:#e6f4ea; color:#1e7a46;}      /* 我的案例 */
+.tag-s{background:#fef3e0; color:#b9770e;}      /* 要点总结 */
+.tag-t{background:#efe7fb; color:#6b3fa0;}      /* 待办 */
+.note.sub{background:var(--note-bg); border:1px dashed var(--note-bd); border-radius:7px; padding:7px 10px; min-height:32px; font-size:13.5px; color:#5a4a1a; white-space:pre-wrap; outline:none;}
+.note.sub:focus{border-style:solid; border-color:var(--mark); background:#fffce8; box-shadow:0 0 0 3px rgba(230,162,60,.15);}
+.note.sub:empty:before{content:attr(data-ph); color:#b9a86a;}
+
+/* 自测模式 */
+.reveal-btn{display:none; margin:10px 0 2px; border:1px solid var(--primary); background:var(--primary-soft); color:var(--primary); border-radius:6px; padding:5px 12px; font-size:12.5px; cursor:pointer;}
+.reveal-btn:hover{background:#d8e6f5;}
+body.self-test .reveal-btn{display:inline-block;}
+body.self-test .explain-label,
+body.self-test .explain,
+body.self-test .case-label,
+body.self-test .case,
+body.self-test .rel-label,
+body.self-test .rel,
+body.self-test .tool-row,
+body.self-test .note-label,
+body.self-test .notes-wrap{display:none;}
+.article.revealed .explain-label,
+.article.revealed .explain,
+.article.revealed .case-label,
+.article.revealed .case,
+.article.revealed .rel-label,
+.article.revealed .rel,
+.article.revealed .tool-row,
+.article.revealed .note-label,
+.article.revealed .notes-wrap{display:block;}
+body.self-test .article{opacity:.97;}
+body.self-test .article.revealed{border-left-color:var(--primary); background:#fff;}
+
+footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--muted); font-size:12.5px; text-align:center;}
+
+@media (max-width:860px){
+  .layout{flex-direction:column;}
+  nav.toc{position:static; width:100%; flex:none; max-height:none;}
+  .toolbar input[type=search]{width:120px;}
+}
+@media print{
+  header, nav.toc, footer, .tool-row, .quick-head{display:none !important;}
+  body{background:#fff;}
+  .layout{display:block; margin:0; padding:0;}
+  .article{break-inside:avoid; box-shadow:none; border:1px solid #ccc;}
+  .explain{background:#f4f6f9;}
+  .case{background:#fbf6ee;}
+  .mark-btn{display:none;}
+  .quick{box-shadow:none; border:1px solid #ccc;}
+  body.self-test .reveal-btn{display:none !important;}
+  body.self-test .explain, body.self-test .explain-label,
+  body.self-test .case, body.self-test .case-label,
+  body.self-test .rel, body.self-test .rel-label,
+  body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <h1><span id="lawTitle"></span><small id="lawSub"></small> <span id="lawField" class="field-badge"></span></h1>
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
+      <span class="status" id="status">已就绪</span>
+      <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
+      <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
+      <button id="btnPrint" title="打印 / 存为PDF">打印</button>
+      <button id="btnClear" title="清空本浏览器内全部笔记与标记">清空</button>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" id="toc">
+    <div class="toc-title">目录</div>
+  </nav>
+  <main id="content"></main>
+</div>
+
+<footer>
+  本笔记为个人学习用途，条文以官方公布文本为准。案例来源于司法部/最高法等公开发布的典型/指导案例。笔记与解读自动保存在本浏览器，导出可脱离浏览器长期留存。
+</footer>
+
+<script>
+/* ============ 用户定制区（由 docx 批量导入生成） ============ */
+const LAW_TITLE = "人力资源社会保障部办公厅 关于印发《技能人才薪酬分配指引》的通知";
+const LAW_SUB   = "《劳动法规汇编（江西）》· 共46条";
+const LAW_KEY   = "jx41";
+const LAW_FIELD = "工资报酬";
+
+const LAW_INTRO = "收录于《劳动法规汇编（江西）》，属「工资报酬」板块，共46个条文块。";
+const LAW_META = { issuer:"\u2014", published:"\u2014", effective:"\u2014", valid:"\u6709\u6548", level:"\u89c4\u8303\u6027\u6587\u4ef6" };
+
+const QUICK = [];
+const CASES = {};
+const REL = {};
+const DATA = [{"ch": "全文", "items": [{"no": "", "t": "人社厅发〔2021〕7号 2021年1月26日\n各省、自治区、直辖市及新疆生产建设兵团人力资源社会保障厅（局）:\n为更好服务中国制造、中国创造，深入实施人才强国、创新驱动发展战略，推动企业 建立健全符合技能人才特点的工资分配制度，激励广大青年走技能成才、技能报国之路， 我部组织编写了《技能人才薪酬分配指引》，现印发给你们，供指导企业时参考。\n各地区要高度重视提高技能人才工资待遇，加强对企业工资分配的指导和服务，抓好 宣传培训，推广典型经验，结合本地实际，加强示范引领，推动培养造就一支高素质技能 人才队伍。\n技能人才薪酬分配指引\n第 一 章  总  则\n第 一 条 为健全技能人才培养、使用、评价、激励制度，推动企业建立多职级的技能 人才职业发展通道，建立以体现技能价值为导向的技能人才薪酬分配制度，大力提高技能 人才职业荣誉感和经济待遇，不断发展壮大技能人才队伍，为中国制造和中国创造提供重 要人才支撑，结合企业薪酬分配理论实践和技能人才特点，特制定本指引。", "ex": ""}, {"no": "第二条", "t": "第二条 本指引旨在为企业提供技能人才薪酬分配可供参考的方式方法。 企业可结合 实际，借鉴本指引，不断建立健全适应本企业发展需要的技能人才薪酬分配体系。", "ex": ""}, {"no": "第三条", "t": "第三条 本指引所称技能人才，是指在生产或服务一线从事技能操作的人员。", "ex": ""}, {"no": "第四条", "t": "第四条 技能人才薪酬分配应遵循以下原则：\n（一）坚持按劳分配和按要素贡献参与分配。体现多劳者多得、技高者多得的价值分 配导向，合理评价技能要素贡献。\n（二）坚持职业发展设计与薪酬分配相配套。充分考虑企业的组织架构、职位体系、 定岗定编、岗位评价、薪酬分配、绩效管理等相互联系、相互制约的实际，使技能人才薪 酬分配与职业发展通道相衔接。\n（三）坚持统筹处理好工资分配关系。参考岗位测评结果、市场标杆岗位的薪酬价 位，综合考虑企业内部操作技能、专业技术和经营管理等类别实际，统筹确定技能操作岗 位和企业内部其他类别岗位之间薪酬分配关系。", "ex": ""}]}, {"ch": "第二章 技能人才职业发展通道设计", "items": [{"no": "第五条", "t": "第五条 本指引所称技能人才职业发展通道，是在企业岗位体系的基础上，形成横向 按工作性质、内容等划分不同技能序列，纵向按技能人才专业知识、技术技能、资历经\n验、工作业绩等因素划分层级的有机系统，既体现技能人才个人能力，又反映岗位差别。", "ex": ""}, {"no": "第六条", "t": "第六条 技能人才职业发展通道一般应与企业的经营管理类、专业技术类职业发展通 道并行设置，层级互相对照。企业可根据发展需要，贯通工程技术领域操作技能与工程技 术序列融合发展的路径，并逐步拓宽贯通领域，扩大贯通规模。对制造业的技能人才，可 以设置基本生产技能操作、辅助生产技能操作等细分类别，纵向设置多个职级（详见附表 1）。 其他行业企业可结合实际参照设置。\n纵向成长通道一般应基于不同类别岗位的重要程度、复杂程度等因素，并考虑不同类 别岗位人员的职业发展规律作出差别化安排。纵向成长通道具体层级设置数量可根据企业 发展战略、主体业务、员工队伍状况等实际进行调整。\n企业内部不同类别之间对应关系，技能操作类的正常成长通道最高可与部门正职/分厂 厂长/分支机构正职等中层正职相当，高精尖的高技能领军人才可与企业高层管理岗相当。 对企业技能操作中的基本生产技能操作工种、辅助生产技能操作工种和熟练服务工种等， 一般应设置差别化成长通道。同时，在满足任职资格条件基础上，不同职业发展通道可以 相互贯通。", "ex": ""}, {"no": "第七条", "t": "第七条 为实现职业发展通道有效运转，需定责权，即对具体职位在工作职责、管理 权限等方面作出统一规范和界定。定责权，主要是解决好职业发展通道和企业内部管理岗 位之间的关系问题，总的原则是以事定责、按责配权，实现权责利的统一。职责权限的划 分根据相关业务流程，通过编制岗位说明书等方式进行明确，并结合实际动态调整。\n处于高职级的技能人才对本领域业务工作负有组织制订（修订）标准、指导落实、监 控、审查、结果判定等职责和权限；同时，需承担本业务领域难度较大、创新性的工作任 务，并负有编制培训教材、培训授课、平时指导等培训指导职责。", "ex": ""}, {"no": "第八条", "t": "第八条 职业发展通道有效运转需定数量，即根据企业战略和相应的人力资源规划， 参考企业所在业务领域专业细分结果，结合企业对各职位的需求以及人员结构情况，制定 各职级的职数标准和比例结构。\n设置职位数量的规则，一般采取两头放开、中间择优的方式安排。高层职级一般按资 格条件管理，不设具体职位数量，成熟一个聘任一个，宁缺毋滥；基层职级一般不设职数， 符合条件即可正常晋升；中间层级可按照细分专业数量设置职数，也可以按照一定比例进 行安排。", "ex": ""}, {"no": "第九条", "t": "第九条 职业发展通道有效运转需定资格，即根据履行职位职责的要求，对职位任职 人员所应具备的学历、资历、能力、经验、业绩等多维度任职条件作出统一规范和界定。 职位任职资格标准可将经人社部门公布的技能人才评价机构评价的职业技能等级作为重要 参考，并明确相互间对应关系。\n结合人才成长规律，职业发展通道一般可按三个阶段设置，形成全职业周期的成长发 展通道。新进技能人才在第一个十年中，每2至3年晋升一个职级，在基层岗位职位上正常 成长；第二个十年中，在中间层级岗位职位上择优晋升发展；第三个十年中，在高层级岗 位职位上逐步成长为专家权威。同时，对具有特殊技能和突出贡献的高技能人才应有破格 晋升的制度安排。\n随着新生代劳动者成长预期的变化，以及不同类型企业的技能操作难度有差异，对技能人才的成长年限安排以及相应的任职资格标准可有所不同。", "ex": ""}, {"no": "第十条", "t": "第十条 职业发展通道有效运转需定考评，即明确各类人员进入所在职级通道的考评 办法，根据考评结果组织聘任，实现能上能下。", "ex": ""}, {"no": "第十一条", "t": "第十一条 职业发展通道有效运转需定待遇，即对进入职业发展通道的技能人才，可 对新职级职位按照岗位进行管理，职位职级变化时执行岗变薪变规则。各职级人员聘任到 位后，按相应岗位工资标准执行，根据绩效考核结果发放绩效工资。", "ex": ""}, {"no": "第十二条", "t": "第十二条 职业发展通道有效运转需动态管理，即对职位职数标准、任职人员配置以 及职位体系框架的动态管理。\n其中，职位职级聘任应有任期规定，高职级职位的任期可比低职级长。任期期满重新 进行评聘。在职位职数规定范围内，对任期评聘成绩优秀并达到上一职级任职资格的可予 以晋升，考评合格的可保留原职级，考评不合格的可降低职级。", "ex": ""}]}, {"ch": "第三章 技能人才薪酬分配制度设计", "items": [{"no": "", "t": "第一节工资结构设计", "ex": ""}, {"no": "第十三条", "t": "第十三条 按照为岗位付酬、为能力付酬、为绩效付酬的付酬因素，技能人才工资结 构可由体现岗位价值的岗位工资单元、体现能力差别的能力工资单元和体现绩效贡献的绩 效工资单元等组成。", "ex": ""}, {"no": "第十四条", "t": "第十四条 为稳定职工队伍，保障职工基本生活，企业可结合实际增加设置体现保障 基本生活的基础工资单元和体现员工历史贡献积累的年功工资单元。", "ex": ""}, {"no": "第十五条", "t": "第十五条 在各工资单元功能不重复体现的原则下，为补偿技能人才在特定环境或承 担特定任务的额外付出，可设置相应的津贴单元，包括体现夜班工作条件下额外劳动付出 的夜班津贴、体现高温噪音污染等艰苦环境条件下额外劳动付出的作业环境津贴、体现技 能人才技能水平的技能津贴、体现技能人才班组长额外劳动付出的班组长津贴、体现技能 人才师傅带徒弟额外劳动付出的带徒津贴等。根据需要，还可设置鼓励多学技能、向复合 型人才发展的多能津贴或通岗津贴等。", "ex": ""}, {"no": "第十六条", "t": "第十六条 企业根据需要可以合并、 减少或增加相关工资单元。例如，能力工资单元 可以采用设置技能人才特殊岗位津贴的形式体现，也可以采用将职级通道直接纳入岗位工 资单元进行体现；年功工资单元可在岗位工资单元中设置一岗多薪、 一岗多档，岗级体现 不同岗位的价值度，档次用于体现同一岗位上不同员工的岗位任职时间、业绩贡献、年度 正常增长等因素。\n第二节  岗位工资单元设计", "ex": ""}, {"no": "第十七条", "t": "第十七条 岗位工资等级应以岗位评价结果为基础。岗位评价是实现不同岗位之间价 值可比，体现企业薪酬分配内部公平的重要基础工作。\n岗位评价一般有四种方法： 一是排序法，将企业全部岗位视为一个系列，根据各个岗 位对组织的贡献度和作用度不同，对岗位次序进行排列的一种方法， 一般适用于工作性质 单一、岗位较少的企业。二是分类套级法，将企业全部岗位分为若干系列、每个系列分为 若干级别，分类别对岗位次序进行排列的一种方法。三是因素比较法，事先确定测评要素 和若干主要岗位（或称标杆岗位），将每一个主要岗位的每个影响因素分别加以排序或评价。其他岗位按影响因素与已测评标杆岗位各因素测评结果分别进行比较，进而确定岗位 的价值等级。四是要素计分法，根据预先规定的衡量标准，对岗位的主要影响因素逐一进 行评比、估量，由此得出各个岗位的量值。", "ex": ""}, {"no": "第十八条", "t": "第十八条 企业采用要素计分法对技能操作类岗位进行岗位评价，通常考虑岗位对上 岗人员技能水平要求的高低，岗位工作量及质量责任的轻重，体力或脑力劳动强度的大小 和岗位工作条件的好差等进行评价。在此基础上，要遵循战略导向原则，从突出企业关键 重要岗位的角度选择评价要素，确定评价要素权重。", "ex": ""}, {"no": "第十九条", "t": "第十九条 企业在评价要素的选择、评价权重的设置、评价过程的组织等方面应贯彻 公正、公开原则，得到员工认可。第一步是初评，企业内各二级单位评价确定本单位内部 技能操作岗位纵向岗位关系；第二步进行复测，在各单位初评结果中筛选出标杆岗位，选 取熟悉技能操作类岗位职责情况、公信力高的岗位评价代表进行复测，确定不同单位之间 技能操作类岗位的等级关系。", "ex": ""}, {"no": "第二十条", "t": "第二十条 岗位工资可采取一岗一薪、岗变薪变，也可采取一岗多薪、宽带薪酬形\n式。一岗多薪、宽带薪酬指的是在每个岗位等级内设多个工资档次，以体现同岗级人员不 同能力、资历和不同业绩贡献的差别。 一岗多薪、宽带薪酬既能体现员工的岗位价值，又 能体现员工的能力素质，还可以兼顾到员工薪资的正常晋升，这一做法在实践中被较多企 业选择。\n实行一岗多薪、宽带薪酬的企业，技能人才可通过晋档实现工资正常增长。其中，档 次晋升调整可与技能人才年度绩效考核结果挂钩，合格及以上的技能人才每年可在本岗级 上晋升1档，少部分优秀的可晋升2档，个别贡献突出的还可以奖励更多晋档，极少数表现 不合格的可不晋升或降档。", "ex": ""}, {"no": "第二十一条", "t": "第二十一条  岗位工资采用一岗多薪、宽带薪酬，具体晋档条件有三种表现形式。 一 是条件规定形式，即明确晋档应当达到的规定条件。晋档条件有一个以上的，各条件要素 需有互补性规定。针对技能操作类岗位，可设置学历与工作年限的互补条件，较长工作年 限可在一定程度上弥补学历的不足。二是综合系数表现形式，即按各个晋档要素之间相对 关系，将晋档条件转换为系数分数。综合系数表现形式直接实现了各个晋档要素的综合互 补。晋档综合系数的确定首先依据不同职级岗位任职资格的要求来确定起步档次的条件。 其次，需要将各个条件之间的相对价值进行比较，确定系数标准值，实现各个条件之间的 平衡互补。三是特殊贡献表现形式。可将技能人才参加一定层级技能大赛获奖情况、技术 攻关和创新等贡献情况，作为晋档或跨档条件。", "ex": ""}, {"no": "第二十二条", "t": "第二十二条 岗位工资标准的设计，一般参考以下三个因素： 一是岗位价值度评估分 数。企业可参考技能操作类岗位价值度评估分数之间的倍数关系，确定不同技能操作岗位 工资标准之间差别。二是人力资源市场价位情况。企业可参考人力资源市场类似岗位工资 价位的绝对水平，确定技能操作类岗位工资标准；或参考市场上相应典型岗位的薪酬比例 关系，优化调整相应技能操作类岗位工资标准。三是企业内部标杆技能操作类岗位之间的 历史分配关系。企业可结合市场工资价位，重新评估内部技能操作岗位间的分配关系，如 果体现岗位价值度的工资标准与市场比差距过小，可以调整优化，适当拉开差距。", "ex": ""}, {"no": "第二十三条", "t": "第二十三条 岗位工资标准的设计， 一般按以下步骤进行： 一是首先确定内部关键点 岗位（最高岗位、最低岗位、主体标杆岗位等）工资标准之间的比例关系。二是按照一定 规律确定每个关键点之间不同层级的岗位工资标准关系， 一般可以用等差数列关系确定  （差别相对较小），也可以用等比数列确定（差别相对较大）。三是结合技能操作类内部 层级因素适当调整。跨职级的差距可适当拉大，同一职级内部差距可适当缩小。经过验证， 模拟测算调整，通过比较工资标准高低是否与预先设定的目标一致，最终确定岗位工资标 准。", "ex": ""}, {"no": "第二十四条", "t": "第二十四条  岗位工资标准的表现形式， 一般有两种： 一是以工资水平绝对值的形式 表现；二是以岗位工资系数值（或薪点数）的形式表现。对不同的工资单元可以采用不同 的工资标准表现形式。对于效益波动比较大的企业，岗位工资、绩效工资可采取具体的系 数或薪点标准。基数值或薪点值可结合企业效益情况、工资总额承受能力、市场价位变动 情况等相应确定。\n第三节  绩效工资单元设计", "ex": ""}, {"no": "第二十五条", "t": "第二十五条 绩效工资单元是体现员工实际业绩差别的工资单元，根据绩效考核结果 浮动发放，对发挥工资的激励功能具有重要作用。企业可按照绩效工资总量考核发放、授 权二次分配、加强监控指导的管理原则，建立绩效工资与企业效益情况（影响工资总额变 动）、本部门绩效考核结果（影响本部门绩效工资额度变动）、本人绩效考核结果（影响 本人实际绩效所得）联动的分配机制。年度绩效考核除影响绩效工资外，还可与岗位调整、 培训、职级升降挂钩。", "ex": ""}, {"no": "第二十六条", "t": "第二十六条 绩效考核周期的确定需综合考虑行业特点、岗位特征、考评可操作性等 因素。技能人才绩效显现时间相对于管理人员、专业技术人员一般较短，可按月为主计发 绩效工资。", "ex": ""}, {"no": "第二十七条", "t": "第二十七条 绩效考核可根据技能人才的工作性质和岗位特征，采取分类考核办法。 例如，主要以个人计件计酬的岗位，可以按月设立基础任务量，超过基础任务量部分可分 档设立不同计件单价，根据任务完成情况核定绩效工资。\n对于以班组、车间为单元集体作业的基本生产技能岗位人员，可参照上述办法将团队 绩效工资总额分配到班组、车间，再由班组长、车间主任根据规定程序，按照个人工作量 和个人绩效进行合理分配。\n对于辅助生产技能岗位人员，可依据其支持服务的基本生产技能岗位人员月绩效工资 平均值的一定比例（比如70%至95%），作为人均绩效工资分配额度，以此为基础计算辅  助生产技能岗位人员绩效工资总量，再按照绩效工资系数、组织和个人绩效考核的结果进 行分配。\n第四节专项津贴单元设计", "ex": ""}, {"no": "第二十八条", "t": "第二十八条 专项津贴是对特殊条件下的额外劳动付出的补偿。针对技能人才的劳动 特点，制造型企业可结合实际需求，可设置夜班津贴、作业环境津贴、技能津贴、班组长 津贴、师带徒津贴等。", "ex": ""}, {"no": "第二十九条", "t": "第二十九条 夜班津贴是对劳动者在夜晚工作额外付出的补偿，主要适用于基本生产技能岗位人员。夜班劳动对于劳动者的体力、精力、心理压力等带来较大影响。实践中， 部分“四班三运转”岗位人员的月度夜班津贴水平一般占月度应发工资收入的15%至20%。 企业可结合职工薪酬收入水平、当地经济社会发展实际，合理确定夜班津贴的标准水平。", "ex": ""}, {"no": "第三十条", "t": "第三十条 作业环境津贴是对劳动者在井下、高空、高温、低温、物理粉尘辐射、化 工有毒有害等环境下作业额外付出的补偿，主要适用于技能操作类人员。企业可结合实\n际，根据作业环境的艰苦程度划分出不同档次，设置差别化的作业环境津贴。", "ex": ""}, {"no": "第三十一条", "t": "第三十一条  技能等级除作为职业发展通道的晋升条件外，考虑到高技能人才整体仍 然短缺的实际，企业可以设置技能津贴，对于取得高级工、技师、高级技师，并在相关技 能操作类岗位工作的技能人才，发放一定额度的技能津贴，鼓励技能人才学技术、长本领。 取得相应技能等级资质的技能人才，聘任到较高技能操作职级上，除适用技能津贴外，还 可同时执行相应发展通道职级的工资标准。技能津贴可同样适用于“双师”（工程师、技 师）型技能人才。", "ex": ""}, {"no": "第三十二条", "t": "第三十二条 班组一般是企业管理的最基层单元，班组长在基础管理、分配任务、考 勤考绩等方面均有较多的付出。对于非专职脱产人员担任班组长的，可设置班组长津贴。 班组长津贴标准可采取两种方式进行安排： 一是按照班组管理幅度，按照具体人数确定适 用津贴标准。可在基本标准基础上，每增加1名技能人才，相应增加津贴标准。二是按照  班组类别和难度大小，设置不同的档次标准。但对于班组长工资待遇已在岗位工资等级或 者档次体现的，可不再重复设置班组长津贴。", "ex": ""}, {"no": "第三十三条", "t": "第三十三条 师带徒津贴是对师傅培养培训徒弟额外劳动付出的补偿。对于签订带徒 协议、明确师傅徒弟权利义务的，可向师傅支付一定额度带徒津贴。协议期满根据考核结 果可另行给予奖励。徒弟在技能大赛等获奖的，也可额外对师傅进行奖励，建立徒弟成才、 师傅受益的联动机制。企业通过推行“传帮带”“师带徒”“老带新”等多种措施，不仅 可以促进整体生产效率的提升，而且能够帮助企业在长期内形成较为稳定的技能人才梯  队，积蓄技能人才资源。师带徒，通过企业实践培训提高，针对性强，效果好，应大力推 行 。", "ex": ""}, {"no": "第三十四条", "t": "第三十四条 津贴设置应坚持不重复体现原则。本节所提到的夜班津贴、作业环境津 贴、技能津贴、班组长津贴、师带徒津贴等各类津贴，如在岗位评价要素或者职级成长通 道任职资格条件中已有充分体现的，应本着不重复的原则不再单独设置。\n第五节技能人才与其他人才工资分配关系设计", "ex": ""}, {"no": "第三十五条", "t": "第三十五条 企业可参考岗位测评结果确定技能人才岗位和其他类别岗位之间薪酬分 配关系。如果不同类别岗位测评采用的要素和参评专家不同，则测评分数之间的相互关系 不宜简单对应，应选择不同系列的典型岗位进行跨类别岗位测评以确定对应关系。", "ex": ""}, {"no": "第三十六条", "t": "第三十六条 企业可参考市场标杆岗位之间的薪酬分配关系确定对应关系。如将市场 上某技能操作岗位与某管理岗位等薪酬水平的对应关系，作为确定不同类别岗位分配关系 的参考。同时，标杆岗位中市场招聘的薪酬价位，可以作为确定技能操作岗位和其他类别 岗位起点薪酬分配关系的参考。", "ex": ""}, {"no": "第三十七条", "t": "第三十七条 技能人才特别是高技能人才，其人力资本是个人努力和长期操作经验的累积结果，在薪酬标准上应体现其人力资本及技能要素贡献。对掌握关键操作技能、代表 专业技能较高水平、能够组织技改攻关项目的，其薪酬水平可达到工程技术类人员的较高 薪酬水平，或者相当于中层管理岗位薪酬水平，行业佼佼者薪酬待遇可与工程技术类高层 级专家级别和企业高层管理岗的薪酬水平相当。", "ex": ""}]}, {"ch": "第四章  高技能领军人才薪酬待遇制度设计", "items": [{"no": "第三十八条", "t": "第三十八条 高技能领军人才包括获得全国劳动模范、全国五一劳动奖章、中华技能 大奖、全国技术能手等荣誉以及享受省级以上政府特殊津贴的人员，或各省（自治区、直 辖市）政府认定的“高精尖缺”高技能人才。高技能领军人才是技能人才队伍中的关键少 数，应提高其薪酬待遇，鼓励参照高级管理人员标准落实经济待遇。", "ex": ""}, {"no": "第三十九条", "t": "第三十九条 年薪制是以年度为单位，依据生产经营规模和经营业绩，确定并支付薪 酬的分配方式。年薪制一般适用于公司经营班子成员以及承担财务损益责任的分子公司负责人。\n高技能领军人才可探索实行年薪制，应把握以下三个方面： 一是合理界定适用范围。 年薪制适用范围较小， 一般适用于承担经营风险、业绩显现周期较长且需建立有效激励约 束机制的人员。高技能领军人才具有稀缺性，贡献价值度高，可将其纳入年薪制适用范围。二是明确薪酬结构。 一般由基本年薪和绩效年薪为主的薪酬构成，基本年薪占比相对 较小、按月发放，绩效年薪占比相对较大、按年发放，体现业绩导向。三是建立相应的激 励和约束机制。高技能领军人才应建立体现高技能领军人才特点、体现短期和长期贡献的 业绩考核办法，如将关键任务攻关、技能人才队伍培养等作为年度或任期绩效考核目标， 业绩考核结果与薪酬挂钩，实现业绩升、薪酬升，业绩降、薪酬降，体现责任、风险和利 益的统一。", "ex": ""}, {"no": "第四十条", "t": "第四十条 协议薪酬制是企业和劳动者双方协商谈判确定薪酬的分配方式，主要适用 于人力资源市场稀缺的核心关键岗位人才或企业重点吸引和留用的紧缺急需人才。\n企业要处理好薪酬内部公平性和外部竞争性的平衡。在此基础上，对高技能领军人才 实行协议薪酬，应把握以下三个方面： 一是合理确定适用范围。 一般而言，协议薪酬主要 适用于面向社会公开招聘实行市场化管理的高技能领军人才。二是实行任期聘任制。实行 协议薪酬制的高技能领军人才，可按任期聘任，按合同规定条件予以续聘或解聘。三是事 先约定绩效考核要求。对实行协议薪酬制的高技能领军人才，既协商薪酬也应协商绩效要 求，应签订《绩效目标责任书》，确定考评周期内的绩效目标和激励约束规则。同时，实 行协议薪酬制人员，薪酬待遇按协议约定执行， 一般不再适用企业主体薪酬制度中的岗位 工资、绩效奖金、津补贴等分配方式。", "ex": ""}, {"no": "第四十一条", "t": "第四十一条 专项特殊奖励是对作出重大贡献的部门和个人的专项奖励。\n实行专项特殊奖励，应把握以下三个方面： 一是专项特殊奖励不仅适用于高技能领军 人才，也适用于包括技能人才在内的所有员工。二是对在正常绩效激励中未体现的特殊贡 献，均可适用特殊奖励。其中，包括为企业生产效率提高、工作任务完成、新品试制、技 改攻关等做出的巨大贡献，或为社会作出突出贡献，或为企业取得重大社会荣誉等（比如 技能大赛获得名次）。三是专项特殊奖励属于非常规激励。为避免滥发或不发，应制定较为规范的企业内部专项特殊奖励管理办法。", "ex": ""}, {"no": "第四十二条", "t": "第四十二条 结合实际探索对技能人才特别是高技能领军人才实行股权激励（包括业 绩股票、股票期权、虚拟股票、股票增值权、限制性股票、员工持股等形式）、超额利润 分享、项目跟投、项目分红或岗位分红等中长期激励方式。中长期激励应符合国家相关规 定。", "ex": ""}, {"no": "第四十三条", "t": "第四十三条 超额利润分享以超过企业目标利润的部分作为基数，科学合理地设计提 取规则，主要适用于企业中的关键核心人才。\n应把握以下三个方面： 一是将技能人才特别是高技能领军人才纳入实施范围，引导企 业构建“目标一致、责任共担、成果共享”的发展共同体。二是明确激励总量的确定规\n则。激励总量可以本年度超目标净利润增量（或减亏额）为基数，按一定比例计提，并与 企业综合绩效系数挂钩调节。其中，净利润目标一般可分为基本目标、激励目标和挑战目 标，计提比例可根据净利润实际达成情况按不同比例分段提取。三是明确激励额度分配办 法。员工个人激励额度一般可依据激励对象的岗位系数和个人绩效考核结果系数综合确\n定。其中，个人岗位系数应体现所在岗位职位的正常激励水平，个人绩效考核结果系数应 根据实际绩效设置，既关注岗位职位，也关注实际贡献。", "ex": ""}, {"no": "第四十四条", "t": "第四十四条  岗位分红以企业经营收益为标的，主要适用于对企业重要岗位人员实施 激励。对高技能领军人才实施岗位分红的，企业应建立规范的内部财务管理制度和员工绩 效考核评价制度，评估高技能领军人才在企业的重要性和贡献，明确实施岗位分红的企业 业绩和个人业绩条件。同时，处理好岗位分红所得与薪酬所得的关系，合理确定分红标准。", "ex": ""}]}, {"ch": "第五章  附  则", "items": [{"no": "第四十五条", "t": "第四十五条 各地人力资源社会保障部门应结合本地实际，加强宣传培训，可分行业 或分职业类别进一步细化相关内容，发布典型案例，强化示范引领。创新企业工资宏观调 控指导方式，推动企业建立健全技能人才薪酬分配体系，不断提高对本地区企业技能人才 薪酬分配的指导实效。", "ex": ""}]}];
+/* =================================================== */
+
+/* ===== 存储（自动保存 + 导出烘焙）===== */
+const KEY = 'statute_note_' + LAW_KEY;
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
+})();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+                '<div class="art-text">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
+</body>
+</html>
