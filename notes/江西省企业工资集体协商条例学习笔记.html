@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法规学习笔记（可编辑）</title>
+<style>
+:root{
+  --bg:#eef1f5; --card:#ffffff; --ink:#1f2329; --muted:#7a8290;
+  --primary:#1f4e79; --primary-soft:#e8f0f7; --accent:#c0392b;
+  --mark:#e6a23c; --note-bg:#fffdf3; --note-bd:#e8d9a8;
+  --border:#e1e5ea; --line:#d8dde4; --shadow:0 1px 3px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  line-height:1.8; font-size:15px;
+}
+/* ===== 顶部栏 ===== */
+header{
+  position:sticky; top:0; z-index:50; background:var(--primary); color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.head-inner{max-width:1180px; margin:0 auto; padding:10px 18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.field-badge{display:inline-block; margin-left:4px; padding:2px 11px; font-size:12px; font-weight:600; color:#fff; background:var(--primary); border-radius:20px; vertical-align:middle; letter-spacing:.5px;}
+.head-inner h1{font-size:16px; margin:0; font-weight:600; letter-spacing:.5px; flex:1 1 260px;}
+.head-inner h1 small{display:block; font-size:11.5px; font-weight:400; opacity:.8; margin-top:2px;}
+.toolbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.toolbar input[type=search]{
+  padding:6px 10px; border:1px solid rgba(255,255,255,.35); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; width:160px; outline:none;
+}
+.toolbar input[type=search]::placeholder{color:rgba(255,255,255,.7);}
+.toolbar button{
+  padding:6px 12px; border:1px solid rgba(255,255,255,.4); border-radius:6px;
+  background:rgba(255,255,255,.12); color:#fff; font-size:13px; cursor:pointer; white-space:nowrap;
+}
+.toolbar button:hover{background:rgba(255,255,255,.25);}
+.toolbar button.active{background:var(--mark); border-color:var(--mark); color:#fff;}
+.status{font-size:12px; opacity:.85; min-width:80px;}
+
+/* ===== 布局 ===== */
+.layout{max-width:1180px; margin:18px auto; padding:0 18px; display:flex; gap:20px; align-items:flex-start;}
+nav.toc{
+  position:sticky; top:78px; width:200px; flex:0 0 200px;
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:12px 10px; box-shadow:var(--shadow); max-height:calc(100vh - 100px); overflow:auto;
+}
+nav.toc .toc-title{font-size:12px; color:var(--muted); padding:0 8px 8px; border-bottom:1px solid var(--line); margin-bottom:6px;}
+nav.toc a{
+  display:block; padding:7px 8px; border-radius:6px; color:var(--ink); text-decoration:none;
+  font-size:13.5px; cursor:pointer;
+}
+nav.toc a:hover{background:var(--primary-soft);}
+nav.toc a.active{background:var(--primary); color:#fff; font-weight:500;}
+nav.toc a .cnt{float:right; color:var(--muted); font-size:11px;}
+nav.toc a.active .cnt{color:rgba(255,255,255,.85);}
+
+main{flex:1; min-width:0;}
+.chapter{margin-bottom:26px;}
+.chapter > h2{
+  font-size:18px; color:var(--primary); border-left:4px solid var(--primary);
+  padding-left:12px; margin:0 0 14px; font-weight:700;
+}
+.article{
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow); position:relative;
+  border-left:3px solid var(--line);
+}
+.article.marked{border-left-color:var(--mark); background:#fffdf6;}
+.art-head{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+.art-no{
+  font-weight:700; color:var(--primary); font-size:14.5px; background:var(--primary-soft);
+  padding:2px 10px; border-radius:5px;
+}
+.mark-btn{
+  margin-left:auto; border:none; background:none; cursor:pointer; font-size:18px; line-height:1;
+  color:var(--mark); padding:0 4px;
+}
+.mark-btn:hover{transform:scale(1.15);}
+.art-text{font-size:15px; color:#2b2f36; text-align:justify; white-space:pre-wrap;}
+
+/* 解读区 */
+.explain-label{font-size:12px; color:var(--primary); font-weight:600; margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+.explain{
+  font-size:13.5px; color:#3a4250; background:#f6f9fc; border-left:3px solid var(--primary);
+  border-radius:0 6px 6px 0; padding:8px 11px; white-space:pre-wrap; outline:none;
+}
+.explain:focus{background:#eef3fa; box-shadow:0 0 0 3px rgba(31,78,121,.12);}
+
+/* 关联案例 */
+.case-label{font-size:12px; color:#9a5b1e; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.case{background:#fbf6ee; border:1px solid #ecdcc0; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.case-title{font-weight:600; font-size:13.5px; color:#6b4423;}
+.case-desc{font-size:13px; color:#5a4a3a; margin-top:3px; white-space:pre-wrap;}
+.case-src{font-size:11.5px; color:#a98b5e; margin-top:4px;}
+
+/* 关联法条 */
+.rel-label{font-size:12px; color:#1f6fb2; font-weight:600; margin:12px 0 5px; display:flex; align-items:center; gap:5px;}
+.rel{background:#eef4fb; border:1px solid #cfe0ef; border-radius:8px; padding:9px 11px; margin-bottom:8px;}
+.rel-src{font-weight:600; font-size:13.5px; color:#14507e;}
+.rel-text{font-size:13px; color:#34404d; margin-top:4px; white-space:pre-wrap;}
+
+/* 检索按钮 */
+.tool-row{margin:10px 0 2px;}
+.search-btn{border:1px solid var(--border); background:#f3f7fb; color:var(--primary); border-radius:6px; padding:5px 10px; font-size:12.5px; cursor:pointer;}
+.search-btn:hover{background:#e3edf6;}
+
+/* 笔记区 */
+.note-label{font-size:12px; color:var(--muted); margin:11px 0 4px; display:flex; align-items:center; gap:5px;}
+
+/* 速查卡 */
+.quick{background:linear-gradient(135deg,#f0f6fc,#e8f0f7); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.quick-head{font-weight:700; color:var(--primary); padding:11px 14px; cursor:pointer; user-select:none; font-size:14.5px;}
+.quick-body{padding:2px 14px 12px;}
+.qg{font-size:13px; color:#34404d; padding:7px 0; border-top:1px dashed #d4e2ee; white-space:pre-wrap;}
+.qg:first-child{border-top:none;}
+.qg b{color:var(--primary);}
+
+/* 法规简介（发布信息） */
+.law-intro{background:linear-gradient(135deg,#f0f6fc,#eef4fb); border:1px solid #cfe0ef; border-radius:10px; margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;}
+.law-intro-head{font-weight:700; color:var(--primary); padding:11px 14px; font-size:14.5px;}
+.law-intro-body{padding:2px 14px 12px;}
+.law-intro-desc{font-size:13.5px; color:#34404d; line-height:1.8; margin:2px 0 10px;}
+.meta-grid{display:grid; grid-template-columns:auto 1fr; gap:6px 14px; align-items:baseline;}
+.meta-grid .mk{font-size:13px; color:var(--muted); white-space:nowrap;}
+.meta-grid .mv{font-size:13px; color:#2b2f36;}
+.meta-grid .mv.ok{color:#1a9e57; font-weight:600;}
+.meta-grid .mv.no{color:#c0392b; font-weight:600;}
+
+/* 条文互链 */
+.lawlink{color:#1f6fb2; text-decoration:underline; cursor:pointer;}
+.lawlink:hover{color:#0d4f86;}
+
+/* 批注分层 */
+.notes-wrap{margin-top:2px;}
+.note-block{margin-bottom:8px;}
+.note-tag{display:inline-block; font-size:11px; font-weight:600; padding:1px 8px; border-radius:4px; margin-bottom:3px;}
+.tag-q{background:#fde8e8; color:#c0392b;}      /* 疑问 */
+.tag-c{background:#e6f4ea; color:#1e7a46;}      /* 我的案例 */
+.tag-s{background:#fef3e0; color:#b9770e;}      /* 要点总结 */
+.tag-t{background:#efe7fb; color:#6b3fa0;}      /* 待办 */
+.note.sub{background:var(--note-bg); border:1px dashed var(--note-bd); border-radius:7px; padding:7px 10px; min-height:32px; font-size:13.5px; color:#5a4a1a; white-space:pre-wrap; outline:none;}
+.note.sub:focus{border-style:solid; border-color:var(--mark); background:#fffce8; box-shadow:0 0 0 3px rgba(230,162,60,.15);}
+.note.sub:empty:before{content:attr(data-ph); color:#b9a86a;}
+
+/* 自测模式 */
+.reveal-btn{display:none; margin:10px 0 2px; border:1px solid var(--primary); background:var(--primary-soft); color:var(--primary); border-radius:6px; padding:5px 12px; font-size:12.5px; cursor:pointer;}
+.reveal-btn:hover{background:#d8e6f5;}
+body.self-test .reveal-btn{display:inline-block;}
+body.self-test .explain-label,
+body.self-test .explain,
+body.self-test .case-label,
+body.self-test .case,
+body.self-test .rel-label,
+body.self-test .rel,
+body.self-test .tool-row,
+body.self-test .note-label,
+body.self-test .notes-wrap{display:none;}
+.article.revealed .explain-label,
+.article.revealed .explain,
+.article.revealed .case-label,
+.article.revealed .case,
+.article.revealed .rel-label,
+.article.revealed .rel,
+.article.revealed .tool-row,
+.article.revealed .note-label,
+.article.revealed .notes-wrap{display:block;}
+body.self-test .article{opacity:.97;}
+body.self-test .article.revealed{border-left-color:var(--primary); background:#fff;}
+
+footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--muted); font-size:12.5px; text-align:center;}
+
+@media (max-width:860px){
+  .layout{flex-direction:column;}
+  nav.toc{position:static; width:100%; flex:none; max-height:none;}
+  .toolbar input[type=search]{width:120px;}
+}
+@media print{
+  header, nav.toc, footer, .tool-row, .quick-head{display:none !important;}
+  body{background:#fff;}
+  .layout{display:block; margin:0; padding:0;}
+  .article{break-inside:avoid; box-shadow:none; border:1px solid #ccc;}
+  .explain{background:#f4f6f9;}
+  .case{background:#fbf6ee;}
+  .mark-btn{display:none;}
+  .quick{box-shadow:none; border:1px solid #ccc;}
+  body.self-test .reveal-btn{display:none !important;}
+  body.self-test .explain, body.self-test .explain-label,
+  body.self-test .case, body.self-test .case-label,
+  body.self-test .rel, body.self-test .rel-label,
+  body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <h1><span id="lawTitle"></span><small id="lawSub"></small> <span id="lawField" class="field-badge"></span></h1>
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
+      <span class="status" id="status">已就绪</span>
+      <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
+      <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
+      <button id="btnPrint" title="打印 / 存为PDF">打印</button>
+      <button id="btnClear" title="清空本浏览器内全部笔记与标记">清空</button>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" id="toc">
+    <div class="toc-title">目录</div>
+  </nav>
+  <main id="content"></main>
+</div>
+
+<footer>
+  本笔记为个人学习用途，条文以官方公布文本为准。案例来源于司法部/最高法等公开发布的典型/指导案例。笔记与解读自动保存在本浏览器，导出可脱离浏览器长期留存。
+</footer>
+
+<script>
+/* ============ 用户定制区（由 docx 批量导入生成） ============ */
+const LAW_TITLE = "江西省企业工资集体协商条例";
+const LAW_SUB   = "《劳动法规汇编（江西）》· 共46条";
+const LAW_KEY   = "jx30";
+const LAW_FIELD = "工资报酬";
+
+const LAW_INTRO = "收录于《劳动法规汇编（江西）》，属「工资报酬」板块，共46个条文块。";
+const LAW_META = { issuer:"\u2014", published:"\u2014", effective:"\u2014", valid:"\u6709\u6548", level:"\u884c\u653f\u6cd5\u89c4" };
+
+const QUICK = [];
+const CASES = {};
+const REL = {};
+const DATA = [{"ch": "全文", "items": [{"no": "", "t": "（2013年9月26日江西省第十二届人民代表大会常务委员会第六次会议通过   2021年 7月28日江西省第十三届人民代表大会常务委员会第三十一次会议第一次修正  2022年7月 26日江西省第十三届人民代表大会常务委员会第四十次会议第二次修正）\n目  录", "ex": ""}]}, {"ch": "第一章  总  则", "items": []}, {"ch": "第二章  工资集体协商代表", "items": [{"no": "第八条", "t": "第八条 工资集体协商双方的代表人数应当对等，每方三至七人，并各自确定一名首 席代表。双方代表不得互相兼任。\n女职工人数达到企业总人数十分之一以上的，应当至少有一名女职工代表。", "ex": ""}, {"no": "第九条", "t": "第九条 工资集体协商的职工方代表由企业工会推荐，并经职工大会或者职工代表大 会讨论通过后产生。企业尚未建立工会的，由上级工会组织企业职工民主推举，并经企业 半数以上职工同意后产生。\n职工方首席代表由企业工会主席担任。工会主席空缺的，首席代表由企业工会负责人 担任。企业尚未建立工会的，首席代表从协商代表中民主推举产生。职工方首席代表因故 不能参加协商的，可以书面委托本方其他协商代表代理。", "ex": ""}, {"no": "第十条", "t": "第十条 工资集体协商的企业方代表由企业法定代表人指定。\n企业方首席代表由企业法定代表人担任。法定代表人因故不能参加协商的，可以书面 委托本方其他协商代表代理。", "ex": ""}, {"no": "第十一条", "t": "第十一条 工资集体协商双方的首席代表可以书面委托工资集体协商指导员或者其他 具有专业知识的人员担任本方协商顾问，为本方提供法律、法规和政策咨询。双方协商顾 问不得互相兼任。\n工资集体协商指导员由县级以上人民政府人力资源和社会保障主管部门、同级地方总 工会、企业代表组织从熟悉经济、法律、工会、劳动工资、财务等工作的人员中聘任，并 进行培训。", "ex": ""}, {"no": "第十二条", "t": "第十二条 工资集体协商代表应当履行下列职责：\n（一）参加工资集体协商，提出协商意见；\n（二）及时向本方人员公布工资集体协商情况并征求意见，接受本方人员询问；\n（三）收集、提供与工资集体协商有关的情况和资料；\n（四）代表本方参加工资集体协商争议的处理；\n（五）监督工资集体合同的履行；\n（六）法律、法规规定的其他职责。", "ex": ""}, {"no": "第十三条", "t": "第十三条 工资集体协商代表的任期至工资集体合同的期限届满之日止。\n工资集体协商双方无正当理由不得更换本方协商代表。确需更换的，应当遵守本条例", "ex": ""}, {"no": "第九条", "t": "第九条、第十条规定的协商代表产生程序，并及时通知另一方。", "ex": ""}, {"no": "第十四条", "t": "第十四条 企业应当保证工资集体协商代表履行代表职责所必要的工作时间和工作条件。协商代表履行代表职责应当视为提供正常劳动。\n职工方代表在任期内，企业确因工作需要调整职工方代表工作岗位的，应当事先征求 企业工会的意见。企业尚未建立工会的，应当事先征求上级工会的意见。\n职工方代表在任期内，除法律、法规规定的情形外，企业不得与职工方代表解除劳动 合同。", "ex": ""}, {"no": "第十五条", "t": "第十五条 企业和职工在工资集体协商中，应当共同维护企业的正常生产、工作秩 序，保守企业商业秘密，不得有威胁、收买、欺骗、打击报复对方代表的行为。", "ex": ""}]}, {"ch": "第三章  工资集体协商的内容和程序", "items": [{"no": "第十六条", "t": "第十六条 工资集体协商一般包括以下内容：\n（一）工资集体合同的期限；\n（二）工资分配制度、工资分配形式和工资标准；\n（三）职工年度平均工资水平及其调整幅度；\n（四）津贴、补贴标准及奖金、绩效工资等分配办法；\n（五）加班工资标准；\n（六）计时工资、计件单价、劳动定额标准；\n（七）学徒期、见习期、试用期的工资待遇；\n（八）病事假和女职工孕期、产期、哺乳期以及各种带薪假期间的工资待遇；\n（九）工资支付办法；\n（十）工资集体合同变更、解除、终止的条件和程序；\n（十一）工资集体合同的违约责任；\n（十二）双方认为应当协商约定的其他事项。", "ex": ""}, {"no": "第十七条", "t": "第十七条 职工方和企业方协商确定的劳动定额标准，应当是本企业百分之九十以上 的职工在法定工作时间或者劳动合同约定的时间内能够完成的工作量。", "ex": ""}, {"no": "第十八条", "t": "第十八条 双方协商确定工资等事项应当符合法律、法规规定，并以下列因素作为协 商基础：\n（一）地区、行业、企业的人工成本水平；\n（二）地区、行业的职工平均工资水平；\n（三）政府发布的工资指导线、人力资源市场工资指导价位；\n（四）本地区城镇居民消费价格指数；\n（五）企业劳动生产率和经济效益；\n（六）企业资产保值增值状况；\n（七）上年度企业职工工资总额和职工平均工资水平；\n（八）其他与工资集体协商有关的因素。", "ex": ""}, {"no": "第十九条", "t": "第十九条 职工方和企业方均可以提出工资集体协商的要求。\n职工方开展工资集体协商，工会应当给予帮助和指导。企业工会可以在听取职工意见 的基础上向企业方发出协商意向书；企业尚未建立工会的，上级工会可以在听取职工意见 的基础上代为向企业方发出协商意向书。\n一方提出工资集体协商要求的，应当向另一方提交包含本方协商代表、协商时间、地 点、内容等事项的协商意向书；另一方应当自收到协商意向书之日起二十日内予以书面回 复，无正当理由不得拒绝进行工资集体协商。\n职工方和企业方依法开展工资集体协商的，双方应当自一方收到协商意向书之日起六 十日内订立工资集体合同。", "ex": ""}, {"no": "第二十条", "t": "第二十条 工资集体协商一方在协商前可以要求对方提供其掌握的与协商有关的情况 和资料，另一方应当在协商开始五日之前如实提供。\n协商过程中，如需补充与协商有关的情况和资料的，一方应当向另一方及时提供。", "ex": ""}, {"no": "第二十一条", "t": "第二十一条 工资集体协商双方达成一致意见后，由企业方在七日内制作工资集体合 同草案文本。\n工资集体合同草案应当提交职工大会或者职工代表大会讨论通过，草案通过后由企业 工会代表职工与企业签订；企业尚未建立工会的，由职工方首席代表与企业签订。", "ex": ""}, {"no": "第二十二条", "t": "第二十二条 企业应当自工资集体合同签订之日起七日内，将工资集体合同文本以及 相关材料报送县级以上人民政府人力资源和社会保障主管部门。", "ex": ""}, {"no": "第二十三条", "t": "第二十三条 县级以上人民政府人力资源和社会保障主管部门应当自收到工资集体合 同文本以及相关材料之日起十五日内，就工资集体协商双方代表资格、工资集体合同的内 容和工资集体协商的程序向双方送达工资集体合同书面意见。\n工资集体合同书面意见对工资集体合同无异议的，工资集体合同即行生效；协商双方 在十五日内未收到县级以上人民政府人力资源和社会保障主管部门书面意见的，视为县级 以上人民政府人力资源和社会保障主管部门无异议，该工资集体合同即行生效。\n工资集体合同书面意见对工资集体合同提出异议的，工资集体协商双方应当对提出异 议的内容重新依法协商，并将修改后的工资集体合同文本报送县级以上人民政府人力资源 和社会保障主管部门。", "ex": ""}, {"no": "第二十四条", "t": "第二十四条  工资集体合同生效后，企业应当在五日内向本企业全体职工公布，职工 方应当同时报送上级工会。", "ex": ""}]}, {"ch": "第四章  工资集体合同的变更、解除和终止", "items": [{"no": "第二十五条", "t": "第二十五条  经工资集体协商双方协商一致或者有下列情形之一的，可以变更或者解 除工资集体合同：\n（一）工资集体合同所依据的法律、法规、规章被修改或者废止的；\n（二）因不可抗力致使工资集体合同部分不能履行或者全部不能履行的；\n（三）企业因兼并、重组、解散或者破产等原因，致使工资集体合同无法履行的；\n（四）工资集体合同约定的变更或者解除条件出现的；\n（五）法律、法规规定可以变更或者解除的其他情形。\n工资集体协商一方提出变更或者解除工资集体合同要求的，应当向另一方提供相关证 据材料并说明理由。", "ex": ""}, {"no": "第二十六条", "t": "第二十六条 变更工资集体合同的，应当依照本条例规定的工资集体协商程序办理， 并报送县级以上人民政府人力资源和社会保障主管部门。\n解除工资集体合同的，企业应当自工资集体合同解除之日起七日内报送县级以上人民 政府人力资源和社会保障主管部门备案。\n职工方可以将变更或者解除工资集体合同的情况，书面报告上级工会。", "ex": ""}, {"no": "第二十七条", "t": "第二十七条 工资集体合同期满或者工资集体协商双方约定的终止条件出现时，工资 集体合同即行终止。", "ex": ""}, {"no": "第二十八条", "t": "第二十八条 工资集体合同期限由工资集体协商双方约定， 一般为一年。\n工资集体合同期满前六十日内，工资集体协商双方应当依照本条例规定的协商程序重 新签订工资集体合同。", "ex": ""}, {"no": "第二十九条", "t": "第二十九条 工资集体合同生效后，除出现本条例第二十五条和第二十七条规定的情 形外，任何单位和个人不得擅自变更、解除和终止工资集体合同。\n企业制定的各项规章制度不得与工资集体合同的规定相抵触。\n企业不得在工资集体合同有效期内，无法定理由或者非经法定程序，降低工资集体协 商代表或者其他职工的工资、奖金、津贴、补贴、社会保险、福利等待遇。", "ex": ""}]}, {"ch": "第五章 区域性、行业性工资集体协商", "items": [{"no": "第三十条", "t": "第三十条 在县级以下区域内，建筑业、 采矿业、餐饮服务业等行业可以由工会与企 业方代表进行区域性、行业性工资集体协商，订立区域性或者行业性工资集体合同。", "ex": ""}, {"no": "第三十一条", "t": "第三十一条  区域性、行业性工资集体协商的职工方代表由本区域、行业工会直接选 派，并经公示后产生。首席代表由区域、行业工会主席担任。\n区域性、行业性工资集体协商的企业方代表由本区域、行业内企业经民主推举、授权 委托等方式产生，或者由企业代表组织直接选派。首席代表由企业方代表民主推举产生。", "ex": ""}, {"no": "第三十二条", "t": "第三十二条 经协商一致依法签订的区域性、行业性工资集体合同对适用范围内的企 业和职工具有约束力。\n区域性、行业性工资集体合同范围内的企业和本企业职工方单独进行工资协商的，其 约定的工资不得低于区域性、行业性工资集体合同规定的标准。", "ex": ""}]}, {"ch": "第六章  工资集体协商的争议处理", "items": [{"no": "第三十三条", "t": "第三十三条 工资集体协商中发生争议，双方应当协商解决。协商解决不成的，任何 一方可以向县级以上人民政府人力资源和社会保障主管部门申请协调处理。\n县级以上人民政府人力资源和社会保障主管部门应当会同同级地方总工会和企业代表 组织，共同协调处理工资集体协商争议。", "ex": ""}, {"no": "第三十四条", "t": "第三十四条 县级以上人民政府人力资源和社会保障主管部门协调处理工资集体协商 争议应当自受理之日起三十日内处理完毕。争议复杂需要延期的，经县级以上人民政府人 力资源和社会保障主管部门负责人批准，可以延长十五日，并向争议双方书面说明延期理 由。", "ex": ""}, {"no": "第三十五条", "t": "第三十五条 因履行工资集体合同发生争议，双方经协商解决不成的，可以依法向劳 动争议仲裁机构申请仲裁；对仲裁裁决不服的，可以自收到仲裁裁决书之日起十五日内向 人民法院提起诉讼。", "ex": ""}]}, {"ch": "第七章  法律责任", "items": [{"no": "第三十六条", "t": "第三十六条 企业违反本条例规定，有下列情形之一的，由县级以上人民政府人力资 源和社会保障主管部门给予警告，并责令限期改正：\n（一）无正当理由拒绝或者故意拖延工资集体协商的；\n（二）无正当理由拒绝提供或者不如实提供与工资集体协商有关的情况和资料，或者 无正当理由拒绝向工资集体协商代表提供履行代表职责所必要的工作时间和工作条件，造 成无法签订、履行、变更和解除工资集体合同的；\n（三）未按照规定将工资集体合同报送县级以上人民政府人力资源和社会保障主管部 门的。\n有前款第一项、第二项情形之一，拒不改正的，由县级以上人民政府人力资源和社会 保障主管部门将其记入企业劳动保障守法诚信档案，档案纳入政务公开的范围，可以对企 业处以二千元以上二万元以下罚款，并可以对其直接负责的主管人员和其他直接责任人员 处以一千元以上二千元以下罚款。", "ex": ""}, {"no": "第三十七条", "t": "第三十七条 企业违反本条例第十四条第三款规定的，由县级以上人民政府人力资源 和社会保障主管部门责令企业恢复职工方代表的工作，并补发被解除劳动合同期间应得的 报酬；本人不愿恢复工作的，由县级以上人民政府人力资源和社会保障主管部门责令企业 依照《中华人民共和国劳动合同法》的有关规定向职工方代表支付赔偿金。\n企业违反本条例第二十九条第三款规定的，由县级以上人民政府人力资源和社会保障 主管部门责令企业补发工资集体协商代表或者其他职工应得的工资等待遇。", "ex": ""}, {"no": "第三十八条", "t": "第三十八条 工会对企业违反本条例规定的行为，可以要求企业予以改正，企业应当 在十五日内改正并作出书面答复；逾期不改正的，工会可以向县级以上人民政府人力资源 和社会保障主管部门提出处理意见和建议。", "ex": ""}, {"no": "第三十九条", "t": "第三十九条 工资集体协商代表或者其他人员违反本条例规定，泄露企业商业秘密， 给企业造成损失的，应当依法承担赔偿责任；构成犯罪的，依法追究刑事责任。", "ex": ""}, {"no": "第四十条", "t": "第四十条 县级以上人民政府人力资源和社会保障主管部门及其工作人员滥用职权、 玩忽职守或者徇私舞弊的，依法给予处分；构成犯罪的，依法追究刑事责任。", "ex": ""}, {"no": "第四十一条", "t": "第四十一条 工会工作人员不依法履行职责或者损害职工权益的，由同级工会或者上 级工会给予批评教育，责令改正或者给予处分；情节严重的，按照《中国工会章程》予以 罢免；造成损失的，应当依法承担赔偿责任；构成犯罪的，依法追究刑事责任。", "ex": ""}]}, {"ch": "第八章  附  则", "items": [{"no": "", "t": "第 一 章  总  则", "ex": ""}, {"no": "第一条", "t": "第一条 为了规范企业工资集体协商行为，保障职工和企业合法权益，促进劳动关系 和谐稳定，根据《中华人民共和国劳动法》《中华人民共和国劳动合同法》《中华人民共 和国工会法》和其他有关法律、法规的规定，结合本省实际，制定本条例。", "ex": ""}, {"no": "第二条", "t": "第二条 在本省行政区域内开展企业工资集体协商，适用本条例。", "ex": ""}, {"no": "第三条", "t": "第三条  本条例所称工资集体协商，是指职工方和企业方依法就企业工资分配制度、 工资分配形式、工资收入水平等劳动报酬事项进行平等协商，在协商一致的基础上签订工 资集体合同的行为。\n本条例所称工资集体合同，是指职工方和企业方就企业工资分配制度、工资分配形式、 工资收入水平等劳动报酬事项签订的专项集体合同。", "ex": ""}, {"no": "第四条", "t": "第四条  工资集体协商应当遵循合法、公开、平等、协商一致、诚实信用、兼顾企业 和职工双方利益的原则。\n职工实际工资水平应当与企业劳动生产率、经济效益和当地经济社会发展水平相适应。", "ex": ""}, {"no": "第五条", "t": "第五条  依法订立的工资集体合同对企业和职工具有约束力。工资集体合同中约定的 工资，不得低于省人民政府规定的最低工资标准；企业和职工个人订立的劳动合同中约定 的工资，不得低于工资集体合同规定的标准。", "ex": ""}, {"no": "第六条", "t": "第六条  县级以上人民政府人力资源和社会保障主管部门负责指导、协调、监督、检 查工资集体合同的签订和履行。\n地方总工会、区域（行业）工会对职工开展工资集体协商进行帮助和指导，对工资集 体合同的签订和履行进行监督。\n工商业联合会、企业联合会、企业家协会等企业代表组织（以下统称企业代表组织） 对企业开展工资集体协商进行帮助和指导。\n县级以上人民政府人力资源和社会保障主管部门、工会和企业代表组织应当通过协调 劳动关系三方机制，共同研究处理工资集体协商中的重大问题，对开展工资集体协商工作 成绩突出的单位和个人给予表彰。", "ex": ""}, {"no": "第七条", "t": "第七条  县级以上人民政府人力资源和社会保障主管部门应当将企业履行工资集体 合同情况列入企业劳动保障守法诚信档案。", "ex": ""}, {"no": "第四十二条", "t": "第四十二条 实行企业化管理的事业单位、社会组织开展工资集体协商，参照本条例 执行。", "ex": ""}, {"no": "第四十三条", "t": "第四十三条 本条例自2013年11月1日起施行。", "ex": ""}]}];
+/* =================================================== */
+
+/* ===== 存储（自动保存 + 导出烘焙）===== */
+const KEY = 'statute_note_' + LAW_KEY;
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
+})();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+                '<div class="art-text">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
+</body>
+</html>
