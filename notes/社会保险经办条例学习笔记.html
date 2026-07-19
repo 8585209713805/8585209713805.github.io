@@ -194,7 +194,6 @@ footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--mute
   body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
 }
 
-/* ===== 法条编辑模式（浮动工具条） ===== */
 /* ===== 法条编辑模式（每条常驻工具条） ===== */
 .art-text.editable{outline:none; border-radius:5px; transition:box-shadow .15s;}
 body.edit-mode .art-text.editable{cursor:text;}
@@ -209,7 +208,6 @@ body.edit-mode .article .art-editbar{display:flex;}
 .art-editbar .fclear:hover{background:#eef1f4;}
 .art-editbar .ehint{font-size:11px;color:#9aa1a9;margin-left:auto;}
 body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modify:read-only;}
-
 </style>
 </head>
 <body>
@@ -219,6 +217,7 @@ body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modi
     <div class="toolbar">
       <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
       <span class="status" id="status">已就绪</span>
+      <button id="btnEdit" title="编辑模式：选中任意法条文字即可改字体色 / 高亮标注" style="padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);">✎ 编辑条文</button>
       <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
       <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
       <button id="btnPrint" title="打印 / 存为PDF">打印</button>
@@ -259,144 +258,383 @@ const CASES = {};
 const REL = {};
 
 /* 法条数据 */
-const DATA = [{"ch":"全文","items":[{"no":"","t":"中华人民共和国国务院令第765号\n《社会保险经办条例》已经2023年7月21日国务院第11次常务会议通过，现予公布，自 2023年12月1日起施行。\n国务院总理 李强\n2023年8月16日","ex":""}]},{"ch":"第一章 总 则","items":[{"no":"第一条","t":"第一条 为了规范社会保险经办，优化社会保险服务，保障社会保险基金安全，维护 用人单位和个人的合法权益，促进社会公平，根据《中华人民共和国社会保险法》，制定 本条例。","ex":""},{"no":"第二条","t":"第二条 经办基本养老保险、基本医疗保险、工伤保险、失业保险、生育保险等国家 规定的社会保险，适用本条例。","ex":""},{"no":"第三条","t":"第三条 社会保险经办工作坚持中国共产党的领导，坚持以人民为中心，遵循合法、 便民、及时、公开、安全的原则。","ex":""},{"no":"第四条","t":"第四条 国务院人力资源社会保障行政部门主管全国基本养老保险、工伤保险、失业 保险等社会保险经办工作。国务院医疗保障行政部门主管全国基本医疗保险、生育保险等 社会保险经办工作。\n县级以上地方人民政府人力资源社会保障行政部门按照统筹层次主管基本养老保险、 工伤保险、失业保险等社会保险经办工作。县级以上地方人民政府医疗保障行政部门按照 统筹层次主管基本医疗保险、生育保险等社会保险经办工作。","ex":""},{"no":"第五条","t":"第五条 国务院人力资源社会保障行政部门、医疗保障行政部门以及其他有关部门按 照各自职责，密切配合、相互协作，共同做好社会保险经办工作。\n县级以上地方人民政府应当加强对本行政区域社会保险经办工作的领导，加强社会保 险经办能力建设，为社会保险经办工作提供保障。","ex":""}]},{"ch":"第二章 社会保险登记和关系转移","items":[{"no":"第六条","t":"第六条 用人单位在登记管理机关办理登记时同步办理社会保险登记。\n个人申请办理社会保险登记，以公民身份号码作为社会保障号码，取得社会保障卡和 医保电子凭证。社会保险经办机构应当自收到申请之日起10个工作日内办理完毕。","ex":""},{"no":"第七条","t":"第七条 社会保障卡是个人参加基本养老保险、基本医疗保险、工伤保险、失业保险、 生育保险等社会保险和享受各项社会保险待遇的凭证，包括实体社会保障卡和电子社会保 障卡。\n医保电子凭证是个人参加基本医疗保险、生育保险等社会保险和享受基本医疗保险、生育保险等社会保险待遇的凭证。","ex":""},{"no":"第八条","t":"第八条 登记管理机关应当将用人单位设立、变更、注销登记的信息与社会保险经办 机构共享，公安、民政、卫生健康、司法行政等部门应当将个人的出生、死亡以及户口登 记、迁移、注销等信息与社会保险经办机构共享。","ex":""},{"no":"第九条","t":"第九条 用人单位的性质、银行账户、用工等参保信息发生变化，以及个人参保信息 发生变化的，用人单位和个人应当及时告知社会保险经办机构。社会保险经办机构应当对 用人单位和个人提供的参保信息与共享信息进行比对核实。","ex":""},{"no":"第十条","t":"第十条 用人单位和个人申请变更、注销社会保险登记，社会保险经办机构应当自收 到申请之日起10个工作日内办理完毕。用人单位注销社会保险登记的，应当先结清欠缴的 社会保险费、滞纳金、罚款。","ex":""},{"no":"第十一条","t":"第十一条 社会保险经办机构应当及时、完整、准确记录下列信息：\n（一）社会保险登记情况；\n（二）社会保险费缴纳情况；\n（三）社会保险待遇享受情况；\n（四）个人账户情况；\n（五）与社会保险经办相关的其他情况。","ex":""},{"no":"第十二条","t":"第十二条 参加职工基本养老保险的个人跨统筹地区就业，其职工基本养老保险关系 随同转移。\n参加职工基本养老保险的个人在机关事业单位与企业等不同性质用人单位之间流动就 业，其职工基本养老保险关系随同转移。\n参加城乡居民基本养老保险且未享受待遇的个人跨统筹地区迁移户籍，其城乡居民基 本养老保险关系可以随同转移。","ex":""},{"no":"第十三条","t":"第十三条 参加职工基本医疗保险的个人跨统筹地区就业，其职工基本医疗保险关系 随同转移。\n参加城乡居民基本医疗保险的个人跨统筹地区迁移户籍或者变动经常居住地，其城乡 居民基本医疗保险关系可以按照规定随同转移。\n职工基本医疗保险与城乡居民基本医疗保险之间的关系转移，按照规定执行。","ex":""},{"no":"第十四条","t":"第十四条 参加失业保险的个人跨统筹地区就业，其失业保险关系随同转移。","ex":""},{"no":"第十五条","t":"第十五条 参加工伤保险、生育保险的个人跨统筹地区就业，在新就业地参加工伤保 险、生育保险。","ex":""},{"no":"第十六条","t":"第十六条 用人单位和个人办理社会保险关系转移接续手续的，社会保险经办机构应 当在规定时限内办理完毕，并将结果告知用人单位和个人，或者提供办理情况查询服务。","ex":""},{"no":"第十七条","t":"第十七条 军事机关和社会保险经办机构，按照各自职责办理军人保险与社会保险关 系转移接续手续。\n社会保险经办机构应当为军人保险与社会保险关系转移接续手续办理优先提供服务。","ex":""}]},{"ch":"第三章 社会保险待遇核定和支付","items":[{"no":"第十八条","t":"第十八条 用人单位和个人应当按照国家规定，向社会保险经办机构提出领取基本养\n老金的申请。社会保险经办机构应当自收到申请之日起20个工作日内办理完毕。","ex":""},{"no":"第十九条","t":"第十九条 参加职工基本养老保险的个人死亡或者失业人员在领取失业保险金期间死 亡，其遗属可以依法向社会保险经办机构申领丧葬补助金和抚恤金。社会保险经办机构应 当及时核实有关情况，按照规定核定并发放丧葬补助金和抚恤金。","ex":""},{"no":"第二十条","t":"第二十条 个人医疗费用、生育医疗费用中应当由基本医疗保险（含生育保险）基金 支付的部分，由社会保险经办机构审核后与医疗机构、药品经营单位直接结算。\n因特殊情况个人申请手工报销，应当向社会保险经办机构提供医疗机构、药品经营单 位的收费票据、费用清单、诊断证明、病历资料。社会保险经办机构应当对收费票据、费 用清单、诊断证明、病历资料进行审核，并自收到申请之日起30个工作日内办理完毕。\n参加生育保险的个人申领生育津贴，应当向社会保险经办机构提供病历资料。社会保 险经办机构应当对病历资料进行审核，并自收到申请之日起10个工作日内办理完毕。","ex":""},{"no":"第二十一条","t":"第二十一条  工伤职工及其用人单位依法申请劳动能力鉴定、辅助器具配置确认、停 工留薪期延长确认、工伤旧伤复发确认，应当向社会保险经办机构提供诊断证明、病历资 料。","ex":""},{"no":"第二十二条","t":"第二十二条  个人治疗工伤的医疗费用、康复费用、安装配置辅助器具费用中应当由 工伤保险基金支付的部分，由社会保险经办机构审核后与医疗机构、辅助器具配置机构直 接结算。\n因特殊情况用人单位或者个人申请手工报销，应当向社会保险经办机构提供医疗机\n构、辅助器具配置机构的收费票据、费用清单、诊断证明、病历资料。社会保险经办机构 应当对收费票据、费用清单、诊断证明、病历资料进行审核，并自收到申请之日起20个工 作日内办理完毕。","ex":""},{"no":"第二十三条","t":"第二十三条 人力资源社会保障行政部门、医疗保障行政部门应当按照各自职责建 立健全异地就医医疗费用结算制度。社会保险经办机构应当做好异地就医医疗费用结算 工作。","ex":""},{"no":"第二十四条","t":"第二十四条 个人申领失业保险金，社会保险经办机构应当自收到申请之日起10个工 作日内办理完毕。\n个人在领取失业保险金期间，社会保险经办机构应当从失业保险基金中支付其应当缴 纳的基本医疗保险（含生育保险）费。\n个人申领职业培训等补贴，应当提供职业资格证书或者职业技能等级证书。社会保险 经办机构应当对职业资格证书或者职业技能等级证书进行审核，并自收到申请之日起10个 工作日内办理完毕。","ex":""},{"no":"第二十五条","t":"第二十五条 个人出现国家规定的停止享受社会保险待遇的情形，用人单位、待遇享 受人员或者其亲属应当自相关情形发生之日起20个工作日内告知社会保险经办机构。社会 保险经办机构核实后应当停止发放相应的社会保险待遇。","ex":""},{"no":"第二十六条","t":"第二十六条 社会保险经办机构应当通过信息比对、自助认证等方式，核验社会保险 待遇享受资格。通过信息比对、自助认证等方式无法确认社会保险待遇享受资格的，社会 保险经办机构可以委托用人单位或者第三方机构进行核实。\n对涉嫌丧失社会保险待遇享受资格后继续享受待遇的，社会保险经办机构应当调查核 实。经调查确认不符合社会保险待遇享受资格的，停止发放待遇。","ex":""}]},{"ch":"第四章 社会保险经办服务和管理","items":[{"no":"第二十七条","t":"第二十七条 社会保险经办机构应当依托社会保险公共服务平台、医疗保障信息平台 等实现跨部门、跨统筹地区社会保险经办。","ex":""},{"no":"第二十八条","t":"第二十八条 社会保险经办机构应当推动社会保险经办事项与相关政务服务事项协同 办理。社会保险经办窗口应当进驻政务服务中心，为用人单位和个人提供一站式服务。\n人力资源社会保障行政部门、医疗保障行政部门应当强化社会保险经办服务能力，实 现省、市、县、乡镇（街道）、村（社区）全覆盖。","ex":""},{"no":"第二十九条","t":"第二十九条 用人单位和个人办理社会保险事务，可以通过政府网站、移动终端、自 助终端等服务渠道办理，也可以到社会保险经办窗口现场办理。","ex":""},{"no":"第三十条","t":"第三十条 社会保险经办机构应当加强无障碍环境建设，提供无障碍信息交流，完善 无障碍服务设施设备，采用授权代办、上门服务等方式，为老年人、残疾人等特殊群体提 供便利。","ex":""},{"no":"第三十一条","t":"第三十一条 用人单位和个人办理社会保险事务，社会保险经办机构要求其提供身份 证件以外的其他证明材料的，应当有法律、法规和国务院决定依据。","ex":""},{"no":"第三十二条","t":"第三十二条 社会保险经办机构免费向用人单位和个人提供查询核对社会保险缴费和 享受社会保险待遇记录、社会保险咨询等相关服务。","ex":""},{"no":"第三十三条","t":"第三十三条 社会保险经办机构应当根据经办工作需要，与符合条件的机构协商签订 服务协议，规范社会保险服务行为。人力资源社会保障行政部门、医疗保障行政部门应当 加强对服务协议订立、履行等情况的监督。","ex":""},{"no":"第三十四条","t":"第三十四条 医疗保障行政部门所属的社会保险经办机构应当改进基金支付和结算服 务，加强服务协议管理，建立健全集体协商谈判机制。","ex":""},{"no":"第三十五条","t":"第三十五条 社会保险经办机构应当妥善保管社会保险经办信息，确保信息完整、准 确和安全。","ex":""},{"no":"第三十六条","t":"第三十六条 社会保险经办机构应当建立健全业务、 财务、安全和风险管理等内部控 制制度。\n社会保险经办机构应当定期对内部控制制度的制定、执行情况进行检查、评估，对发 现的问题进行整改。","ex":""},{"no":"第三十七条","t":"第三十七条 社会保险经办机构应当明确岗位权责，对重点业务、高风险业务分级审 核。","ex":""},{"no":"第三十八条","t":"第三十八条 社会保险经办机构应当加强信息系统应用管理，健全信息核验机制，记 录业务经办过程。","ex":""},{"no":"第三十九条","t":"第三十九条 社会保险经办机构具体编制下一年度社会保险基金预算草案，报本级人 力资源社会保障行政部门、医疗保障行政部门审核汇总。社会保险基金收入预算草案由社 会保险经办机构会同社会保险费征收机构具体编制。","ex":""},{"no":"第四十条","t":"第四十条 社会保险经办机构设立社会保险基金支出户，用于接受财政专户拨入基\n金、支付基金支出款项、上解上级经办机构基金、下拨下级经办机构基金等。","ex":""},{"no":"第四十一条","t":"第四十一条 社会保险经办机构应当按照国家统一的会计制度对社会保险基金进行会 计核算、对账。","ex":""},{"no":"第四十二条","t":"第四十二条 社会保险经办机构应当核查下列事项：\n（一）社会保险登记和待遇享受等情况；\n（二）社会保险服务机构履行服务协议、执行费用结算项目和标准情况；\n（三）法律、法规规定的其他事项。","ex":""},{"no":"第四十三条","t":"第四十三条 社会保险经办机构发现社会保险服务机构违反服务协议的，可以督促其 履行服务协议，按照服务协议约定暂停或者不予拨付费用、追回违规费用、中止相关责任 人员或者所在部门涉及社会保险基金使用的社会保险服务，直至解除服务协议；社会保险 服务机构及其相关责任人员有权进行陈述、申辩。","ex":""},{"no":"第四十四条","t":"第四十四条 社会保险经办机构发现用人单位、个人、社会保险服务机构违反社会保 险法律、法规、规章的，应当责令改正。对拒不改正或者依法应当由人力资源社会保障行 政部门、医疗保障行政部门处理的，及时移交人力资源社会保障行政部门、医疗保障行政 部门处理。","ex":""},{"no":"第四十五条","t":"第四十五条 国务院人力资源社会保障行政部门、医疗保障行政部门会同有关部门建 立社会保险信用管理制度，明确社会保险领域严重失信主体名单认定标准。\n社会保险经办机构应当如实记录用人单位、个人和社会保险服务机构及其工作人员违 反社会保险法律、法规行为等失信行为。","ex":""},{"no":"第四十六条","t":"第四十六条 个人多享受社会保险待遇的，由社会保险经办机构责令退回；难以一次 性退回的，可以签订还款协议分期退回，也可以从其后续享受的社会保险待遇或者个人账 户余额中抵扣。","ex":""}]},{"ch":"第五章 社会保险经办监督","items":[{"no":"第四十七条","t":"第四十七条 人力资源社会保障行政部门、医疗保障行政部门按照各自职责对社会保 险经办机构下列事项进行监督检查：\n（一）社会保险法律、法规、规章执行情况；\n（二）社会保险登记、待遇支付等经办情况；\n（三）社会保险基金管理情况；\n（四）与社会保险服务机构签订服务协议和服务协议履行情况；\n（五）法律、法规规定的其他事项。\n财政部门、审计机关按照各自职责，依法对社会保险经办机构的相关工作实施监督。","ex":""},{"no":"第四十八条","t":"第四十八条 人力资源社会保障行政部门、医疗保障行政部门应当按照各自职责加强 对社会保险服务机构、用人单位和个人遵守社会保险法律、法规、规章情况的监督检查。 社会保险服务机构、用人单位和个人应当配合，如实提供与社会保险有关的资料，不得拒 绝检查或者谎报、瞒报。\n人力资源社会保障行政部门、医疗保障行政部门发现社会保险服务机构、用人单位违 反社会保险法律、法规、规章的，应当按照各自职责提出处理意见，督促整改，并可以约\n谈相关负责人。","ex":""},{"no":"第四十九条","t":"第四十九条  人力资源社会保障行政部门、医疗保障行政部门、社会保险经办机构及 其工作人员依法保护用人单位和个人的信息，不得以任何形式泄露。","ex":""},{"no":"第五十条","t":"第五十条 人力资源社会保障行政部门、医疗保障行政部门应当畅通监督渠道，鼓励 和支持社会各方面对社会保险经办进行监督。\n社会保险经办机构应当定期向社会公布参加社会保险情况以及社会保险基金的收入、 支出、结余和收益情况，听取用人单位和个人的意见建议，接受社会监督。\n工会、企业代表组织应当及时反映用人单位和个人对社会保险经办的意见建议。","ex":""},{"no":"第五十一条","t":"第五十一条  任何组织和个人有权对违反社会保险法律、法规、规章的行为进行举报、 投诉。\n人力资源社会保障行政部门、医疗保障行政部门对收到的有关社会保险的举报、投诉， 应当依法进行处理。","ex":""},{"no":"第五十二条","t":"第五十二条  用人单位和个人认为社会保险经办机构在社会保险经办工作中侵害其社 会保险权益的，可以依法申请行政复议或者提起行政诉讼。","ex":""}]},{"ch":"第六章 法律责任","items":[{"no":"第五十三条","t":"第五十三条  社会保险经办机构及其工作人员有下列行为之一的，由人力资源社会保 障行政部门、医疗保障行政部门按照各自职责责令改正；给社会保险基金、用人单位或者 个人造成损失的，依法承担赔偿责任；对负有责任的领导人员和直接责任人员依法给予处 分：\n（一）未履行社会保险法定职责的；\n（二）违反规定要求提供证明材料的；\n（三）克扣或者拒不按时支付社会保险待遇的；\n（四）丢失或者篡改缴费记录、享受社会保险待遇记录等社会保险数据、个人权益记 录的；\n（五）违反社会保险经办内部控制制度的。","ex":""},{"no":"第五十四条","t":"第五十四条  人力资源社会保障行政部门、医疗保障行政部门、社会保险经办机构及 其工作人员泄露用人单位和个人信息的，对负有责任的领导人员和直接责任人员依法给予 处分；给用人单位或者个人造成损失的，依法承担赔偿责任。","ex":""},{"no":"第五十五条","t":"第五十五条 以欺诈、伪造证明材料或者其他手段骗取社会保险基金支出的，由 人 力 资源社会保障行政部门、医疗保障行政部门按照各自职责责令退回，处骗取金额2倍以上  5倍以下的罚款；属于定点医药机构的，责令其暂停相关责任部门6个月以上1年以下涉及社 会保险基金使用的社会保险服务，直至由社会保险经办机构解除服务协议；属于其他社会 保险服务机构的，由社会保险经办机构解除服务协议。对负有责任的领导人员和直接责任 人员，有执业资格的，由有关主管部门依法吊销其执业资格。","ex":""},{"no":"第五十六条","t":"第五十六条  隐匿、转移、侵占、挪用社会保险基金或者违规投资运营的，由人力资 源社会保障行政部门、医疗保障行政部门、财政部门、审计机关按照各自职责责令追回； 有违法所得的，没收违法所得；对负有责任的领导人员和直接责任人员依法给予处分。","ex":""},{"no":"第五十七条","t":"第五十七条 社会保险服务机构拒绝人力资源社会保障行政部门、医疗保障行政部门 监督检查或者谎报、瞒报有关情况的，由人力资源社会保障行政部门、医疗保障行政部门 按照各自职责责令改正，并可以约谈有关负责人；拒不改正的，处1万元以上5万元以下的 罚款。","ex":""},{"no":"第五十八条","t":"第五十八条 公职人员在社会保险经办工作中滥用职权、玩忽职守、徇私舞弊的，依 法给予处分。","ex":""},{"no":"第五十九条","t":"第五十九条  违反本条例规定，构成违反治安管理行为的，依法给予治安管理处罚； 构成犯罪的，依法追究刑事责任。","ex":""}]},{"ch":"第七章  附 则","items":[{"no":"第六十条","t":"第六十条 本条例所称社会保险经办机构，是指人力资源社会保障行政部门所属的经 办基本养老保险、工伤保险、失业保险等社会保险的机构和医疗保障行政部门所属的经办 基本医疗保险、生育保险等社会保险的机构。","ex":""},{"no":"第六十一条","t":"第六十一条 本条例所称社会保险服务机构，是指与社会保险经办机构签订服务协\n议，提供社会保险服务的医疗机构、药品经营单位、辅助器具配置机构、失业保险委托培 训机构等机构。","ex":""},{"no":"第六十二条","t":"第六十二条 社会保障卡加载金融功能，有条件的地方可以扩大社会保障卡的应用范 围，提升民生服务效能。医保电子凭证可以根据需要，加载相关服务功能。","ex":""},{"no":"第六十三条","t":"第六十三条  本条例自2023年12月1日起施行。","ex":""}]}];
+const DATA = [{"ch":"全文","items":[{"no":"","t":"中华人民共和国国务院令第765号\n《社会保险经办条例》已经2023年7月21日国务院第11次常务会议通过，现予公布，自 2023年12月1日起施行。\n国务院总理 李强\n2023年8月16日","ex":""}]},{"ch":"第一章 总 则","items":[{"no":"第一条","t":"第一条 为了规范社会保险经办，优化社会保险服务，保障社会保险基金安全，维护 用人单位和个人的合法权益，促进社会公平，根据《中华人民共和国社会保险法》，制定 本条例。","ex":""},{"no":"第二条","t":"第二条 经办基本养老保险、基本医疗保险、工伤保险、失业保险、生育保险等国家 规定的社会保险，适用本条例。","ex":""},{"no":"第三条","t":"第三条 社会保险经办工作坚持中国共产党的领导，坚持以人民为中心，遵循合法、 便民、及时、公开、安全的原则。","ex":""},{"no":"第四条","t":"第四条 国务院人力资源社会保障行政部门主管全国基本养老保险、工伤保险、失业 保险等社会保险经办工作。国务院医疗保障行政部门主管全国基本医疗保险、生育保险等 社会保险经办工作。\n县级以上地方人民政府人力资源社会保障行政部门按照统筹层次主管基本养老保险、 工伤保险、失业保险等社会保险经办工作。县级以上地方人民政府医疗保障行政部门按照 统筹层次主管基本医疗保险、生育保险等社会保险经办工作。","ex":""},{"no":"第五条","t":"第五条 国务院人力资源社会保障行政部门、医疗保障行政部门以及其他有关部门按 照各自职责，密切配合、相互协作，共同做好社会保险经办工作。\n县级以上地方人民政府应当加强对本行政区域社会保险经办工作的领导，加强社会保 险经办能力建设，为社会保险经办工作提供保障。","ex":""}]},{"ch":"第二章 社会保险登记和关系转移","items":[{"no":"第六条","t":"第六条 用人单位在登记管理机关办理登记时同步办理社会保险登记。\n个人申请办理社会保险登记，以公民身份号码作为社会保障号码，取得社会保障卡和 医保电子凭证。社会保险经办机构应当自收到申请之日起10个工作日内办理完毕。","ex":""},{"no":"第七条","t":"第七条 社会保障卡是个人参加基本养老保险、基本医疗保险、工伤保险、失业保险、 生育保险等社会保险和享受各项社会保险待遇的凭证，包括实体社会保障卡和电子社会保 障卡。\n医保电子凭证是个人参加基本医疗保险、生育保险等社会保险和享受基本医疗保险、生育保险等社会保险待遇的凭证。","ex":""},{"no":"第八条","t":"第八条 登记管理机关应当将用人单位设立、变更、注销登记的信息与社会保险经办 机构共享，公安、民政、卫生健康、司法行政等部门应当将个人的出生、死亡以及户口登 记、迁移、注销等信息与社会保险经办机构共享。","ex":""},{"no":"第九条","t":"第九条 用人单位的性质、银行账户、用工等参保信息发生变化，以及个人参保信息 发生变化的，用人单位和个人应当及时告知社会保险经办机构。社会保险经办机构应当对 用人单位和个人提供的参保信息与共享信息进行比对核实。","ex":""},{"no":"第十条","t":"第十条 用人单位和个人申请变更、注销社会保险登记，社会保险经办机构应当自收 到申请之日起10个工作日内办理完毕。用人单位注销社会保险登记的，应当先结清欠缴的 社会保险费、滞纳金、罚款。","ex":""},{"no":"第十一条","t":"第十一条 社会保险经办机构应当及时、完整、准确记录下列信息：\n（一）社会保险登记情况；\n（二）社会保险费缴纳情况；\n（三）社会保险待遇享受情况；\n（四）个人账户情况；\n（五）与社会保险经办相关的其他情况。","ex":""},{"no":"第十二条","t":"第十二条 参加职工基本养老保险的个人跨统筹地区就业，其职工基本养老保险关系 随同转移。\n参加职工基本养老保险的个人在机关事业单位与企业等不同性质用人单位之间流动就 业，其职工基本养老保险关系随同转移。\n参加城乡居民基本养老保险且未享受待遇的个人跨统筹地区迁移户籍，其城乡居民基 本养老保险关系可以随同转移。","ex":""},{"no":"第十三条","t":"第十三条 参加职工基本医疗保险的个人跨统筹地区就业，其职工基本医疗保险关系 随同转移。\n参加城乡居民基本医疗保险的个人跨统筹地区迁移户籍或者变动经常居住地，其城乡 居民基本医疗保险关系可以按照规定随同转移。\n职工基本医疗保险与城乡居民基本医疗保险之间的关系转移，按照规定执行。","ex":""},{"no":"第十四条","t":"第十四条 参加失业保险的个人跨统筹地区就业，其失业保险关系随同转移。","ex":""},{"no":"第十五条","t":"第十五条 参加工伤保险、生育保险的个人跨统筹地区就业，在新就业地参加工伤保 险、生育保险。","ex":""},{"no":"第十六条","t":"第十六条 用人单位和个人办理社会保险关系转移接续手续的，社会保险经办机构应 当在规定时限内办理完毕，并将结果告知用人单位和个人，或者提供办理情况查询服务。","ex":""},{"no":"第十七条","t":"第十七条 军事机关和社会保险经办机构，按照各自职责办理军人保险与社会保险关 系转移接续手续。\n社会保险经办机构应当为军人保险与社会保险关系转移接续手续办理优先提供服务。","ex":""}]},{"ch":"第三章 社会保险待遇核定和支付","items":[{"no":"第十八条","t":"第十八条 用人单位和个人应当按照国家规定，向社会保险经办机构提出领取基本养\n老金的申请。社会保险经办机构应当自收到申请之日起20个工作日内办理完毕。","ex":""},{"no":"第十九条","t":"第十九条 参加职工基本养老保险的个人死亡或者失业人员在领取失业保险金期间死 亡，其遗属可以依法向社会保险经办机构申领丧葬补助金和抚恤金。社会保险经办机构应 当及时核实有关情况，按照规定核定并发放丧葬补助金和抚恤金。","ex":""},{"no":"第二十条","t":"第二十条 个人医疗费用、生育医疗费用中应当由基本医疗保险（含生育保险）基金 支付的部分，由社会保险经办机构审核后与医疗机构、药品经营单位直接结算。\n因特殊情况个人申请手工报销，应当向社会保险经办机构提供医疗机构、药品经营单 位的收费票据、费用清单、诊断证明、病历资料。社会保险经办机构应当对收费票据、费 用清单、诊断证明、病历资料进行审核，并自收到申请之日起30个工作日内办理完毕。\n参加生育保险的个人申领生育津贴，应当向社会保险经办机构提供病历资料。社会保 险经办机构应当对病历资料进行审核，并自收到申请之日起10个工作日内办理完毕。","ex":""},{"no":"第二十一条","t":"第二十一条  工伤职工及其用人单位依法申请劳动能力鉴定、辅助器具配置确认、停 工留薪期延长确认、工伤旧伤复发确认，应当向社会保险经办机构提供诊断证明、病历资 料。","ex":""},{"no":"第二十二条","t":"第二十二条  个人治疗工伤的医疗费用、康复费用、安装配置辅助器具费用中应当由 工伤保险基金支付的部分，由社会保险经办机构审核后与医疗机构、辅助器具配置机构直 接结算。\n因特殊情况用人单位或者个人申请手工报销，应当向社会保险经办机构提供医疗机\n构、辅助器具配置机构的收费票据、费用清单、诊断证明、病历资料。社会保险经办机构 应当对收费票据、费用清单、诊断证明、病历资料进行审核，并自收到申请之日起20个工 作日内办理完毕。","ex":""},{"no":"第二十三条","t":"第二十三条 人力资源社会保障行政部门、医疗保障行政部门应当按照各自职责建 立健全异地就医医疗费用结算制度。社会保险经办机构应当做好异地就医医疗费用结算 工作。","ex":""},{"no":"第二十四条","t":"第二十四条 个人申领失业保险金，社会保险经办机构应当自收到申请之日起10个工 作日内办理完毕。\n个人在领取失业保险金期间，社会保险经办机构应当从失业保险基金中支付其应当缴 纳的基本医疗保险（含生育保险）费。\n个人申领职业培训等补贴，应当提供职业资格证书或者职业技能等级证书。社会保险 经办机构应当对职业资格证书或者职业技能等级证书进行审核，并自收到申请之日起10个 工作日内办理完毕。","ex":""},{"no":"第二十五条","t":"第二十五条 个人出现国家规定的停止享受社会保险待遇的情形，用人单位、待遇享 受人员或者其亲属应当自相关情形发生之日起20个工作日内告知社会保险经办机构。社会 保险经办机构核实后应当停止发放相应的社会保险待遇。","ex":""},{"no":"第二十六条","t":"第二十六条 社会保险经办机构应当通过信息比对、自助认证等方式，核验社会保险 待遇享受资格。通过信息比对、自助认证等方式无法确认社会保险待遇享受资格的，社会 保险经办机构可以委托用人单位或者第三方机构进行核实。\n对涉嫌丧失社会保险待遇享受资格后继续享受待遇的，社会保险经办机构应当调查核 实。经调查确认不符合社会保险待遇享受资格的，停止发放待遇。","ex":""}]},{"ch":"第四章 社会保险经办服务和管理","items":[{"no":"第二十七条","t":"第二十七条 社会保险经办机构应当依托社会保险公共服务平台、医疗保障信息平台 等实现跨部门、跨统筹地区社会保险经办。","ex":""},{"no":"第二十八条","t":"第二十八条 社会保险经办机构应当推动社会保险经办事项与相关政务服务事项协同 办理。社会保险经办窗口应当进驻政务服务中心，为用人单位和个人提供一站式服务。\n人力资源社会保障行政部门、医疗保障行政部门应当强化社会保险经办服务能力，实 现省、市、县、乡镇（街道）、村（社区）全覆盖。","ex":""},{"no":"第二十九条","t":"第二十九条 用人单位和个人办理社会保险事务，可以通过政府网站、移动终端、自 助终端等服务渠道办理，也可以到社会保险经办窗口现场办理。","ex":""},{"no":"第三十条","t":"第三十条 社会保险经办机构应当加强无障碍环境建设，提供无障碍信息交流，完善 无障碍服务设施设备，采用授权代办、上门服务等方式，为老年人、残疾人等特殊群体提 供便利。","ex":""},{"no":"第三十一条","t":"第三十一条 用人单位和个人办理社会保险事务，社会保险经办机构要求其提供身份 证件以外的其他证明材料的，应当有法律、法规和国务院决定依据。","ex":""},{"no":"第三十二条","t":"第三十二条 社会保险经办机构免费向用人单位和个人提供查询核对社会保险缴费和 享受社会保险待遇记录、社会保险咨询等相关服务。","ex":""},{"no":"第三十三条","t":"第三十三条 社会保险经办机构应当根据经办工作需要，与符合条件的机构协商签订 服务协议，规范社会保险服务行为。人力资源社会保障行政部门、医疗保障行政部门应当 加强对服务协议订立、履行等情况的监督。","ex":""},{"no":"第三十四条","t":"第三十四条 医疗保障行政部门所属的社会保险经办机构应当改进基金支付和结算服 务，加强服务协议管理，建立健全集体协商谈判机制。","ex":""},{"no":"第三十五条","t":"第三十五条 社会保险经办机构应当妥善保管社会保险经办信息，确保信息完整、准 确和安全。","ex":""},{"no":"第三十六条","t":"第三十六条 社会保险经办机构应当建立健全业务、 财务、安全和风险管理等内部控 制制度。\n社会保险经办机构应当定期对内部控制制度的制定、执行情况进行检查、评估，对发 现的问题进行整改。","ex":""},{"no":"第三十七条","t":"第三十七条 社会保险经办机构应当明确岗位权责，对重点业务、高风险业务分级审 核。","ex":""},{"no":"第三十八条","t":"第三十八条 社会保险经办机构应当加强信息系统应用管理，健全信息核验机制，记 录业务经办过程。","ex":""},{"no":"第三十九条","t":"第三十九条 社会保险经办机构具体编制下一年度社会保险基金预算草案，报本级人 力资源社会保障行政部门、医疗保障行政部门审核汇总。社会保险基金收入预算草案由社 会保险经办机构会同社会保险费征收机构具体编制。","ex":""},{"no":"第四十条","t":"第四十条 社会保险经办机构设立社会保险基金支出户，用于接受财政专户拨入基\n金、支付基金支出款项、上解上级经办机构基金、下拨下级经办机构基金等。","ex":""},{"no":"第四十一条","t":"第四十一条 社会保险经办机构应当按照国家统一的会计制度对社会保险基金进行会 计核算、对账。","ex":""},{"no":"第四十二条","t":"第四十二条 社会保险经办机构应当核查下列事项：\n（一）社会保险登记和待遇享受等情况；\n（二）社会保险服务机构履行服务协议、执行费用结算项目和标准情况；\n（三）法律、法规规定的其他事项。","ex":""},{"no":"第四十三条","t":"第四十三条 社会保险经办机构发现社会保险服务机构违反服务协议的，可以督促其 履行服务协议，按照服务协议约定暂停或者不予拨付费用、追回违规费用、中止相关责任 人员或者所在部门涉及社会保险基金使用的社会保险服务，直至解除服务协议；社会保险 服务机构及其相关责任人员有权进行陈述、申辩。","ex":""},{"no":"第四十四条","t":"第四十四条 社会保险经办机构发现用人单位、个人、社会保险服务机构违反社会保 险法律、法规、规章的，应当责令改正。对拒不改正或者依法应当由人力资源社会保障行 政部门、医疗保障行政部门处理的，及时移交人力资源社会保障行政部门、医疗保障行政 部门处理。","ex":""},{"no":"第四十五条","t":"第四十五条 国务院人力资源社会保障行政部门、医疗保障行政部门会同有关部门建 立社会保险信用管理制度，明确社会保险领域严重失信主体名单认定标准。\n社会保险经办机构应当如实记录用人单位、个人和社会保险服务机构及其工作人员违 反社会保险法律、法规行为等失信行为。","ex":""},{"no":"第四十六条","t":"第四十六条 个人多享受社会保险待遇的，由社会保险经办机构责令退回；难以一次 性退回的，可以签订还款协议分期退回，也可以从其后续享受的社会保险待遇或者个人账 户余额中抵扣。","ex":""}]},{"ch":"第五章 社会保险经办监督","items":[{"no":"第四十七条","t":"第四十七条 人力资源社会保障行政部门、医疗保障行政部门按照各自职责对社会保 险经办机构下列事项进行监督检查：\n（一）社会保险法律、法规、规章执行情况；\n（二）社会保险登记、待遇支付等经办情况；\n（三）社会保险基金管理情况；\n（四）与社会保险服务机构签订服务协议和服务协议履行情况；\n（五）法律、法规规定的其他事项。\n财政部门、审计机关按照各自职责，依法对社会保险经办机构的相关工作实施监督。","ex":""},{"no":"第四十八条","t":"第四十八条 人力资源社会保障行政部门、医疗保障行政部门应当按照各自职责加强 对社会保险服务机构、用人单位和个人遵守社会保险法律、法规、规章情况的监督检查。 社会保险服务机构、用人单位和个人应当配合，如实提供与社会保险有关的资料，不得拒 绝检查或者谎报、瞒报。\n人力资源社会保障行政部门、医疗保障行政部门发现社会保险服务机构、用人单位违 反社会保险法律、法规、规章的，应当按照各自职责提出处理意见，督促整改，并可以约\n谈相关负责人。","ex":""},{"no":"第四十九条","t":"第四十九条  人力资源社会保障行政部门、医疗保障行政部门、社会保险经办机构及 其工作人员依法保护用人单位和个人的信息，不得以任何形式泄露。","ex":""},{"no":"第五十条","t":"第五十条 人力资源社会保障行政部门、医疗保障行政部门应当畅通监督渠道，鼓励 和支持社会各方面对社会保险经办进行监督。\n社会保险经办机构应当定期向社会公布参加社会保险情况以及社会保险基金的收入、 支出、结余和收益情况，听取用人单位和个人的意见建议，接受社会监督。\n工会、企业代表组织应当及时反映用人单位和个人对社会保险经办的意见建议。","ex":""},{"no":"第五十一条","t":"第五十一条  任何组织和个人有权对违反社会保险法律、法规、规章的行为进行举报、 投诉。\n人力资源社会保障行政部门、医疗保障行政部门对收到的有关社会保险的举报、投诉， 应当依法进行处理。","ex":""},{"no":"第五十二条","t":"第五十二条  用人单位和个人认为社会保险经办机构在社会保险经办工作中侵害其社 会保险权益的，可以依法申请行政复议或者提起行政诉讼。","ex":""}]},{"ch":"第六章 法律责任","items":[{"no":"第五十三条","t":"第五十三条  社会保险经办机构及其工作人员有下列行为之一的，由人力资源社会保 障行政部门、医疗保障行政部门按照各自职责责令改正；给社会保险基金、用人单位或者 个人造成损失的，依法承担赔偿责任；对负有责任的领导人员和直接责任人员依法给予处 分：\n（一）未履行社会保险法定职责的；\n（二）违反规定要求提供证明材料的；\n（三）克扣或者拒不按时支付社会保险待遇的；\n（四）丢失或者篡改缴费记录、享受社会保险待遇记录等社会保险数据、个人权益记 录的；\n（五）违反社会保险经办内部控制制度的。","ex":""},{"no":"第五十四条","t":"第五十四条  人力资源社会保障行政部门、医疗保障行政部门、社会保险经办机构及 其工作人员泄露用人单位和个人信息的，对负有责任的领导人员和直接责任人员依法给予 处分；给用人单位或者个人造成损失的，依法承担赔偿责任。","ex":""},{"no":"第五十五条","t":"第五十五条 以欺诈、伪造证明材料或者其他手段骗取社会保险基金支出的，由 人 力 资源社会保障行政部门、医疗保障行政部门按照各自职责责令退回，处骗取金额2倍以上  5倍以下的罚款；属于定点医药机构的，责令其暂停相关责任部门6个月以上1年以下涉及社 会保险基金使用的社会保险服务，直至由社会保险经办机构解除服务协议；属于其他社会 保险服务机构的，由社会保险经办机构解除服务协议。对负有责任的领导人员和直接责任 人员，有执业资格的，由有关主管部门依法吊销其执业资格。","ex":""},{"no":"第五十六条","t":"第五十六条  隐匿、转移、侵占、挪用社会保险基金或者违规投资运营的，由人力资 源社会保障行政部门、医疗保障行政部门、财政部门、审计机关按照各自职责责令追回； 有违法所得的，没收违法所得；对负有责任的领导人员和直接责任人员依法给予处分。","ex":""},{"no":"第五十七条","t":"第五十七条 社会保险服务机构拒绝人力资源社会保障行政部门、医疗保障行政部门 监督检查或者谎报、瞒报有关情况的，由人力资源社会保障行政部门、医疗保障行政部门 按照各自职责责令改正，并可以约谈有关负责人；拒不改正的，处1万元以上5万元以下的 罚款。","ex":""},{"no":"第五十八条","t":"第五十八条 公职人员在社会保险经办工作中滥用职权、玩忽职守、徇私舞弊的，依 法给予处分。","ex":""},{"no":"第五十九条","t":"第五十九条  违反本条例规定，构成违反治安管理行为的，依法给予治安管理处罚； 构成犯罪的，依法追究刑事责任。","ex":""}]},{"ch":"第七章  附 则","items":[{"no":"第六十条","t":"第六十条 本条例所称社会保险经办机构，是指人力资源社会保障行政部门所属的经 办基本养老保险、工伤保险、失业保险等社会保险的机构和医疗保障行政部门所属的经办 基本医疗保险、生育保险等社会保险的机构。","ex":""},{"no":"第六十一条","t":"第六十一条 本条例所称社会保险服务机构，是指与社会保险经办机构签订服务协\n议，提供社会保险服务的医疗机构、药品经营单位、辅助器具配置机构、失业保险委托培 训机构等机构。","ex":""},{"no":"第六十二条","t":"第六十二条 社会保障卡加载金融功能，有条件的地方可以扩大社会保障卡的应用范 围，提升民生服务效能。医保电子凭证可以根据需要，加载相关服务功能。","ex":""},{"no":"第六十三条","t":"第六十三条  本条例自2023年12月1日起施行。","ex":""}]}]
+;
 /* =================================================== */
-
 
 /* ===== 存储（自动保存 + 导出烘焙）===== */
 const KEY = 'statute_note_' + LAW_KEY;
-let store = 
-(function(){
-  var editMode = false;
-
-  // 醒目入口按钮
-  var btnEdit = document.createElement('button');
-  btnEdit.id = 'btnEdit';
-  btnEdit.title = '编辑模式：每条法条上方出现颜色工具条，可选中局部或直接改整条';
-  btnEdit.innerHTML = '\u270E 编辑条文';
-  btnEdit.style.cssText = 'padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);';
-  var tip = document.createElement('span');
-  tip.className = 'edit-tip';
-  tip.textContent = '已开启：每条法条上方有颜色工具条（选中文字改局部，直接点改整条）';
-  tip.style.display = 'none';
-  var btnTest = document.getElementById('btnTest');
-  if(btnTest){ btnTest.parentNode.insertBefore(btnEdit, btnTest); btnEdit.insertAdjacentElement('afterend', tip); }
-  btnEdit.addEventListener('click', function(){
-    editMode = !editMode;
-    document.body.classList.toggle('edit-mode', editMode);
-    btnEdit.classList.toggle('active', editMode);
-    btnEdit.innerHTML = editMode ? '\u2713 退出编辑' : '\u270E 编辑条文';
-    if(editMode){ btnEdit.style.background='#27ae60'; btnEdit.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; tip.style.display='inline-block'; }
-    else { btnEdit.style.background='#e6a23c'; btnEdit.style.boxShadow='0 2px 6px rgba(230,162,60,.4)'; tip.style.display='none'; }
-    try{ showStatus(editMode ? '编辑模式已开启：点法条上方的颜色按钮即可改色 / 高亮' : '已退出编辑'); }catch(e){}
-  });
-
-  // 存储键（复用笔记已有 KEY）
-  var KEY = '';
-  try { document.querySelectorAll('script').forEach(function(s){ var m = s.textContent.match(/const KEY\s*=\s*'([^']+)'/); if(m) KEY = m[1]; }); }catch(e){}
-  if(!KEY) KEY = 'statute_note_edit';
-
-  var FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
-  var BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
-
-  function barHTML(){
-    var h = '<span class="elbl">字体</span>';
-    FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
-    h += '<span class="fsep"></span><span class="elbl">高亮</span>';
-    BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
-    h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
-    h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
-    return h;
-  }
-
-  function makeEditable(){
-    document.querySelectorAll('.article').forEach(function(art){
-      if(art.dataset.editInjected) return;
-      art.dataset.editInjected = '1';
-      var textEl = art.querySelector('.art-text');
-      if(textEl){
-        textEl.classList.add('editable');
-        textEl.setAttribute('contenteditable','true');
-        textEl.setAttribute('data-art', art.id || '');
-      }
-      var bar = document.createElement('div');
-      bar.className = 'art-editbar';
-      bar.setAttribute('data-bar', art.id || '');
-      bar.innerHTML = barHTML();
-      if(textEl && textEl.parentNode){ textEl.parentNode.insertBefore(bar, textEl); }
-    });
-  }
-
-  // 防止点击工具条导致法条失焦、选区丢失
-  document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
-
-  function applyColor(artId, c, hl){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 局部选区
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 整条
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-  function clearColor(artId){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand('removeFormat', false, null);
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand('removeFormat', false, null);
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-
-  document.addEventListener('click', function(e){
-    if(!editMode) return;
-    var bar = e.target.closest('.art-editbar');
-    if(!bar) return;
-    var artId = bar.getAttribute('data-bar') || '';
-    var clearBtn = e.target.closest('[data-clear]');
-    if(clearBtn){ clearColor(artId); return; }
-    var btn = e.target.closest('[data-c]');
-    if(!btn) return;
-    applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
-  });
-
-  function saveArt(id){
-    var el = document.querySelector('.art-text[data-art="'+id+'"]');
-    if(!el) return;
-    try{ var s = localStorage.getItem(KEY); var store = s ? JSON.parse(s) : {}; if(!store.artEdit) store.artEdit = {}; store.artEdit[id] = el.innerHTML; localStorage.setItem(KEY, JSON.stringify(store)); }catch(err){}
-  }
-  function restoreEdits(){
-    try{ var s = localStorage.getItem(KEY); if(!s) return; var store = JSON.parse(s); if(!store.artEdit) return;
-      Object.keys(store.artEdit).forEach(function(id){ var el = document.querySelector('.art-text[data-art="'+id+'"]'); if(el && store.artEdit[id]) el.innerHTML = store.artEdit[id]; });
-    }catch(e){}
-  }
-
-  var _ro = new MutationObserver(function(){
-    var content = document.getElementById('content');
-    if(content && content.children.length > 0){ makeEditable(); restoreEdits(); }
-  });
-  var mainEl = document.getElementById('content');
-  if(mainEl) _ro.observe(mainEl, {childList:true});
-  setTimeout(function(){ makeEditable(); restoreEdits(); }, 500);
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
 })();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        (m.revised ? '<span class="mk">修正时间</span><span class="mv">'+escapeHtml(m.revised)+'</span>' : '') +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+  // 法条原文（可编辑）
+  'barHTML(id) + <div class="art-text editable" contenteditable="true" data-art="' + id + '">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);  restoreArtEdits();
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
 
 
+/* ===== 编辑模式切换（浮动工具条） ===== */
+let editMode = false;
+const btnEdit = document.getElementById('btnEdit');
+btnEdit.addEventListener('click', function(){
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  this.classList.toggle('active', editMode);
+  this.textContent = editMode ? '✓ 退出编辑' : '✎ 编辑条文';
+  if(editMode){ this.style.background='#27ae60'; this.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; }
+  else { this.style.background=''; this.style.boxShadow=''; }
+  showStatus(editMode ? '编辑模式：每条法条上方有颜色工具条，选中改局部或整条改色' : '已退出编辑');
+});
+
+/* 常驻工具条：每条法条上方由 render 注入 .art-editbar，点击即改色 */
+const FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
+const BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
+function barHTML(id){
+  let h = '<span class="elbl">字体</span>';
+  FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
+  h += '<span class="fsep"></span><span class="elbl">高亮</span>';
+  BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
+  h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
+  h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
+  return '<div class="art-editbar" data-bar="'+id+'">' + h + '</div>';
+}
+
+// 防止点击工具条导致法条失焦、选区丢失
+document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
+
+function applyColor(artId, c, hl){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+  } else {
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+    sel.removeAllRanges();
+  }
+  saveArtText(artId, el.innerHTML);
+}
+function clearColor(artId){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand('removeFormat', false, null);
+  } else {
+    const artData = getArtData(artId);
+    el.innerHTML = artData ? escapeHtml(artData.t) : el.textContent;
+  }
+  saveArtText(artId, el.innerHTML);
+}
+
+document.addEventListener('click', function(e){
+  if(!editMode) return;
+  const bar = e.target.closest('.art-editbar');
+  if(!bar) return;
+  const artId = bar.getAttribute('data-bar') || '';
+  const clearBtn = e.target.closest('[data-clear]');
+  if(clearBtn){ clearColor(artId); showStatus('已清除格式'); return; }
+  const btn = e.target.closest('[data-c]');
+  if(!btn) return;
+  applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
+  showStatus(btn.dataset.hl === '1' ? '已高亮标注' : '已改字体色');
+});
+
+/* 保存法条编辑后的HTML */
+function saveArtText(id, html){
+  if(!store.artEdit) store.artEdit = {};
+  store.artEdit[id] = html;
+  save();
+}
+
+/* 恢复已保存的法条编辑 */
+function restoreArtEdits(){
+  if(!store.artEdit) return;
+  Object.keys(store.artEdit).forEach(function(id){
+    const el = document.querySelector('.art-text[data-art="'+id+'"]');
+    if(el && store.artEdit[id]){
+      el.innerHTML = store.artEdit[id];
+    }
+  });
+}
+
+/* 获取法条原始数据（用于重置） */
+function getArtData(id){
+  for(let ci=0;ci<DATA.length;ci++){
+    for(let ai=0;ai<DATA[ci].items.length;ai++){
+      if('a'+ci+'_'+ai === id) return DATA[ci].items[ai];
+    }
+  }
+  return null;
+}
+
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
 </body>
 </html>
