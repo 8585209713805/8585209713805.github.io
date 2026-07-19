@@ -208,6 +208,14 @@ body.edit-mode .article .art-editbar{display:flex;}
 .art-editbar .fclear:hover{background:#eef1f4;}
 .art-editbar .ehint{font-size:11px;color:#9aa1a9;margin-left:auto;}
 body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modify:read-only;}
+
+/* 悬浮控件：回到顶部 / 回到首页 */
+.float-ctrl{position:fixed; right:18px; bottom:18px; display:flex; flex-direction:column; gap:10px; z-index:60;}
+.fc-btn{display:none; align-items:center; justify-content:center; width:48px; height:48px; border-radius:50%; background:#2f6fed; color:#fff; text-decoration:none; font-size:12px; font-weight:600; border:none; cursor:pointer; box-shadow:0 4px 14px rgba(47,111,237,.35); line-height:1.15; text-align:center;}
+.fc-btn.show{display:flex;}
+.fc-btn:hover{background:#1f5bd6;}
+.fc-btn.home{background:#e6a23c; box-shadow:0 4px 14px rgba(230,162,60,.35);}
+.fc-btn.home:hover{background:#cf8e2e;}
 </style>
 </head>
 <body>
@@ -710,6 +718,19 @@ document.getElementById('lawField').textContent = LAW_FIELD || '';
 render();
 DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
 showStatus('已就绪');
+
+// 悬浮控件：回到顶部
+(function(){
+  var top = document.getElementById('btnTop');
+  function onScroll(){ if(window.scrollY > 300){ top.classList.add('show'); } else { top.classList.remove('show'); } }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  top.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+  onScroll();
+})();
 </script>
+<div class="float-ctrl">
+  <a class="fc-btn home" id="btnHome" href="../index.html" title="回到网站首页">🏠<br>首页</a>
+  <button class="fc-btn" id="btnTop" title="回到顶部">↑<br>顶部</button>
+</div>
 </body>
 </html>
