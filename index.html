@@ -25,10 +25,10 @@ header{position:sticky; top:0; z-index:50; background:var(--primary); color:#fff
 .hint{font-size:12px; opacity:.82; margin-left:auto;}
 
 .layout{max-width:1200px; margin:22px auto; padding:0 20px; display:flex; gap:24px; align-items:flex-start;}
-aside{position:sticky; top:84px; width:212px; flex:none; background:var(--card); border:1px solid var(--border);
+aside{text-align:left; position:sticky; top:84px; width:212px; flex:none; background:var(--card); border:1px solid var(--border);
   border-radius:12px; padding:14px; box-shadow:var(--shadow); max-height:calc(100vh - 100px); overflow-y:auto;}
 aside .sb-title{font-size:12px; color:var(--muted); margin:0 0 8px; letter-spacing:1px;}
-aside a{display:flex; justify-content:space-between; align-items:center; gap:6px; padding:6px 8px; border-radius:8px;
+aside a{display:flex; align-items:center; gap:6px; padding:6px 8px; border-radius:8px;
   color:var(--ink); text-decoration:none; font-size:13px; margin-bottom:2px; line-height:1.35;}
 aside a:hover{background:var(--primary-soft);}
 aside a .cnt{font-size:10.5px; color:var(--muted); background:var(--bg); border-radius:10px; padding:1px 7px; flex:none;}
@@ -122,6 +122,30 @@ footer code{background:var(--bg); padding:1px 6px; border-radius:5px; font-size:
 @media (max-width:820px){
   .layout{flex-direction:column;}
   aside{position:static; width:100%;}
+}
+
+.note-card.active-highlight{
+  border-left-color:#e74c3c !important;
+  border:2px solid #e74c3c !important;
+  box-shadow:0 0 0 4px rgba(231,76,60,.18),0 8px 24px rgba(31,78,121,.16) !important;
+  transform:none !important;
+  animation:hl-pulse 1.6s ease-out;
+}
+@keyframes hl-pulse{
+  0%{box-shadow:0 0 0 0 rgba(231,76,60,.35),0 0 20px rgba(231,76,60,.25);}
+  100%{box-shadow:0 0 0 4px rgba(231,76,60,.18),0 8px 24px rgba(31,78,121,.16);}
+}
+
+.note-card.active-highlight{
+  border-left-color:#e74c3c !important;
+  border:2px solid #e74c3c !important;
+  box-shadow:0 0 0 4px rgba(231,76,60,.18),0 8px 24px rgba(31,78,121,.16) !important;
+  transform:none !important;
+  animation:hl-pulse 1.6s ease-out;
+}
+@keyframes hl-pulse{
+  0%{box-shadow:0 0 0 0 rgba(231,76,60,.35),0 0 20px rgba(231,76,60,.25);}
+  100%{box-shadow:0 0 0 4px rgba(231,76,60,.18),0 8px 24px rgba(31,78,121,.16);}
 }
 </style>
 </head>
@@ -435,7 +459,7 @@ function render(){
           const lvId = uid('lvl-'+f+'-'+s.name+'-'+lv.name);
           sb += '<div class="sb-lvl"><a href="#'+lvId+'"><span>'+esc(lv.name)+'</span><span class="cnt">'+lv.notes.length+'</span></a></div>';
           lv.notes.forEach((n,i) => {
-            sb += '<div class="sb-note"><a href="'+esc(n.file)+'" title="'+esc(n.title)+'"><span class="idx">'+(i+1)+'</span><span class="nm">'+esc(n.title)+'</span></a></div>';
+            sb += '<div class="sb-note"><a href="#'+esc(uid('nc_'+n.title))+'" title="'+esc(n.title)+'"><span class="idx">'+(i+1)+'</span><span class="nm">'+esc(n.title)+'</span></a></div>';
           });
         });
       }
@@ -476,7 +500,7 @@ function render(){
              +  '<div class="grid">';
         lv.notes.forEach((n,i) => {
           const tags = (n.tags||[]).map(t => '<span class="tag">'+esc(t)+'</span>').join('');
-          html += '<a class="note-card" href="'+esc(n.file)+'">'
+          html += '<a class="note-card" id="' + esc(uid('nc_'+n.title)) + '" href="'+esc(n.file)+'">'
                +  '<div class="ttl"><span class="cidx">'+(i+1)+'</span>《'+esc(n.title)+'》学习笔记</div>'
                +  '<div class="sub">'+esc(n.sub||'')+'</div>'
                +  '<div class="tags">'+tags+'</div>'
@@ -504,6 +528,45 @@ function render(){
 }
 
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+
+/* 定位高亮：点击侧栏法规名时，滚动到对应卡片并高亮 */
+let _hlTimer = null;
+function highlightCard(idStr){
+  const el = document.getElementById(idStr);
+  if(!el) return;
+  // 清除旧高亮
+  document.querySelectorAll('.note-card.active-highlight').forEach(e => e.classList.remove('active-highlight'));
+  // 新高亮
+  el.classList.add('active-highlight');
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+  clearTimeout(_hlTimer);
+  _hlTimer = setTimeout(() => el.classList.remove('active-highlight'), 2800);
+}
+sbNav.addEventListener('click', function(e){
+  const a = e.target.closest('.sb-note > a');
+  if(!a) return;
+  e.preventDefault();
+  const targetId = a.getAttribute('href').replace('#','');
+  highlightCard(targetId);
+});
+
+
+let _hlTimer = null;
+function highlightCard(idStr){
+  const el = document.getElementById(idStr); if(!el) return;
+  document.querySelectorAll('.note-card.active-highlight').forEach(function(e){ e.classList.remove('active-highlight'); });
+  el.classList.add('active-highlight');
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+  clearTimeout(_hlTimer);
+  _hlTimer = setTimeout(function(){ el.classList.remove('active-highlight'); }, 2800);
+}
+sbNav.addEventListener('click', function(e){
+  var a = e.target.closest('.sb-note > a'); if(!a) return;
+  e.preventDefault();
+  var tid = a.getAttribute('href').replace('#','');
+  highlightCard(tid);
+});
 
 chipsEl.addEventListener('click', function(e){
   const el = e.target.closest('.chip'); if(!el) return;
