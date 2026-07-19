@@ -194,7 +194,6 @@ footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--mute
   body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
 }
 
-/* ===== 法条编辑模式（浮动工具条） ===== */
 /* ===== 法条编辑模式（每条常驻工具条） ===== */
 .art-text.editable{outline:none; border-radius:5px; transition:box-shadow .15s;}
 body.edit-mode .art-text.editable{cursor:text;}
@@ -209,7 +208,6 @@ body.edit-mode .article .art-editbar{display:flex;}
 .art-editbar .fclear:hover{background:#eef1f4;}
 .art-editbar .ehint{font-size:11px;color:#9aa1a9;margin-left:auto;}
 body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modify:read-only;}
-
 </style>
 </head>
 <body>
@@ -219,6 +217,7 @@ body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modi
     <div class="toolbar">
       <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
       <span class="status" id="status">已就绪</span>
+      <button id="btnEdit" title="编辑模式：选中任意法条文字即可改字体色 / 高亮标注" style="padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);">✎ 编辑条文</button>
       <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
       <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
       <button id="btnPrint" title="打印 / 存为PDF">打印</button>
@@ -259,144 +258,383 @@ const CASES = {};
 const REL = {};
 
 /* 法条数据 */
-const DATA = [{"ch":"全文","items":[{"no":"","t":"人社部发〔2012〕13号 2012年2月9日\n各省、自治区、直辖市及新疆生产建设兵团人力资源社会保障厅（局）、机构编制委员会办 公室、财政厅（局），福建省公务员局、机构编制委员会办公室、财政厅：\n为贯彻党中央、国务院关于构建和谐劳动关系的要求，认真执行劳动争议调解仲裁法， 落实《中华人民共和国国民经济和社会发展第十二个五年规划纲要》提出完善劳动争议处理 机制、加强劳动争议调解仲裁的重要任务，切实增强新形势下劳动人事争议调解仲裁服务能 力，及时有效化解争议，维护当事人合法权益，全面推进劳动人事争议调解仲裁事业科学发 展，现就切实加强劳动人事争议处理效能建设提出以下意见。\n一 、加强劳动人事争议处理效能建设是适应新形势发展的重要任务","ex":""},{"no":"（一）","t":"（一）劳动人事争议调解仲裁是社会管理中利益协调机制、诉求表达机制、矛盾调处机 制和权益保障机制的重要组成部分。中共中央、国务院《关于加强和创新社会管理的意见》 指出，当前我国既处于发展的重要战略机遇期，又处于社会矛盾凸显期，人民内部矛盾多发， 社会管理领域存在不少问题。加强和创新社会管理，事关党的执政地位巩固，事关国家长治 久安，事关人民安居乐业。劳动人事争议调解仲裁作为解决劳动人事争议的主要手段成为加 强和创新社会管理的重要工作领域，是社会管理中促进社会公平正义的各项利益协调机制的 有机组成部分。因此，加强调解仲裁工作，增强劳动人事争议处理效能，切实解决影响社会 和谐稳定的突出问题，是新时期各级政府面临的一项重要任务。","ex":""},{"no":"（二）","t":"（二）全面提升劳动人事争议调解仲裁社会服务能力是当前维护劳动人事关系和谐稳定 新形势的迫切要求。当前，我国处在加快转变经济发展方式的关键时期，事业单位的人事制 度改革即将全面实施，芳动人事关系矛盾已进入易发期和多发期，劳动人事争议的调处任务 越来越重。党中央、国务院高度重视，强调构建和谐劳动关系是我们当前必须抓好的一项紧 迫而重要的政治任务，要努力减少劳动关系领域的矛盾纠纷；要求完善劳动争议调解仲裁制 度、加强劳动人事争议仲裁院基本建设，着力解决劳动关系基层基础工作薄弱、能力不足的 问题。因此，完善劳动人事争议调解仲裁机制，夯实劳动人事争议调解仲裁工作基础，是当 前构建和谐劳动人事关系大局的需要，是我国经济社会发展和干部人事制度改革的有力保证。 各地要充分认识提高劳动人事争议调解仲裁社会服务能力建设的紧迫性，要将加强劳动人事 争议调解仲裁效能建设作为落实“十二五”规划纲要的重要措施，切实抓出成效。\n二 、加强仲裁机构实体化建设，切实提高劳动人事争议处理效能","ex":""},{"no":"（一）","t":"（一）仲裁机构实体化建设的原则。仲裁机构实体化建设是指做实劳动人事争议仲裁委 员会办事机构，该机构具体承担争议调解仲裁等日常工作。实体化的劳动人事争议仲裁委员 会办事机构可称为“劳动人事争议仲裁院”或其他名称，具体由地方人民政府确定。\n实体化建设要坚持科学规划、统筹兼顾、因地制宜、注重实效的原则，合理设置机构并\n配备人员，以仲裁办案场所建设为基础，以落实仲裁经费为保障，着力提高劳动人事争议处 理效能。既要立足当前有效应对争议案件持续多发的现状，又要着眼“十二五”时期劳动人 事争议仲裁事业发展的需要，科学合理确定实体化办事机构的规模、办案场所、办案人员等， 不断完善实体化建设的各项措施，有计划、有步骤地组织实施。","ex":""},{"no":"（二）","t":"（二）仲裁机构实体化建设的目标任务。实体化建设的目标是，到“十二五”末期，各 地普遍建立适合社会主义市场经济发展需要和符合构建和谐劳动人事关系要求，体现高效、 便捷、公正的劳动人事争议仲裁特色，争议处理能力强、社会公信度高，具有较高社会管理 和服务能力的实体化办事机构。具体计划由地方人民政府制定。\n三 、加强仲裁队伍建设，努力提高仲裁员素质和能力","ex":""},{"no":"（一）","t":"（一）合理配置仲裁工作人员。各地要根据仲裁工作的现实需要和科学发展的要求，合 理确定专职仲裁员和记录人员等工作人员的数量，仲裁机构配置专职仲裁员时要保证依法组 庭的基本要求。招用仲裁员要符合法律规定的条件，并根据岗位要求，严格按照有关规定进 行考录或公开招聘。记录人员等辅助工作人员可从有一定法律专业知识的人员中招录。","ex":""},{"no":"（二）","t":"（二）积极拓展兼职仲裁员渠道。各地可从工会、企业代表组织、教学和科研机构、政 府相关部门、司法机关以及其他社会团体中聘用符合法定条件的兼职仲裁员，积极扩大兼职 仲裁员的来源渠道。要根据专、兼职仲裁员的特点，发挥各自优势，提高仲裁办案的水平。","ex":""},{"no":"（三）","t":"（三）加强仲裁员作风建设和能力建设。各地要加强仲裁员的思想、作风和能力建设， 不断提高仲裁员的大局意识、政治意识、责任意识和服务意识，进一步提高仲裁员的综合素 质和职业道德水平，提高仲裁员法律知识运用能力、争议处理能力、应急处置能力和组织协 调能力。要树立仲裁员良好的社会形象，增强仲裁活动的严肃性和公信力，仲裁员办案应着 正装，具体要求由各省、自治区、直辖市统一规定。\n四 、加强仲裁基础设施建设，努力提高仲裁社会服务能力和水平","ex":""},{"no":"（一）","t":"（一）加强仲裁场所建设。仲裁办案场所应相对独立，设施功能齐全，能满足仲裁办案 和日常工作的基本需要。经济发达地区的仲裁庭建设要逐步实现标准化；经济欠发达、案件 量少的县（市、区）应保证有专门的仲裁庭等办案需要的基本场所和设施，为方便当事人参 加调解仲裁活动提供良好的环境。","ex":""},{"no":"（二）","t":"（二）加强仲裁庭基础设备的配备和更新。各地要逐步解决办案所需基本设备，包括仲 裁庭专业设备、档案储存设备、安全监控设备、仲裁专用办案车辆的配备等，不断改善办案 条件。","ex":""},{"no":"（三）","t":"（三）加强仲裁信息化建设。各地要将仲裁信息化建设作为一项重要内容纳入“金保工 程”，切实改善仲裁信息化设施和条件，提升仲裁信息化水平。要逐步实现案件办理过程和 结果的信息共享，具备咨询、信息交流、工作研究、办案进程管理和查询、办案监督等功能， 满足仲裁工作和社会的厂泛需求。\n五 、落实仲裁专项经费，努力加强仲裁保障能力","ex":""},{"no":"（一）","t":"（一）依法保障仲裁经费需要。各地要按照劳动争议调解仲裁法关于仲裁经费由财政予 以保障的规定，以及《财政部、国家发改委关于公布取消和停止征收100项行政事业性收费项 目的通知》（财综〔2008〕78号）关于停止仲裁收费后由同级财政保障经费的规定，将仲裁\n经费列入当地财政预算，确保仲裁经费由同级财政予以保障。仲裁经费包括人员经费、公用 经费、仲裁专项经费等。有条件的地区，应逐步提高专、兼职仲裁员办案补助标准。","ex":""},{"no":"（二）","t":"（二）做好仲裁免费服务。各地要强化仲裁基本公共服务职责，在仲裁活动中，为当事 人提供免费、便捷、高效的服务。提供免费普法宣传、仲裁导引、风险告知等资料，积极创 建方便、实用的专门网络平台，提供免费信息服务及咨询等；积极创造条件，在法律援助、 仲裁文书送达、裁审衔接等方面为当事人提供方便。","ex":""},{"no":"六、","t":"六、完善仲裁工作制度，努力提高仲裁科学管理能力","ex":""},{"no":"（一）","t":"（一）强化仲裁委员会职责。要建立健全仲裁委员会工作制度，充分发挥三方机制的作 用，在聘任、解聘仲裁员以及受理案件、处理重大或者疑难案件、对仲裁活动监督等方面， 依法履行仲裁委员会职责。","ex":""},{"no":"（二）","t":"（二）加强仲裁办案质量管理。要建立健全办案工作流程制度，依法制定科学、合理的 办案工作流程；规范接案、立案、庭审等各个环节，确保办案过程规范、统一、有序。要建 立健全办案质量跟踪、办案监督制度，加强办案质量管理，做到案件审理程序合法、适用法 律得当、仲裁裁决统一。","ex":""},{"no":"（三）","t":"（三）加强仲裁工作管理。要建立健全仲裁工作人员管理制度，加强对仲裁员、记录人 员和其他工作人员准入、培训、考核工作的管理。要建立健全仲裁文书使用、仲裁案卷管理、 仲裁信息管理、仲裁统计分析及报送等各项制度，夯实仲裁各项基础管理工作。要积极开展 仲裁创建优质服务窗口活动，加强廉洁自律和职业道德教育。","ex":""},{"no":"（四）","t":"（四）加强仲裁工作协调。要建立健全“调、裁、审”工作协调制度，加强与信访、劳 动监察、劳动人事争议调解组织和人民法院之间的工作联系和沟通，做好调裁衔接和裁审衔 接，提高仲裁效率，畅通当事入维权渠道。","ex":""},{"no":"七、","t":"七、切实加强劳动人事争议处理效能建设的组织领导","ex":""},{"no":"（一）","t":"（一）加强配合，形成合力。各地要按照“十二五”规划纲要确定的基本公共服务范围 和重点，以仲裁机构实体化建设为核心，将劳动人事争议处理效能建设列入本地区基本公共 服务建设范围。各有关部门要加强协调配合，形成共同推进仲裁机构实体化建设的合力，努 力提升本地区劳动人事争议调解仲裁基本公共服务能力。","ex":""},{"no":"（二）","t":"（二）结合实际，明确任务。各地要在党委、政府的领导下，结合本地实际，制定切实 可行的工作计划和实施方案。实施方案包括工作目标、建设标准、实施进度，保障措施等内 容。","ex":""},{"no":"（三）","t":"（三）加强督促，狠抓落实。各地要建立健全目标责任制，层层分解各项目标任务，做 到明确任务、明确责任、明确时限、明确要求。要加强督促检查，确保各项措施和要求落到 实处，切实保障劳动人事争议处理效能建设的各项目标任务按时完成。","ex":""}]}];
+const DATA = [{"ch":"全文","items":[{"no":"","t":"人社部发〔2012〕13号 2012年2月9日\n各省、自治区、直辖市及新疆生产建设兵团人力资源社会保障厅（局）、机构编制委员会办 公室、财政厅（局），福建省公务员局、机构编制委员会办公室、财政厅：\n为贯彻党中央、国务院关于构建和谐劳动关系的要求，认真执行劳动争议调解仲裁法， 落实《中华人民共和国国民经济和社会发展第十二个五年规划纲要》提出完善劳动争议处理 机制、加强劳动争议调解仲裁的重要任务，切实增强新形势下劳动人事争议调解仲裁服务能 力，及时有效化解争议，维护当事人合法权益，全面推进劳动人事争议调解仲裁事业科学发 展，现就切实加强劳动人事争议处理效能建设提出以下意见。\n一 、加强劳动人事争议处理效能建设是适应新形势发展的重要任务","ex":""},{"no":"（一）","t":"（一）劳动人事争议调解仲裁是社会管理中利益协调机制、诉求表达机制、矛盾调处机 制和权益保障机制的重要组成部分。中共中央、国务院《关于加强和创新社会管理的意见》 指出，当前我国既处于发展的重要战略机遇期，又处于社会矛盾凸显期，人民内部矛盾多发， 社会管理领域存在不少问题。加强和创新社会管理，事关党的执政地位巩固，事关国家长治 久安，事关人民安居乐业。劳动人事争议调解仲裁作为解决劳动人事争议的主要手段成为加 强和创新社会管理的重要工作领域，是社会管理中促进社会公平正义的各项利益协调机制的 有机组成部分。因此，加强调解仲裁工作，增强劳动人事争议处理效能，切实解决影响社会 和谐稳定的突出问题，是新时期各级政府面临的一项重要任务。","ex":""},{"no":"（二）","t":"（二）全面提升劳动人事争议调解仲裁社会服务能力是当前维护劳动人事关系和谐稳定 新形势的迫切要求。当前，我国处在加快转变经济发展方式的关键时期，事业单位的人事制 度改革即将全面实施，芳动人事关系矛盾已进入易发期和多发期，劳动人事争议的调处任务 越来越重。党中央、国务院高度重视，强调构建和谐劳动关系是我们当前必须抓好的一项紧 迫而重要的政治任务，要努力减少劳动关系领域的矛盾纠纷；要求完善劳动争议调解仲裁制 度、加强劳动人事争议仲裁院基本建设，着力解决劳动关系基层基础工作薄弱、能力不足的 问题。因此，完善劳动人事争议调解仲裁机制，夯实劳动人事争议调解仲裁工作基础，是当 前构建和谐劳动人事关系大局的需要，是我国经济社会发展和干部人事制度改革的有力保证。 各地要充分认识提高劳动人事争议调解仲裁社会服务能力建设的紧迫性，要将加强劳动人事 争议调解仲裁效能建设作为落实“十二五”规划纲要的重要措施，切实抓出成效。\n二 、加强仲裁机构实体化建设，切实提高劳动人事争议处理效能","ex":""},{"no":"（一）","t":"（一）仲裁机构实体化建设的原则。仲裁机构实体化建设是指做实劳动人事争议仲裁委 员会办事机构，该机构具体承担争议调解仲裁等日常工作。实体化的劳动人事争议仲裁委员 会办事机构可称为“劳动人事争议仲裁院”或其他名称，具体由地方人民政府确定。\n实体化建设要坚持科学规划、统筹兼顾、因地制宜、注重实效的原则，合理设置机构并\n配备人员，以仲裁办案场所建设为基础，以落实仲裁经费为保障，着力提高劳动人事争议处 理效能。既要立足当前有效应对争议案件持续多发的现状，又要着眼“十二五”时期劳动人 事争议仲裁事业发展的需要，科学合理确定实体化办事机构的规模、办案场所、办案人员等， 不断完善实体化建设的各项措施，有计划、有步骤地组织实施。","ex":""},{"no":"（二）","t":"（二）仲裁机构实体化建设的目标任务。实体化建设的目标是，到“十二五”末期，各 地普遍建立适合社会主义市场经济发展需要和符合构建和谐劳动人事关系要求，体现高效、 便捷、公正的劳动人事争议仲裁特色，争议处理能力强、社会公信度高，具有较高社会管理 和服务能力的实体化办事机构。具体计划由地方人民政府制定。\n三 、加强仲裁队伍建设，努力提高仲裁员素质和能力","ex":""},{"no":"（一）","t":"（一）合理配置仲裁工作人员。各地要根据仲裁工作的现实需要和科学发展的要求，合 理确定专职仲裁员和记录人员等工作人员的数量，仲裁机构配置专职仲裁员时要保证依法组 庭的基本要求。招用仲裁员要符合法律规定的条件，并根据岗位要求，严格按照有关规定进 行考录或公开招聘。记录人员等辅助工作人员可从有一定法律专业知识的人员中招录。","ex":""},{"no":"（二）","t":"（二）积极拓展兼职仲裁员渠道。各地可从工会、企业代表组织、教学和科研机构、政 府相关部门、司法机关以及其他社会团体中聘用符合法定条件的兼职仲裁员，积极扩大兼职 仲裁员的来源渠道。要根据专、兼职仲裁员的特点，发挥各自优势，提高仲裁办案的水平。","ex":""},{"no":"（三）","t":"（三）加强仲裁员作风建设和能力建设。各地要加强仲裁员的思想、作风和能力建设， 不断提高仲裁员的大局意识、政治意识、责任意识和服务意识，进一步提高仲裁员的综合素 质和职业道德水平，提高仲裁员法律知识运用能力、争议处理能力、应急处置能力和组织协 调能力。要树立仲裁员良好的社会形象，增强仲裁活动的严肃性和公信力，仲裁员办案应着 正装，具体要求由各省、自治区、直辖市统一规定。\n四 、加强仲裁基础设施建设，努力提高仲裁社会服务能力和水平","ex":""},{"no":"（一）","t":"（一）加强仲裁场所建设。仲裁办案场所应相对独立，设施功能齐全，能满足仲裁办案 和日常工作的基本需要。经济发达地区的仲裁庭建设要逐步实现标准化；经济欠发达、案件 量少的县（市、区）应保证有专门的仲裁庭等办案需要的基本场所和设施，为方便当事人参 加调解仲裁活动提供良好的环境。","ex":""},{"no":"（二）","t":"（二）加强仲裁庭基础设备的配备和更新。各地要逐步解决办案所需基本设备，包括仲 裁庭专业设备、档案储存设备、安全监控设备、仲裁专用办案车辆的配备等，不断改善办案 条件。","ex":""},{"no":"（三）","t":"（三）加强仲裁信息化建设。各地要将仲裁信息化建设作为一项重要内容纳入“金保工 程”，切实改善仲裁信息化设施和条件，提升仲裁信息化水平。要逐步实现案件办理过程和 结果的信息共享，具备咨询、信息交流、工作研究、办案进程管理和查询、办案监督等功能， 满足仲裁工作和社会的厂泛需求。\n五 、落实仲裁专项经费，努力加强仲裁保障能力","ex":""},{"no":"（一）","t":"（一）依法保障仲裁经费需要。各地要按照劳动争议调解仲裁法关于仲裁经费由财政予 以保障的规定，以及《财政部、国家发改委关于公布取消和停止征收100项行政事业性收费项 目的通知》（财综〔2008〕78号）关于停止仲裁收费后由同级财政保障经费的规定，将仲裁\n经费列入当地财政预算，确保仲裁经费由同级财政予以保障。仲裁经费包括人员经费、公用 经费、仲裁专项经费等。有条件的地区，应逐步提高专、兼职仲裁员办案补助标准。","ex":""},{"no":"（二）","t":"（二）做好仲裁免费服务。各地要强化仲裁基本公共服务职责，在仲裁活动中，为当事 人提供免费、便捷、高效的服务。提供免费普法宣传、仲裁导引、风险告知等资料，积极创 建方便、实用的专门网络平台，提供免费信息服务及咨询等；积极创造条件，在法律援助、 仲裁文书送达、裁审衔接等方面为当事人提供方便。","ex":""},{"no":"六、","t":"六、完善仲裁工作制度，努力提高仲裁科学管理能力","ex":""},{"no":"（一）","t":"（一）强化仲裁委员会职责。要建立健全仲裁委员会工作制度，充分发挥三方机制的作 用，在聘任、解聘仲裁员以及受理案件、处理重大或者疑难案件、对仲裁活动监督等方面， 依法履行仲裁委员会职责。","ex":""},{"no":"（二）","t":"（二）加强仲裁办案质量管理。要建立健全办案工作流程制度，依法制定科学、合理的 办案工作流程；规范接案、立案、庭审等各个环节，确保办案过程规范、统一、有序。要建 立健全办案质量跟踪、办案监督制度，加强办案质量管理，做到案件审理程序合法、适用法 律得当、仲裁裁决统一。","ex":""},{"no":"（三）","t":"（三）加强仲裁工作管理。要建立健全仲裁工作人员管理制度，加强对仲裁员、记录人 员和其他工作人员准入、培训、考核工作的管理。要建立健全仲裁文书使用、仲裁案卷管理、 仲裁信息管理、仲裁统计分析及报送等各项制度，夯实仲裁各项基础管理工作。要积极开展 仲裁创建优质服务窗口活动，加强廉洁自律和职业道德教育。","ex":""},{"no":"（四）","t":"（四）加强仲裁工作协调。要建立健全“调、裁、审”工作协调制度，加强与信访、劳 动监察、劳动人事争议调解组织和人民法院之间的工作联系和沟通，做好调裁衔接和裁审衔 接，提高仲裁效率，畅通当事入维权渠道。","ex":""},{"no":"七、","t":"七、切实加强劳动人事争议处理效能建设的组织领导","ex":""},{"no":"（一）","t":"（一）加强配合，形成合力。各地要按照“十二五”规划纲要确定的基本公共服务范围 和重点，以仲裁机构实体化建设为核心，将劳动人事争议处理效能建设列入本地区基本公共 服务建设范围。各有关部门要加强协调配合，形成共同推进仲裁机构实体化建设的合力，努 力提升本地区劳动人事争议调解仲裁基本公共服务能力。","ex":""},{"no":"（二）","t":"（二）结合实际，明确任务。各地要在党委、政府的领导下，结合本地实际，制定切实 可行的工作计划和实施方案。实施方案包括工作目标、建设标准、实施进度，保障措施等内 容。","ex":""},{"no":"（三）","t":"（三）加强督促，狠抓落实。各地要建立健全目标责任制，层层分解各项目标任务，做 到明确任务、明确责任、明确时限、明确要求。要加强督促检查，确保各项措施和要求落到 实处，切实保障劳动人事争议处理效能建设的各项目标任务按时完成。","ex":""}]}]
+;
 /* =================================================== */
-
 
 /* ===== 存储（自动保存 + 导出烘焙）===== */
 const KEY = 'statute_note_' + LAW_KEY;
-let store = 
-(function(){
-  var editMode = false;
-
-  // 醒目入口按钮
-  var btnEdit = document.createElement('button');
-  btnEdit.id = 'btnEdit';
-  btnEdit.title = '编辑模式：每条法条上方出现颜色工具条，可选中局部或直接改整条';
-  btnEdit.innerHTML = '\u270E 编辑条文';
-  btnEdit.style.cssText = 'padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);';
-  var tip = document.createElement('span');
-  tip.className = 'edit-tip';
-  tip.textContent = '已开启：每条法条上方有颜色工具条（选中文字改局部，直接点改整条）';
-  tip.style.display = 'none';
-  var btnTest = document.getElementById('btnTest');
-  if(btnTest){ btnTest.parentNode.insertBefore(btnEdit, btnTest); btnEdit.insertAdjacentElement('afterend', tip); }
-  btnEdit.addEventListener('click', function(){
-    editMode = !editMode;
-    document.body.classList.toggle('edit-mode', editMode);
-    btnEdit.classList.toggle('active', editMode);
-    btnEdit.innerHTML = editMode ? '\u2713 退出编辑' : '\u270E 编辑条文';
-    if(editMode){ btnEdit.style.background='#27ae60'; btnEdit.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; tip.style.display='inline-block'; }
-    else { btnEdit.style.background='#e6a23c'; btnEdit.style.boxShadow='0 2px 6px rgba(230,162,60,.4)'; tip.style.display='none'; }
-    try{ showStatus(editMode ? '编辑模式已开启：点法条上方的颜色按钮即可改色 / 高亮' : '已退出编辑'); }catch(e){}
-  });
-
-  // 存储键（复用笔记已有 KEY）
-  var KEY = '';
-  try { document.querySelectorAll('script').forEach(function(s){ var m = s.textContent.match(/const KEY\s*=\s*'([^']+)'/); if(m) KEY = m[1]; }); }catch(e){}
-  if(!KEY) KEY = 'statute_note_edit';
-
-  var FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
-  var BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
-
-  function barHTML(){
-    var h = '<span class="elbl">字体</span>';
-    FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
-    h += '<span class="fsep"></span><span class="elbl">高亮</span>';
-    BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
-    h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
-    h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
-    return h;
-  }
-
-  function makeEditable(){
-    document.querySelectorAll('.article').forEach(function(art){
-      if(art.dataset.editInjected) return;
-      art.dataset.editInjected = '1';
-      var textEl = art.querySelector('.art-text');
-      if(textEl){
-        textEl.classList.add('editable');
-        textEl.setAttribute('contenteditable','true');
-        textEl.setAttribute('data-art', art.id || '');
-      }
-      var bar = document.createElement('div');
-      bar.className = 'art-editbar';
-      bar.setAttribute('data-bar', art.id || '');
-      bar.innerHTML = barHTML();
-      if(textEl && textEl.parentNode){ textEl.parentNode.insertBefore(bar, textEl); }
-    });
-  }
-
-  // 防止点击工具条导致法条失焦、选区丢失
-  document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
-
-  function applyColor(artId, c, hl){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 局部选区
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 整条
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-  function clearColor(artId){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand('removeFormat', false, null);
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand('removeFormat', false, null);
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-
-  document.addEventListener('click', function(e){
-    if(!editMode) return;
-    var bar = e.target.closest('.art-editbar');
-    if(!bar) return;
-    var artId = bar.getAttribute('data-bar') || '';
-    var clearBtn = e.target.closest('[data-clear]');
-    if(clearBtn){ clearColor(artId); return; }
-    var btn = e.target.closest('[data-c]');
-    if(!btn) return;
-    applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
-  });
-
-  function saveArt(id){
-    var el = document.querySelector('.art-text[data-art="'+id+'"]');
-    if(!el) return;
-    try{ var s = localStorage.getItem(KEY); var store = s ? JSON.parse(s) : {}; if(!store.artEdit) store.artEdit = {}; store.artEdit[id] = el.innerHTML; localStorage.setItem(KEY, JSON.stringify(store)); }catch(err){}
-  }
-  function restoreEdits(){
-    try{ var s = localStorage.getItem(KEY); if(!s) return; var store = JSON.parse(s); if(!store.artEdit) return;
-      Object.keys(store.artEdit).forEach(function(id){ var el = document.querySelector('.art-text[data-art="'+id+'"]'); if(el && store.artEdit[id]) el.innerHTML = store.artEdit[id]; });
-    }catch(e){}
-  }
-
-  var _ro = new MutationObserver(function(){
-    var content = document.getElementById('content');
-    if(content && content.children.length > 0){ makeEditable(); restoreEdits(); }
-  });
-  var mainEl = document.getElementById('content');
-  if(mainEl) _ro.observe(mainEl, {childList:true});
-  setTimeout(function(){ makeEditable(); restoreEdits(); }, 500);
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
 })();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        (m.revised ? '<span class="mk">修正时间</span><span class="mv">'+escapeHtml(m.revised)+'</span>' : '') +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+  // 法条原文（可编辑）
+  'barHTML(id) + <div class="art-text editable" contenteditable="true" data-art="' + id + '">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);  restoreArtEdits();
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
 
 
+/* ===== 编辑模式切换（浮动工具条） ===== */
+let editMode = false;
+const btnEdit = document.getElementById('btnEdit');
+btnEdit.addEventListener('click', function(){
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  this.classList.toggle('active', editMode);
+  this.textContent = editMode ? '✓ 退出编辑' : '✎ 编辑条文';
+  if(editMode){ this.style.background='#27ae60'; this.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; }
+  else { this.style.background=''; this.style.boxShadow=''; }
+  showStatus(editMode ? '编辑模式：每条法条上方有颜色工具条，选中改局部或整条改色' : '已退出编辑');
+});
+
+/* 常驻工具条：每条法条上方由 render 注入 .art-editbar，点击即改色 */
+const FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
+const BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
+function barHTML(id){
+  let h = '<span class="elbl">字体</span>';
+  FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
+  h += '<span class="fsep"></span><span class="elbl">高亮</span>';
+  BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
+  h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
+  h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
+  return '<div class="art-editbar" data-bar="'+id+'">' + h + '</div>';
+}
+
+// 防止点击工具条导致法条失焦、选区丢失
+document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
+
+function applyColor(artId, c, hl){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+  } else {
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+    sel.removeAllRanges();
+  }
+  saveArtText(artId, el.innerHTML);
+}
+function clearColor(artId){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand('removeFormat', false, null);
+  } else {
+    const artData = getArtData(artId);
+    el.innerHTML = artData ? escapeHtml(artData.t) : el.textContent;
+  }
+  saveArtText(artId, el.innerHTML);
+}
+
+document.addEventListener('click', function(e){
+  if(!editMode) return;
+  const bar = e.target.closest('.art-editbar');
+  if(!bar) return;
+  const artId = bar.getAttribute('data-bar') || '';
+  const clearBtn = e.target.closest('[data-clear]');
+  if(clearBtn){ clearColor(artId); showStatus('已清除格式'); return; }
+  const btn = e.target.closest('[data-c]');
+  if(!btn) return;
+  applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
+  showStatus(btn.dataset.hl === '1' ? '已高亮标注' : '已改字体色');
+});
+
+/* 保存法条编辑后的HTML */
+function saveArtText(id, html){
+  if(!store.artEdit) store.artEdit = {};
+  store.artEdit[id] = html;
+  save();
+}
+
+/* 恢复已保存的法条编辑 */
+function restoreArtEdits(){
+  if(!store.artEdit) return;
+  Object.keys(store.artEdit).forEach(function(id){
+    const el = document.querySelector('.art-text[data-art="'+id+'"]');
+    if(el && store.artEdit[id]){
+      el.innerHTML = store.artEdit[id];
+    }
+  });
+}
+
+/* 获取法条原始数据（用于重置） */
+function getArtData(id){
+  for(let ci=0;ci<DATA.length;ci++){
+    for(let ai=0;ai<DATA[ci].items.length;ai++){
+      if('a'+ci+'_'+ai === id) return DATA[ci].items[ai];
+    }
+  }
+  return null;
+}
+
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
 </body>
 </html>
