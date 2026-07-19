@@ -194,20 +194,18 @@ footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--mute
   body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
 }
 
-/* ===== 法条编辑模式 ===== */
-.art-edit-bar{display:none; align-items:center; gap:6px; flex-wrap:wrap;
-  padding:5px 8px; margin:4px 0 6px; background:#f8f9fb; border:1px solid #e1e5ea; border-radius:7px; font-size:12px;}
-body.edit-mode .art-edit-bar{display:flex;}
-.art-edit-bar .lbl{font-weight:600; color:#7a8290; font-size:11px; margin-right:2px;}
-.art-edit-bar .color-btn{width:22px;height:22px;border-radius:4px;border:1.5px solid #ccc;cursor:pointer;padding:0;flex:none;}
-.art-edit-bar .color-btn:hover{transform:scale(1.15); border-color:#999;}
-.art-edit-bar .color-btn.active{box-shadow:0 0 0 2px #1f4e79; border-color:#1f4e79;}
-.art-edit-bar .sep{width:1px;height:18px;background:#e1e5ea; flex:none;}
-.art-edit-bar .clear-btn{padding:2px 8px; border:1px solid #ddd; border-radius:4px; background:#fff; cursor:pointer; font-size:11px; color:#7a8290;}
-.art-edit-bar .clear-btn:hover{background:#f0f0f0;}
+/* ===== 法条编辑模式（浮动工具条） ===== */
+.art-float-bar{position:absolute; z-index:9999; display:none; align-items:center; gap:5px; padding:6px 9px; background:#2b2f36; border-radius:9px; box-shadow:0 6px 20px rgba(0,0,0,.28); font-size:12px;}
+.art-float-bar.show{display:flex;}
+.art-float-bar .flbl{color:#cfd4da; font-size:11px; margin-right:1px;}
+.art-float-bar .fcolor{width:20px;height:20px;border-radius:5px;border:1.5px solid rgba(255,255,255,.35);cursor:pointer;padding:0;flex:none;}
+.art-float-bar .fcolor:hover{transform:scale(1.18); border-color:#fff;}
+.art-float-bar .fsep{width:1px;height:16px;background:#555; flex:none;}
+.art-float-bar .fclear{padding:3px 9px; border:1px solid #777; border-radius:5px; background:#3a3f47; color:#e6e9ed; cursor:pointer; font-size:11px; white-space:nowrap;}
+.art-float-bar .fclear:hover{background:#4a505a;}
 .art-text.editable{outline:none; border-radius:5px; padding:3px 4px; transition:box-shadow .15s;}
-.art-text.editable:hover{box-shadow:0 0 0 2px rgba(31,78,121,.08);}
-.art-text.editable:focus{box-shadow:0 0 0 3px rgba(31,78,121,.14); background:#fefefe;}
+.art-text.editable:hover{box-shadow:0 0 0 2px rgba(31,78,121,.10);}
+.art-text.editable:focus{box-shadow:0 0 0 3px rgba(31,78,121,.16); background:#fefefe;}
 body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modify:read-only; /* read-only when not in edit mode */}
 
 </style>
@@ -606,152 +604,122 @@ DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci
 showStatus('已就绪');
 </script>
 (function(){
-  /* ---- 编辑模式切换 ---- */
+  /* ---- 编辑模式切换（浮动工具条） ---- */
   var editMode = false;
+
+  // 醒目入口按钮
   var btnEdit = document.createElement('button');
   btnEdit.id = 'btnEdit';
-  btnEdit.title = '编辑模式：可修改每条法条的字体颜色、高亮标注，选中文字后用工具栏选色';
-  btnEdit.textContent = '编辑条文';
-  btnEdit.style.cssText = 'padding:6px 12px; border:1px solid rgba(255,255,255,.4); border-radius:6px; background:rgba(255,255,255,.12); color:#fff; font-size:13px; cursor:pointer; white-space:nowrap;';
+  btnEdit.title = '编辑模式：选中任意法条文字即可改字体色 / 高亮标注，自动存浏览器';
+  btnEdit.innerHTML = '\u270E 编辑条文';
+  btnEdit.style.cssText = 'padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);';
+  var tip = document.createElement('span');
+  tip.className = 'edit-tip';
+  tip.textContent = '已开启：选中法条文字 \u2192 浮动工具条选色';
+  tip.style.display = 'none';
   var btnTest = document.getElementById('btnTest');
-  if(btnTest) btnTest.parentNode.insertBefore(btnEdit, btnEdit);
+  if(btnTest){ btnTest.parentNode.insertBefore(btnEdit, btnTest); btnEdit.insertAdjacentElement('afterend', tip); }
   btnEdit.addEventListener('click', function(){
     editMode = !editMode;
     document.body.classList.toggle('edit-mode', editMode);
     btnEdit.classList.toggle('active', editMode);
-    btnEdit.textContent = editMode ? '退出编辑' : '编辑条文';
-    if(editMode) btnEdit.style.background = '#e6a23c'; else btnEdit.style.background = 'rgba(255,255,255,.12)';
-    try{ showStatus(editMode ? '编辑模式：选中法条文字后点工具栏改色/高亮' : '已退出编辑'); }catch(e){}
+    btnEdit.innerHTML = editMode ? '\u2713 退出编辑' : '\u270E 编辑条文';
+    if(editMode){ btnEdit.style.background='#27ae60'; btnEdit.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; tip.style.display='inline-block'; }
+    else { btnEdit.style.background='#e6a23c'; btnEdit.style.boxShadow='0 2px 6px rgba(230,162,60,.4)'; tip.style.display='none'; hideFloatBar(); }
+    try{ showStatus(editMode ? '编辑模式：选中法条文字即可改色 / 高亮' : '已退出编辑'); }catch(e){}
   });
 
-  /* ---- 存储键（复用笔记已有 store） ---- */
+  // 存储键（复用笔记已有 store）
   var KEY = '';
-  try { var scripts = document.querySelectorAll('script'); scripts.forEach(function(s){ var m = s.textContent.match(/const KEYs*=s*'([^']+)'/); if(m) KEY = m[1]; }); } catch(e){}
+  try { document.querySelectorAll('script').forEach(function(s){ var m = s.textContent.match(/const KEY\s*=\s*'([^']+)'/); if(m) KEY = m[1]; }); }catch(e){}
   if(!KEY) KEY = 'statute_note_edit';
 
-  /* ---- 给每个法条加工具栏，让 art-text 可编辑 ---- */
-  function injectEditBars(){
-    var arts = document.querySelectorAll('.article');
-    arts.forEach(function(art){
-      var id = art.id;
-      if(!id || art.dataset.editInjected) return;
+  // 让法条可编辑
+  function makeEditable(){
+    document.querySelectorAll('.article').forEach(function(art){
+      if(art.dataset.editInjected) return;
       art.dataset.editInjected = '1';
-
-      // 找到 art-text 元素
       var textEl = art.querySelector('.art-text');
-      if(!textEl) return;
-
-      // 创建工具栏
-      var bar = document.createElement('div');
-      bar.className = 'art-edit-bar';
-      bar.id = 'eb_' + id;
-      bar.innerHTML =
-        '<span class="lbl">字体</span>' +
-        '<button class="color-btn c-font" style="background:#1f2329" data-c="#1f2329" title="黑色"></button>' +
-        '<button class="color-btn c-font" style="background:#c0392b" data-c="#c0392b" title="红色"></button>' +
-        '<button class="color-btn c-font" style="background:#2980b9" data-c="#2980b9" title="蓝色"></button>' +
-        '<button class="color-btn c-font" style="background:#27ae60" data-c="#27ae60" title="绿色"></button>' +
-        '<button class="color-btn c-font" style="background:#8e44ad" data-c="#8e44ad" title="紫色"></button>' +
-        '<span class="sep"></span>' +
-        '<span class="lbl">高亮</span>' +
-        '<button class="color-btn c-bg" style="background:#fff3cd" data-c="#fff3cd" title="黄标"></button>' +
-        '<button class="color-btn c-bg" style="background:#d4edda" data-c="#d4edda" title="绿标"></button>' +
-        '<button class="color-btn c-bg" style="background:#cce5ff" data-c="#cce5ff" title="蓝标"></button>' +
-        '<button class="color-btn c-bg" style="background:#f8d7da" data-c="#f8d7da" title="红标"></button>' +
-        '<button class="color-btn c-bg" style="background:#e2d5f1" data-c="#e2d5f1" title="紫标"></button>' +
-        '<span class="sep"></span>' +
-        '<button class="clear-btn" data-target="' + id + '" title="清除本条所有颜色格式">清除</button>';
-
-      textEl.parentNode.insertBefore(bar, textEl);
-
-      // 让 art-text 可编辑
-      textEl.classList.add('editable');
-      textEl.setAttribute('contenteditable', 'true');
-      textEl.setAttribute('data-art', id);
+      if(textEl){ textEl.classList.add('editable'); textEl.setAttribute('contenteditable','true'); textEl.setAttribute('data-art', art.id); }
     });
   }
 
-  /* ---- 颜色/高亮事件委托 ---- */
-  document.addEventListener('click', function(e){
-    var btn = e.target.closest('.art-edit-bar .color-btn');
-    if(btn){
-      e.preventDefault();
-      var c = btn.dataset.c;
-      var bar = btn.closest('.art-edit-bar');
-      var textEl = bar ? bar.nextElementSibling : null;
-      if(!textEl || !textEl.classList.contains('editable')) return;
-      textEl.focus();
-      if(btn.classList.contains('c-font')){
-        document.execCommand('foreColor', false, c);
-      } else if(btn.classList.contains('c-bg')){
-        document.execCommand('hiliteColor', false, c);
-      }
-      bar.querySelectorAll('.color-btn').forEach(function(b){ b.classList.remove('active'); });
-      btn.classList.add('active');
-      setTimeout(function(){ btn.classList.remove('active'); }, 400);
-      saveArt(textEl.dataset.art);
-      return;
-    }
+  // 浮动工具条
+  var floatBar = document.createElement('div');
+  floatBar.className = 'art-float-bar';
+  var FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
+  var BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
+  var bh = '';
+  bh += '<span class="flbl">\u5B57</span>';
+  FONT.forEach(function(c){ bh += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="\u5B57\u4F53\u8272"></button>'; });
+  bh += '<span class="fsep"></span><span class="flbl">\u6807</span>';
+  BG.forEach(function(c){ bh += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="\u9AD8\u4EAE"></button>'; });
+  bh += '<span class="fsep"></span><button class="fclear" data-clear="1">\u6E05\u9664</button>';
+  floatBar.innerHTML = bh;
+  document.body.appendChild(floatBar);
 
-    /* 清除格式按钮 */
-    if(e.target.classList.contains('clear-btn')){
-      var tid = e.target.dataset.target;
-      var ael = document.getElementById(tid);
-      if(ael){
-        var tel = ael.querySelector('.art-text.editable') || ael.querySelector('.art-text');
-        if(tel){
-          tel.focus();
-          document.execCommand('selectAll',false,null);
-          document.execCommand('removeFormat',false,null);
-          document.execCommand('unlink',false,null);
-          saveArt(tid);
-          try{showStatus && showStatus('已清除格式');}catch(e){}
-        }
+  function showFloatBar(){
+    var sel = window.getSelection();
+    if(!sel || sel.rangeCount===0 || sel.isCollapsed){ hideFloatBar(); return; }
+    var range = sel.getRangeAt(0);
+    var node = range.startContainer;
+    var textEl = (node.nodeType===3 ? node.parentElement : node).closest('.art-text.editable');
+    if(!textEl){ hideFloatBar(); return; }
+    var rect = range.getBoundingClientRect();
+    floatBar.classList.add('show');
+    var bw = floatBar.offsetWidth, bh2 = floatBar.offsetHeight;
+    var left = rect.left + window.scrollX;
+    var top = rect.top + window.scrollY - bh2 - 8;
+    if(top < window.scrollY + 4) top = rect.bottom + window.scrollY + 8;
+    floatBar.style.left = Math.max(4, left) + 'px';
+    floatBar.style.top = top + 'px';
+  }
+  function hideFloatBar(){ floatBar.classList.remove('show'); }
+
+  document.addEventListener('mouseup', function(){ if(editMode) setTimeout(showFloatBar, 10); });
+  document.addEventListener('keyup', function(e){ if(editMode && (e.shiftKey || e.key==='Shift')) setTimeout(showFloatBar, 10); });
+  window.addEventListener('scroll', hideFloatBar, true);
+
+  floatBar.addEventListener('mousedown', function(e){ e.preventDefault(); }); // 防失焦丢选区
+  floatBar.addEventListener('click', function(e){
+    if(e.target.closest('[data-clear]')){
+      var sel = window.getSelection();
+      if(sel && sel.anchorNode){
+        var t = (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text.editable');
+        if(t){ t.focus(); document.execCommand('selectAll', false, null); document.execCommand('removeFormat', false, null); document.execCommand('unlink', false, null); saveArt(t.dataset.art); try{ showStatus && showStatus('\u5DF2\u6E05\u9664\u683C\u5F0F'); }catch(_){} }
       }
-      return;
+      hideFloatBar(); return;
     }
+    var btn = e.target.closest('[data-c]');
+    if(!btn) return;
+    var c = btn.dataset.c, hl = btn.dataset.hl === '1';
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+    var sel = window.getSelection();
+    if(sel && sel.anchorNode){
+      var t = (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text.editable');
+      if(t) saveArt(t.dataset.art);
+    }
+    hideFloatBar();
   });
 
-  /* ---- 保存编辑内容 ---- */
   function saveArt(id){
     var el = document.querySelector('.art-text[data-art="'+id+'"]');
     if(!el) return;
-    try{
-      var s = localStorage.getItem(KEY);
-      var store = s ? JSON.parse(s) : {};
-      if(!store.artEdit) store.artEdit = {};
-      store.artEdit[id] = el.innerHTML;
-      localStorage.setItem(KEY, JSON.stringify(store));
-    }catch(err){}
+    try{ var s = localStorage.getItem(KEY); var store = s ? JSON.parse(s) : {}; if(!store.artEdit) store.artEdit = {}; store.artEdit[id] = el.innerHTML; localStorage.setItem(KEY, JSON.stringify(store)); }catch(err){}
   }
-
-  /* ---- 恢复已保存的编辑 ---- */
   function restoreEdits(){
-    try{
-      var s = localStorage.getItem(KEY);
-      if(!s) return;
-      var store = JSON.parse(s);
-      if(!store.artEdit) return;
-      Object.keys(store.artEdit).forEach(function(id){
-        var el = document.querySelector('.art-text[data-art="'+id+'"]');
-        if(el && store.artEdit[id]) el.innerHTML = store.artEdit[id];
-      });
+    try{ var s = localStorage.getItem(KEY); if(!s) return; var store = JSON.parse(s); if(!store.artEdit) return;
+      Object.keys(store.artEdit).forEach(function(id){ var el = document.querySelector('.art-text[data-art="'+id+'"]'); if(el && store.artEdit[id]) el.innerHTML = store.artEdit[id]; });
     }catch(e){}
   }
 
-  // 在渲染完成后注入工具栏和恢复编辑
-  var _renderObserver = new MutationObserver(function(mutations){
+  var _ro = new MutationObserver(function(){
     var content = document.getElementById('content');
-    if(content && content.children.length > 0){
-      injectEditBars();
-      restoreEdits();
-    }
+    if(content && content.children.length > 0){ makeEditable(); restoreEdits(); }
   });
   var mainEl = document.getElementById('content');
-  if(mainEl) _renderObserver.observe(mainEl, {childList:true});
-
-  // 也尝试立即执行（如果DOM已经就绪）
-  setTimeout(function(){ injectEditBars(); restoreEdits(); }, 500);
+  if(mainEl) _ro.observe(mainEl, {childList:true});
+  setTimeout(function(){ makeEditable(); restoreEdits(); }, 500);
 })();
 
 
