@@ -194,7 +194,6 @@ footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--mute
   body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
 }
 
-/* ===== 法条编辑模式（浮动工具条） ===== */
 /* ===== 法条编辑模式（每条常驻工具条） ===== */
 .art-text.editable{outline:none; border-radius:5px; transition:box-shadow .15s;}
 body.edit-mode .art-text.editable{cursor:text;}
@@ -209,7 +208,6 @@ body.edit-mode .article .art-editbar{display:flex;}
 .art-editbar .fclear:hover{background:#eef1f4;}
 .art-editbar .ehint{font-size:11px;color:#9aa1a9;margin-left:auto;}
 body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modify:read-only;}
-
 </style>
 </head>
 <body>
@@ -219,6 +217,7 @@ body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modi
     <div class="toolbar">
       <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
       <span class="status" id="status">已就绪</span>
+      <button id="btnEdit" title="编辑模式：选中任意法条文字即可改字体色 / 高亮标注" style="padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);">✎ 编辑条文</button>
       <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
       <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
       <button id="btnPrint" title="打印 / 存为PDF">打印</button>
@@ -259,144 +258,383 @@ const CASES = {};
 const REL = {};
 
 /* 法条数据 */
-const DATA = [{"ch":"全文","items":[{"no":"","t":"中华人民共和国劳动和社会保障部令第22号\n《集体合同规定》已于2003年12月30日经劳动和社会保障部第7次部务会议通过，现予 公布，自2004年5月1日起施行。\n部长 郑斯林\n2004年1月20日","ex":""}]},{"ch":"第一章 总 则","items":[{"no":"","t":"第 一 条 为规范集体协商和签订集体合同行为，依法维护劳动者和用人单位的合法权 益，根据《中华人民共和国劳动法》和《中华人民共和国工会法》，制定本规定。","ex":""},{"no":"第二条","t":"第二条 中华人民共和国境内的企业和实行企业化管理的事业单位（以下统称用人单 位）与本单位职工之间进行集体协商，签订集体合同，适用本规定。","ex":""},{"no":"第三条","t":"第三条 本规定所称集体合同，是指用人单位与本单位职工根据法律、法规、规章的 规定，就劳动报酬、工作时间、休息休假、劳动安全卫生、职业培训、保险福利等事项，通过集体协商签订的书面协议；所称专项集体合同，是指用人单位与本单位职工根据法律、 法规、规章的规定，就集体协商的某项内容签订的专项书面协议。","ex":""},{"no":"第四条","t":"第四条 用人单位与本单位职工签订集体合同或专项集体合同，以及确定相关事宜，应当采取集体协商的方式。集体协商主要采取协商会议的形式。","ex":""},{"no":"第五条","t":"第五条 进行集体协商，签订集体合同或专项集体合同，应当遵循下列原则：\n（一）遵守法律、法规、规章及国家有关规定；\n（二）相互尊重，平等协商；\n（三）诚实守信，公平合作；\n（四）兼顾双方合法权益；\n（五）不得采取过激行为。","ex":""},{"no":"第六条","t":"第六条 符合本规定的集体合同或专项集体合同，对用人单位和本单位的全体职工具 有法律约束力。\n用人单位与职工个人签订的劳动合同约定的劳动条件和劳动报酬等标准，不得低于集 体合同或专项集体合同的规定。","ex":""},{"no":"第七条","t":"第七条 县级以上劳动保障行政部门对本行政区域内用人单位与本单位职工开展集体 协商、签订、履行集体合同的情况进行监督，并负责审查集体合同或专项集体合同。","ex":""}]},{"ch":"第二章  集体协商内容","items":[{"no":"第八条","t":"第八条 集体协商双方可以就下列多项或某项内容进行集体协商，签订集体合同或专项集体合同：\n（一）劳动报酬；\n（二）工作时间；\n（三）休息休假；\n（四）劳动安全与卫生；\n（五）补充保险和福利；\n（六）女职工和未成年工特殊保护；\n（七）职业技能培训；\n（八）劳动合同管理；\n（九）奖惩；\n（十）裁员；\n（十一）集体合同期限；\n（十二）变更、解除集体合同的程序；\n（十三）履行集体合同发生争议时的协商处理办法；\n（十四）违反集体合同的责任；\n（十五）双方认为应当协商的其他内容。","ex":""},{"no":"第九条","t":"第九条  劳动报酬主要包括：\n（一）用人单位工资水平、工资分配制度、工资标准和工资分配形式；\n（二）工资支付办法；\n（三）加班、加点工资及津贴、补贴标准和奖金分配办法；\n（四）工资调整办法；\n（五）试用期及病、事假等期间的工资待遇；\n（六）特殊情况下职工工资（生活费）支付办法；\n（七）其他劳动报酬分配办法。","ex":""},{"no":"第十条","t":"第十条 工作时间主要包括：\n（一）工时制度；\n（二）加班加点办法；\n（三）特殊工种的工作时间；\n（四）劳动定额标准。","ex":""},{"no":"第十一条","t":"第十一条  休息休假主要包括：\n（一）日休息时间、周休息日安排、年休假办法；\n（二）不能实行标准工时职工的休息休假；\n（三）其他假期。","ex":""},{"no":"第十二条","t":"第十二条 劳动安全卫生主要包括：\n（一）劳动安全卫生责任制；\n（二）劳动条件和安全技术措施；\n（三）安全操作规程；\n（四）劳保用品发放标准；\n（五）定期健康检查和职业健康体检。","ex":""},{"no":"第十三条","t":"第十三条 补充保险和福利主要包括：\n（一）补充保险的种类、范围；\n（二）基本福利制度和福利设施；\n（三）医疗期延长及其待遇；\n（四）职工亲属福利制度。","ex":""},{"no":"第十四条","t":"第十四条 女职工和未成年工的特殊保护主要包括：\n（一）女职工和未成年工禁忌从事的劳动；\n（二）女职工的经期、孕期、产期和哺乳期的劳动保护；\n（三）女职工、未成年工定期健康检查；\n（四）未成年工的使用和登记制度。","ex":""},{"no":"第十五条","t":"第十五条 职业技能培训主要包括：\n（一）职业技能培训项目规划及年度计划；\n（二）职业技能培训费用的提取和使用；\n（三）保障和改善职业技能培训的措施。","ex":""},{"no":"第十六条","t":"第十六条 劳动合同管理主要包括：\n（一）劳动合同签订时间；\n（二）确定劳动合同期限的条件；\n（三）劳动合同变更、解除、续订的一般原则及无固定期限劳动合同的终止条件；\n（四）试用期的条件和期限。","ex":""},{"no":"第十七条","t":"第十七条 奖惩主要包括：\n（一）劳动纪律；\n（二）考核奖惩制度；\n（三）奖惩程序。","ex":""},{"no":"第十八条","t":"第十八条 裁员主要包括：\n（一）裁员的方案；\n（二）裁员的程序；\n（三）裁员的实施办法和补偿标准。","ex":""}]},{"ch":"第三章  集体协商代表","items":[{"no":"第十九条","t":"第十九条  本规定所称集体协商代表（以下统称协商代表），是指按照法定程序产生 并有权代表本方利益进行集体协商的人员。\n集体协商双方的代表人数应当对等，每方至少3人，并各确定1名首席代表。","ex":""},{"no":"第二十条","t":"第二十条 职工一方的协商代表由本单位工会选派。未建立工会的，由本单位职工民 主推荐，并经本单位半数以上职工同意。\n职工一方的首席代表由本单位工会主席担任。工会主席可以书面委托其他协商代表代 理首席代表。工会主席空缺的，首席代表由工会主要负责人担任。未建立工会的，职工一方的首席代表从协商代表中民主推举产生。","ex":""},{"no":"第二十一条","t":"第二十一条 用人单位一方的协商代表，由用人单位法定代表人指派，首席代表由单 位法定代表人担任或由其书面委托的其他管理人员担任。","ex":""},{"no":"第二十二条","t":"第二十二条  协商代表履行职责的期限由被代表方确定。","ex":""},{"no":"第二十三条","t":"第二十三条 集体协商双方首席代表可以书面委托本单位以外的专业人员作为本方协 商代表。委托人数不得超过本方代表的三分之一。\n首席代表不得由非本单位人员代理。","ex":""},{"no":"第二十四条","t":"第二十四条 用人单位协商代表与职工协商代表不得相互兼任。","ex":""},{"no":"第二十五条","t":"第二十五条  协商代表应履行下列职责：\n（一）参加集体协商；\n（二）接受本方人员质询，及时向本方人员公布协商情况并征求意见；\n（三）提供与集体协商有关的情况和资料；\n（四）代表本方参加集体协商争议的处理；\n（五）监督集体合同或专项集体合同的履行；\n（六）法律、法规和规章规定的其他职责。","ex":""},{"no":"第二十六条","t":"第二十六条 协商代表应当维护本单位正常的生产、工作秩序，不得采取威胁、收买、 欺骗等行为。\n协商代表应当保守在集体协商过程中知悉的用人单位的商业秘密。","ex":""},{"no":"第二十七条","t":"第二十七条 企业内部的协商代表参加集体协商视为提供了正常劳动。","ex":""},{"no":"第二十八条","t":"第二十八条 职工一方协商代表在其履行协商代表职责期间劳动合同期满的，劳动合 同期限自动延长至完成履行协商代表职责之时，除出现下列情形之一的，用人单位不得与 其解除劳动合同：\n（一）严重违反劳动纪律或用人单位依法制定的规章制度的；\n（二）严重失职、营私舞弊，对用人单位利益造成重大损害的；\n（三）被依法追究刑事责任的。\n职工一方协商代表履行协商代表职责期间，用人单位无正当理由不得调整其工作岗位。","ex":""},{"no":"第二十九条","t":"第二十九条 职工一方协商代表就本规定第二十七条、第二十八条的规定与用人单位 发生争议的，可以向当地劳动争议仲裁委员会申请仲裁。","ex":""},{"no":"第三十条","t":"第三十条 工会可以更换职工一方协商代表；未建立工会的，经本单位半数以上职工同意可以更换职工一方协商代表。\n用人单位法定代表人可以更换用人单位一方协商代表。\n第三十 一 条 协商代表因更换、辞任或遇有不可抗力等情形造成空缺的，应在空缺之起15日内按照本规定产生新的代表。","ex":""}]},{"ch":"第四章 集体协商程序","items":[{"no":"第三十二条","t":"第三十二条 集体协商任何一方均可就签订集体合同或专项集体合同以及相关事宜， 以书面形式向对方提出进行集体协商的要求。\n一方提出进行集体协商要求的，另一方应当在收到集体协商要求之日起20日内以书面形式给以回应，无正当理由不得拒绝进行集体协商。","ex":""},{"no":"第三十三条","t":"第三十三条 协商代表在协商前应进行下列准备工作：\n（一）熟悉与集体协商内容有关的法律、法规、规章和制度；\n（二）了解与集体协商内容有关的情况和资料，收集用人单位和职工对协商意向所持 的意见；\n（三）拟定集体协商议题，集体协商议题可由提出协商一方起草，也可由双方指派代 表共同起草；\n（四）确定集体协商的时间、地点等事项；\n（五）共同确定一名非协商代表担任集体协商记录员。记录员应保持中立、公正，并 为集体协商双方保密。","ex":""},{"no":"第三十四条","t":"第三十四条 集体协商会议由双方首席代表轮流主持，并按下列程序进行：\n（一）宣布议程和会议纪律；\n（二）一方首席代表提出协商的具体内容和要求，另一方首席代表就对方的要求作出回应；\n（三）协商双方就商谈事项发表各自意见，开展充分讨论；\n（四）双方首席代表归纳意见。达成一致的，应当形成集体合同草案或专项集体合同 草案，由双方首席代表签字。","ex":""},{"no":"第三十五条","t":"第三十五条 集体协商未达成一致意见或出现事先未预料的问题时，经双方协商，可以中止协商。中止期限及下次协商时间、地点、内容由双方商定。","ex":""}]},{"ch":"第五章  集体合同的订立、变更、解除和终止","items":[{"no":"第三十六条","t":"第三十六条 经双方协商代表协商一致的集体合同草案或专项集体合同草案应当提交 职工代表大会或者全体职工讨论。\n职工代表大会或者全体职工讨论集体合同草案或专项集体合同草案，应当有三分之二 以上职工代表或者职工出席，且须经全体职工代表半数以上或者全体职工半数以上同意， 集体合同草案或专项集体合同草案方获通过。","ex":""},{"no":"第三十七条","t":"第三十七条 集体合同草案或专项集体合同草案经职工代表大会或者职工大会通过后， 由集体协商双方首席代表签字。","ex":""},{"no":"第三十八条","t":"第三十八条 集体合同或专项集体合同期限一般为1至3年，期满或双方约定的终止条 件出现，即行终止。\n集体合同或专项集体合同期满前3个月内，任何一方均可向对方提出重新签订或续订的 要求。","ex":""},{"no":"第三十九条","t":"第三十九条 双方协商代表协商一致，可以变更或解除集体合同或专项集体合同。","ex":""},{"no":"第四十条","t":"第四十条 有下列情形之一的，可以变更或解除集体合同或专项集体合同：\n（一）用人单位因被兼并、解散、破产等原因，致使集体合同或专项集体合同无法履 行的；\n（二）因不可抗力等原因致使集体合同或专项集体合同无法履行或部分无法履行的；\n（三）集体合同或专项集体合同约定的变更或解除条件出现的；\n（四）法律、法规、规章规定的其他情形。\n第四十 一条 变更或解除集体合同或专项集体合同适用本规定的集体协商程序。","ex":""}]},{"ch":"第六章 集体合同审查","items":[{"no":"第四十二条","t":"第四十二条 集体合同或专项集体合同签订或变更后，应当自双方首席代表签字之日 起10日内，由用人单位一方将文本一式三份报送劳动保障行政部门审查。\n劳动保障行政部门对报送的集体合同或专项集体合同应当办理登记手续。","ex":""},{"no":"第四十三条","t":"第四十三条 集体合同或专项集体合同审查实行属地管辖，具体管辖范围由省级劳动 保障行政部门规定。\n中央管辖的企业以及跨省、自治区、直辖市的用人单位的集体合同应当报送劳动保障 部或劳动保障部指定的省级劳动保障行政部门。","ex":""},{"no":"第四十四条","t":"第四十四条 劳动保障行政部门应当对报送的集体合同或专项集体合同的下列事项进 行合法性审查：\n（一）集体协商双方的主体资格是否符合法律、法规和规章规定；\n（二）集体协商程序是否违反法律、法规、规章规定；\n（三）集体合同或专项集体合同内容是否与国家规定相抵触。","ex":""},{"no":"第四十五条","t":"第四十五条 劳动保障行政部门对集体合同或专项集体合同有异议的，应当自收到文 本之日起15日内将《审查意见书》送达双方协商代表。《审查意见书》应当载明以下内容：\n（一）集体合同或专项集体合同当事人双方的名称、地址；\n（二）劳动保障行政部门收到集体合同或专项集体合同的时间；\n（三）审查意见；\n（四）作出审查意见的时间。\n《审查意见书》应当加盖劳动保障行政部门印章。","ex":""},{"no":"第四十六条","t":"第四十六条 用人单位与本单位职工就劳动保障行政部门提出异议的事项经集体协商 重新签订集体合同或专项集体合同的，用人单位一方应当根据本规定第四十二条的规定将 文本报送劳动保障行政部门审查。","ex":""},{"no":"第四十七条","t":"第四十七条 劳动保障行政部门自收到到文本之日起15日内未提出异议的，集体合同 或专项集体合同即行生效。","ex":""},{"no":"第四十八条","t":"第四十八条 生效的集体合同或专项集体合同，应当自其生效之日起由协商代表及时 以适当的形式向本方全体人员公布。","ex":""}]},{"ch":"第七章 集体协商争议的协调处理","items":[{"no":"第四十九条","t":"第四十九条 集体协商过程中发生争议，双方当事人不能协商解决的，当事人一方或 双方可以书面向劳动保障行政部门提出协调处理申请；未提出申请的，劳动保障行政部门 认为必要时也可以进行协调处理。","ex":""},{"no":"第五十条","t":"第五十条 劳动保障行政部门应当组织同级工会和企业组织等三方面的人员，共同协 调处理集体协商争议。\n第五十 一条 集体协商争议处理实行属地管辖，具体管辖范围由省级劳动保障行政部 门规定。\n中央管辖的企业以及跨省、自治区、直辖市用人单位因集体协商发生的争议，由劳动 保障部指定的省级劳动保障行政部门组织同级工会和企业组织等三方面的人员协调处理， 必要时，劳动保障部也可以组织有关方面协调处理。","ex":""},{"no":"第五十二条","t":"第五十二条 协调处理集体协商争议，应当自受理协调处理申请之日起30日内结束协 调处理工作。期满未结束的，可以适当延长协调期限，但延长期限不得超过15日。","ex":""},{"no":"第五十三条","t":"第五十三条 协调处理集体协商争议应当按照以下程序进行：\n（一）受理协调处理申请；\n（二）调查了解争议的情况；\n（三）研究制定协调处理争议的方案；\n（四）对争议进行协调处理；\n（五）制作《协调处理协议书》。","ex":""},{"no":"第五十四条","t":"第五十四条 《协调处理协议书》应当载明协调处理申请、争议的事实和协调结果，双方当事人就某些协商事项不能达成一致的，应将继续协商的有关事项予以载明。《协调处理协议书》由集体协商争议协调处理人员和争议双方首席代表签字盖章后生效。争议双方均应遵守生效后的《协调处理协议书》。","ex":""}]},{"ch":"第八章  附  则","items":[{"no":"第五十五条","t":"第五十五条 因履行集体合同发生的争议，当事人协商解决不成的，可以依法向劳动争议仲裁委员会申请仲裁。","ex":""},{"no":"第五十六条","t":"第五十六条 用人单位无正当理由拒绝工会或职工代表提出的集体协商要求的，按照《工会法》及有关法律、法规的规定处理。","ex":""},{"no":"第五十七条","t":"第五十七条 本规定于2004年5月1日起实施。原劳动部1994年12月5日颁布的《集体合同规定》同时废止。","ex":""}]}];
+const DATA = [{"ch":"全文","items":[{"no":"","t":"中华人民共和国劳动和社会保障部令第22号\n《集体合同规定》已于2003年12月30日经劳动和社会保障部第7次部务会议通过，现予 公布，自2004年5月1日起施行。\n部长 郑斯林\n2004年1月20日","ex":""}]},{"ch":"第一章 总 则","items":[{"no":"","t":"第 一 条 为规范集体协商和签订集体合同行为，依法维护劳动者和用人单位的合法权 益，根据《中华人民共和国劳动法》和《中华人民共和国工会法》，制定本规定。","ex":""},{"no":"第二条","t":"第二条 中华人民共和国境内的企业和实行企业化管理的事业单位（以下统称用人单 位）与本单位职工之间进行集体协商，签订集体合同，适用本规定。","ex":""},{"no":"第三条","t":"第三条 本规定所称集体合同，是指用人单位与本单位职工根据法律、法规、规章的 规定，就劳动报酬、工作时间、休息休假、劳动安全卫生、职业培训、保险福利等事项，通过集体协商签订的书面协议；所称专项集体合同，是指用人单位与本单位职工根据法律、 法规、规章的规定，就集体协商的某项内容签订的专项书面协议。","ex":""},{"no":"第四条","t":"第四条 用人单位与本单位职工签订集体合同或专项集体合同，以及确定相关事宜，应当采取集体协商的方式。集体协商主要采取协商会议的形式。","ex":""},{"no":"第五条","t":"第五条 进行集体协商，签订集体合同或专项集体合同，应当遵循下列原则：\n（一）遵守法律、法规、规章及国家有关规定；\n（二）相互尊重，平等协商；\n（三）诚实守信，公平合作；\n（四）兼顾双方合法权益；\n（五）不得采取过激行为。","ex":""},{"no":"第六条","t":"第六条 符合本规定的集体合同或专项集体合同，对用人单位和本单位的全体职工具 有法律约束力。\n用人单位与职工个人签订的劳动合同约定的劳动条件和劳动报酬等标准，不得低于集 体合同或专项集体合同的规定。","ex":""},{"no":"第七条","t":"第七条 县级以上劳动保障行政部门对本行政区域内用人单位与本单位职工开展集体 协商、签订、履行集体合同的情况进行监督，并负责审查集体合同或专项集体合同。","ex":""}]},{"ch":"第二章  集体协商内容","items":[{"no":"第八条","t":"第八条 集体协商双方可以就下列多项或某项内容进行集体协商，签订集体合同或专项集体合同：\n（一）劳动报酬；\n（二）工作时间；\n（三）休息休假；\n（四）劳动安全与卫生；\n（五）补充保险和福利；\n（六）女职工和未成年工特殊保护；\n（七）职业技能培训；\n（八）劳动合同管理；\n（九）奖惩；\n（十）裁员；\n（十一）集体合同期限；\n（十二）变更、解除集体合同的程序；\n（十三）履行集体合同发生争议时的协商处理办法；\n（十四）违反集体合同的责任；\n（十五）双方认为应当协商的其他内容。","ex":""},{"no":"第九条","t":"第九条  劳动报酬主要包括：\n（一）用人单位工资水平、工资分配制度、工资标准和工资分配形式；\n（二）工资支付办法；\n（三）加班、加点工资及津贴、补贴标准和奖金分配办法；\n（四）工资调整办法；\n（五）试用期及病、事假等期间的工资待遇；\n（六）特殊情况下职工工资（生活费）支付办法；\n（七）其他劳动报酬分配办法。","ex":""},{"no":"第十条","t":"第十条 工作时间主要包括：\n（一）工时制度；\n（二）加班加点办法；\n（三）特殊工种的工作时间；\n（四）劳动定额标准。","ex":""},{"no":"第十一条","t":"第十一条  休息休假主要包括：\n（一）日休息时间、周休息日安排、年休假办法；\n（二）不能实行标准工时职工的休息休假；\n（三）其他假期。","ex":""},{"no":"第十二条","t":"第十二条 劳动安全卫生主要包括：\n（一）劳动安全卫生责任制；\n（二）劳动条件和安全技术措施；\n（三）安全操作规程；\n（四）劳保用品发放标准；\n（五）定期健康检查和职业健康体检。","ex":""},{"no":"第十三条","t":"第十三条 补充保险和福利主要包括：\n（一）补充保险的种类、范围；\n（二）基本福利制度和福利设施；\n（三）医疗期延长及其待遇；\n（四）职工亲属福利制度。","ex":""},{"no":"第十四条","t":"第十四条 女职工和未成年工的特殊保护主要包括：\n（一）女职工和未成年工禁忌从事的劳动；\n（二）女职工的经期、孕期、产期和哺乳期的劳动保护；\n（三）女职工、未成年工定期健康检查；\n（四）未成年工的使用和登记制度。","ex":""},{"no":"第十五条","t":"第十五条 职业技能培训主要包括：\n（一）职业技能培训项目规划及年度计划；\n（二）职业技能培训费用的提取和使用；\n（三）保障和改善职业技能培训的措施。","ex":""},{"no":"第十六条","t":"第十六条 劳动合同管理主要包括：\n（一）劳动合同签订时间；\n（二）确定劳动合同期限的条件；\n（三）劳动合同变更、解除、续订的一般原则及无固定期限劳动合同的终止条件；\n（四）试用期的条件和期限。","ex":""},{"no":"第十七条","t":"第十七条 奖惩主要包括：\n（一）劳动纪律；\n（二）考核奖惩制度；\n（三）奖惩程序。","ex":""},{"no":"第十八条","t":"第十八条 裁员主要包括：\n（一）裁员的方案；\n（二）裁员的程序；\n（三）裁员的实施办法和补偿标准。","ex":""}]},{"ch":"第三章  集体协商代表","items":[{"no":"第十九条","t":"第十九条  本规定所称集体协商代表（以下统称协商代表），是指按照法定程序产生 并有权代表本方利益进行集体协商的人员。\n集体协商双方的代表人数应当对等，每方至少3人，并各确定1名首席代表。","ex":""},{"no":"第二十条","t":"第二十条 职工一方的协商代表由本单位工会选派。未建立工会的，由本单位职工民 主推荐，并经本单位半数以上职工同意。\n职工一方的首席代表由本单位工会主席担任。工会主席可以书面委托其他协商代表代 理首席代表。工会主席空缺的，首席代表由工会主要负责人担任。未建立工会的，职工一方的首席代表从协商代表中民主推举产生。","ex":""},{"no":"第二十一条","t":"第二十一条 用人单位一方的协商代表，由用人单位法定代表人指派，首席代表由单 位法定代表人担任或由其书面委托的其他管理人员担任。","ex":""},{"no":"第二十二条","t":"第二十二条  协商代表履行职责的期限由被代表方确定。","ex":""},{"no":"第二十三条","t":"第二十三条 集体协商双方首席代表可以书面委托本单位以外的专业人员作为本方协 商代表。委托人数不得超过本方代表的三分之一。\n首席代表不得由非本单位人员代理。","ex":""},{"no":"第二十四条","t":"第二十四条 用人单位协商代表与职工协商代表不得相互兼任。","ex":""},{"no":"第二十五条","t":"第二十五条  协商代表应履行下列职责：\n（一）参加集体协商；\n（二）接受本方人员质询，及时向本方人员公布协商情况并征求意见；\n（三）提供与集体协商有关的情况和资料；\n（四）代表本方参加集体协商争议的处理；\n（五）监督集体合同或专项集体合同的履行；\n（六）法律、法规和规章规定的其他职责。","ex":""},{"no":"第二十六条","t":"第二十六条 协商代表应当维护本单位正常的生产、工作秩序，不得采取威胁、收买、 欺骗等行为。\n协商代表应当保守在集体协商过程中知悉的用人单位的商业秘密。","ex":""},{"no":"第二十七条","t":"第二十七条 企业内部的协商代表参加集体协商视为提供了正常劳动。","ex":""},{"no":"第二十八条","t":"第二十八条 职工一方协商代表在其履行协商代表职责期间劳动合同期满的，劳动合 同期限自动延长至完成履行协商代表职责之时，除出现下列情形之一的，用人单位不得与 其解除劳动合同：\n（一）严重违反劳动纪律或用人单位依法制定的规章制度的；\n（二）严重失职、营私舞弊，对用人单位利益造成重大损害的；\n（三）被依法追究刑事责任的。\n职工一方协商代表履行协商代表职责期间，用人单位无正当理由不得调整其工作岗位。","ex":""},{"no":"第二十九条","t":"第二十九条 职工一方协商代表就本规定第二十七条、第二十八条的规定与用人单位 发生争议的，可以向当地劳动争议仲裁委员会申请仲裁。","ex":""},{"no":"第三十条","t":"第三十条 工会可以更换职工一方协商代表；未建立工会的，经本单位半数以上职工同意可以更换职工一方协商代表。\n用人单位法定代表人可以更换用人单位一方协商代表。\n第三十 一 条 协商代表因更换、辞任或遇有不可抗力等情形造成空缺的，应在空缺之起15日内按照本规定产生新的代表。","ex":""}]},{"ch":"第四章 集体协商程序","items":[{"no":"第三十二条","t":"第三十二条 集体协商任何一方均可就签订集体合同或专项集体合同以及相关事宜， 以书面形式向对方提出进行集体协商的要求。\n一方提出进行集体协商要求的，另一方应当在收到集体协商要求之日起20日内以书面形式给以回应，无正当理由不得拒绝进行集体协商。","ex":""},{"no":"第三十三条","t":"第三十三条 协商代表在协商前应进行下列准备工作：\n（一）熟悉与集体协商内容有关的法律、法规、规章和制度；\n（二）了解与集体协商内容有关的情况和资料，收集用人单位和职工对协商意向所持 的意见；\n（三）拟定集体协商议题，集体协商议题可由提出协商一方起草，也可由双方指派代 表共同起草；\n（四）确定集体协商的时间、地点等事项；\n（五）共同确定一名非协商代表担任集体协商记录员。记录员应保持中立、公正，并 为集体协商双方保密。","ex":""},{"no":"第三十四条","t":"第三十四条 集体协商会议由双方首席代表轮流主持，并按下列程序进行：\n（一）宣布议程和会议纪律；\n（二）一方首席代表提出协商的具体内容和要求，另一方首席代表就对方的要求作出回应；\n（三）协商双方就商谈事项发表各自意见，开展充分讨论；\n（四）双方首席代表归纳意见。达成一致的，应当形成集体合同草案或专项集体合同 草案，由双方首席代表签字。","ex":""},{"no":"第三十五条","t":"第三十五条 集体协商未达成一致意见或出现事先未预料的问题时，经双方协商，可以中止协商。中止期限及下次协商时间、地点、内容由双方商定。","ex":""}]},{"ch":"第五章  集体合同的订立、变更、解除和终止","items":[{"no":"第三十六条","t":"第三十六条 经双方协商代表协商一致的集体合同草案或专项集体合同草案应当提交 职工代表大会或者全体职工讨论。\n职工代表大会或者全体职工讨论集体合同草案或专项集体合同草案，应当有三分之二 以上职工代表或者职工出席，且须经全体职工代表半数以上或者全体职工半数以上同意， 集体合同草案或专项集体合同草案方获通过。","ex":""},{"no":"第三十七条","t":"第三十七条 集体合同草案或专项集体合同草案经职工代表大会或者职工大会通过后， 由集体协商双方首席代表签字。","ex":""},{"no":"第三十八条","t":"第三十八条 集体合同或专项集体合同期限一般为1至3年，期满或双方约定的终止条 件出现，即行终止。\n集体合同或专项集体合同期满前3个月内，任何一方均可向对方提出重新签订或续订的 要求。","ex":""},{"no":"第三十九条","t":"第三十九条 双方协商代表协商一致，可以变更或解除集体合同或专项集体合同。","ex":""},{"no":"第四十条","t":"第四十条 有下列情形之一的，可以变更或解除集体合同或专项集体合同：\n（一）用人单位因被兼并、解散、破产等原因，致使集体合同或专项集体合同无法履 行的；\n（二）因不可抗力等原因致使集体合同或专项集体合同无法履行或部分无法履行的；\n（三）集体合同或专项集体合同约定的变更或解除条件出现的；\n（四）法律、法规、规章规定的其他情形。\n第四十 一条 变更或解除集体合同或专项集体合同适用本规定的集体协商程序。","ex":""}]},{"ch":"第六章 集体合同审查","items":[{"no":"第四十二条","t":"第四十二条 集体合同或专项集体合同签订或变更后，应当自双方首席代表签字之日 起10日内，由用人单位一方将文本一式三份报送劳动保障行政部门审查。\n劳动保障行政部门对报送的集体合同或专项集体合同应当办理登记手续。","ex":""},{"no":"第四十三条","t":"第四十三条 集体合同或专项集体合同审查实行属地管辖，具体管辖范围由省级劳动 保障行政部门规定。\n中央管辖的企业以及跨省、自治区、直辖市的用人单位的集体合同应当报送劳动保障 部或劳动保障部指定的省级劳动保障行政部门。","ex":""},{"no":"第四十四条","t":"第四十四条 劳动保障行政部门应当对报送的集体合同或专项集体合同的下列事项进 行合法性审查：\n（一）集体协商双方的主体资格是否符合法律、法规和规章规定；\n（二）集体协商程序是否违反法律、法规、规章规定；\n（三）集体合同或专项集体合同内容是否与国家规定相抵触。","ex":""},{"no":"第四十五条","t":"第四十五条 劳动保障行政部门对集体合同或专项集体合同有异议的，应当自收到文 本之日起15日内将《审查意见书》送达双方协商代表。《审查意见书》应当载明以下内容：\n（一）集体合同或专项集体合同当事人双方的名称、地址；\n（二）劳动保障行政部门收到集体合同或专项集体合同的时间；\n（三）审查意见；\n（四）作出审查意见的时间。\n《审查意见书》应当加盖劳动保障行政部门印章。","ex":""},{"no":"第四十六条","t":"第四十六条 用人单位与本单位职工就劳动保障行政部门提出异议的事项经集体协商 重新签订集体合同或专项集体合同的，用人单位一方应当根据本规定第四十二条的规定将 文本报送劳动保障行政部门审查。","ex":""},{"no":"第四十七条","t":"第四十七条 劳动保障行政部门自收到到文本之日起15日内未提出异议的，集体合同 或专项集体合同即行生效。","ex":""},{"no":"第四十八条","t":"第四十八条 生效的集体合同或专项集体合同，应当自其生效之日起由协商代表及时 以适当的形式向本方全体人员公布。","ex":""}]},{"ch":"第七章 集体协商争议的协调处理","items":[{"no":"第四十九条","t":"第四十九条 集体协商过程中发生争议，双方当事人不能协商解决的，当事人一方或 双方可以书面向劳动保障行政部门提出协调处理申请；未提出申请的，劳动保障行政部门 认为必要时也可以进行协调处理。","ex":""},{"no":"第五十条","t":"第五十条 劳动保障行政部门应当组织同级工会和企业组织等三方面的人员，共同协 调处理集体协商争议。\n第五十 一条 集体协商争议处理实行属地管辖，具体管辖范围由省级劳动保障行政部 门规定。\n中央管辖的企业以及跨省、自治区、直辖市用人单位因集体协商发生的争议，由劳动 保障部指定的省级劳动保障行政部门组织同级工会和企业组织等三方面的人员协调处理， 必要时，劳动保障部也可以组织有关方面协调处理。","ex":""},{"no":"第五十二条","t":"第五十二条 协调处理集体协商争议，应当自受理协调处理申请之日起30日内结束协 调处理工作。期满未结束的，可以适当延长协调期限，但延长期限不得超过15日。","ex":""},{"no":"第五十三条","t":"第五十三条 协调处理集体协商争议应当按照以下程序进行：\n（一）受理协调处理申请；\n（二）调查了解争议的情况；\n（三）研究制定协调处理争议的方案；\n（四）对争议进行协调处理；\n（五）制作《协调处理协议书》。","ex":""},{"no":"第五十四条","t":"第五十四条 《协调处理协议书》应当载明协调处理申请、争议的事实和协调结果，双方当事人就某些协商事项不能达成一致的，应将继续协商的有关事项予以载明。《协调处理协议书》由集体协商争议协调处理人员和争议双方首席代表签字盖章后生效。争议双方均应遵守生效后的《协调处理协议书》。","ex":""}]},{"ch":"第八章  附  则","items":[{"no":"第五十五条","t":"第五十五条 因履行集体合同发生的争议，当事人协商解决不成的，可以依法向劳动争议仲裁委员会申请仲裁。","ex":""},{"no":"第五十六条","t":"第五十六条 用人单位无正当理由拒绝工会或职工代表提出的集体协商要求的，按照《工会法》及有关法律、法规的规定处理。","ex":""},{"no":"第五十七条","t":"第五十七条 本规定于2004年5月1日起实施。原劳动部1994年12月5日颁布的《集体合同规定》同时废止。","ex":""}]}]
+;
 /* =================================================== */
-
 
 /* ===== 存储（自动保存 + 导出烘焙）===== */
 const KEY = 'statute_note_' + LAW_KEY;
-let store = 
-(function(){
-  var editMode = false;
-
-  // 醒目入口按钮
-  var btnEdit = document.createElement('button');
-  btnEdit.id = 'btnEdit';
-  btnEdit.title = '编辑模式：每条法条上方出现颜色工具条，可选中局部或直接改整条';
-  btnEdit.innerHTML = '\u270E 编辑条文';
-  btnEdit.style.cssText = 'padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);';
-  var tip = document.createElement('span');
-  tip.className = 'edit-tip';
-  tip.textContent = '已开启：每条法条上方有颜色工具条（选中文字改局部，直接点改整条）';
-  tip.style.display = 'none';
-  var btnTest = document.getElementById('btnTest');
-  if(btnTest){ btnTest.parentNode.insertBefore(btnEdit, btnTest); btnEdit.insertAdjacentElement('afterend', tip); }
-  btnEdit.addEventListener('click', function(){
-    editMode = !editMode;
-    document.body.classList.toggle('edit-mode', editMode);
-    btnEdit.classList.toggle('active', editMode);
-    btnEdit.innerHTML = editMode ? '\u2713 退出编辑' : '\u270E 编辑条文';
-    if(editMode){ btnEdit.style.background='#27ae60'; btnEdit.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; tip.style.display='inline-block'; }
-    else { btnEdit.style.background='#e6a23c'; btnEdit.style.boxShadow='0 2px 6px rgba(230,162,60,.4)'; tip.style.display='none'; }
-    try{ showStatus(editMode ? '编辑模式已开启：点法条上方的颜色按钮即可改色 / 高亮' : '已退出编辑'); }catch(e){}
-  });
-
-  // 存储键（复用笔记已有 KEY）
-  var KEY = '';
-  try { document.querySelectorAll('script').forEach(function(s){ var m = s.textContent.match(/const KEY\s*=\s*'([^']+)'/); if(m) KEY = m[1]; }); }catch(e){}
-  if(!KEY) KEY = 'statute_note_edit';
-
-  var FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
-  var BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
-
-  function barHTML(){
-    var h = '<span class="elbl">字体</span>';
-    FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
-    h += '<span class="fsep"></span><span class="elbl">高亮</span>';
-    BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
-    h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
-    h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
-    return h;
-  }
-
-  function makeEditable(){
-    document.querySelectorAll('.article').forEach(function(art){
-      if(art.dataset.editInjected) return;
-      art.dataset.editInjected = '1';
-      var textEl = art.querySelector('.art-text');
-      if(textEl){
-        textEl.classList.add('editable');
-        textEl.setAttribute('contenteditable','true');
-        textEl.setAttribute('data-art', art.id || '');
-      }
-      var bar = document.createElement('div');
-      bar.className = 'art-editbar';
-      bar.setAttribute('data-bar', art.id || '');
-      bar.innerHTML = barHTML();
-      if(textEl && textEl.parentNode){ textEl.parentNode.insertBefore(bar, textEl); }
-    });
-  }
-
-  // 防止点击工具条导致法条失焦、选区丢失
-  document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
-
-  function applyColor(artId, c, hl){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 局部选区
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 整条
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-  function clearColor(artId){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand('removeFormat', false, null);
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand('removeFormat', false, null);
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-
-  document.addEventListener('click', function(e){
-    if(!editMode) return;
-    var bar = e.target.closest('.art-editbar');
-    if(!bar) return;
-    var artId = bar.getAttribute('data-bar') || '';
-    var clearBtn = e.target.closest('[data-clear]');
-    if(clearBtn){ clearColor(artId); return; }
-    var btn = e.target.closest('[data-c]');
-    if(!btn) return;
-    applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
-  });
-
-  function saveArt(id){
-    var el = document.querySelector('.art-text[data-art="'+id+'"]');
-    if(!el) return;
-    try{ var s = localStorage.getItem(KEY); var store = s ? JSON.parse(s) : {}; if(!store.artEdit) store.artEdit = {}; store.artEdit[id] = el.innerHTML; localStorage.setItem(KEY, JSON.stringify(store)); }catch(err){}
-  }
-  function restoreEdits(){
-    try{ var s = localStorage.getItem(KEY); if(!s) return; var store = JSON.parse(s); if(!store.artEdit) return;
-      Object.keys(store.artEdit).forEach(function(id){ var el = document.querySelector('.art-text[data-art="'+id+'"]'); if(el && store.artEdit[id]) el.innerHTML = store.artEdit[id]; });
-    }catch(e){}
-  }
-
-  var _ro = new MutationObserver(function(){
-    var content = document.getElementById('content');
-    if(content && content.children.length > 0){ makeEditable(); restoreEdits(); }
-  });
-  var mainEl = document.getElementById('content');
-  if(mainEl) _ro.observe(mainEl, {childList:true});
-  setTimeout(function(){ makeEditable(); restoreEdits(); }, 500);
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
 })();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        (m.revised ? '<span class="mk">修正时间</span><span class="mv">'+escapeHtml(m.revised)+'</span>' : '') +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+  // 法条原文（可编辑）
+  'barHTML(id) + <div class="art-text editable" contenteditable="true" data-art="' + id + '">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);  restoreArtEdits();
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
 
 
+/* ===== 编辑模式切换（浮动工具条） ===== */
+let editMode = false;
+const btnEdit = document.getElementById('btnEdit');
+btnEdit.addEventListener('click', function(){
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  this.classList.toggle('active', editMode);
+  this.textContent = editMode ? '✓ 退出编辑' : '✎ 编辑条文';
+  if(editMode){ this.style.background='#27ae60'; this.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; }
+  else { this.style.background=''; this.style.boxShadow=''; }
+  showStatus(editMode ? '编辑模式：每条法条上方有颜色工具条，选中改局部或整条改色' : '已退出编辑');
+});
+
+/* 常驻工具条：每条法条上方由 render 注入 .art-editbar，点击即改色 */
+const FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
+const BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
+function barHTML(id){
+  let h = '<span class="elbl">字体</span>';
+  FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
+  h += '<span class="fsep"></span><span class="elbl">高亮</span>';
+  BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
+  h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
+  h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
+  return '<div class="art-editbar" data-bar="'+id+'">' + h + '</div>';
+}
+
+// 防止点击工具条导致法条失焦、选区丢失
+document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
+
+function applyColor(artId, c, hl){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+  } else {
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+    sel.removeAllRanges();
+  }
+  saveArtText(artId, el.innerHTML);
+}
+function clearColor(artId){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand('removeFormat', false, null);
+  } else {
+    const artData = getArtData(artId);
+    el.innerHTML = artData ? escapeHtml(artData.t) : el.textContent;
+  }
+  saveArtText(artId, el.innerHTML);
+}
+
+document.addEventListener('click', function(e){
+  if(!editMode) return;
+  const bar = e.target.closest('.art-editbar');
+  if(!bar) return;
+  const artId = bar.getAttribute('data-bar') || '';
+  const clearBtn = e.target.closest('[data-clear]');
+  if(clearBtn){ clearColor(artId); showStatus('已清除格式'); return; }
+  const btn = e.target.closest('[data-c]');
+  if(!btn) return;
+  applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
+  showStatus(btn.dataset.hl === '1' ? '已高亮标注' : '已改字体色');
+});
+
+/* 保存法条编辑后的HTML */
+function saveArtText(id, html){
+  if(!store.artEdit) store.artEdit = {};
+  store.artEdit[id] = html;
+  save();
+}
+
+/* 恢复已保存的法条编辑 */
+function restoreArtEdits(){
+  if(!store.artEdit) return;
+  Object.keys(store.artEdit).forEach(function(id){
+    const el = document.querySelector('.art-text[data-art="'+id+'"]');
+    if(el && store.artEdit[id]){
+      el.innerHTML = store.artEdit[id];
+    }
+  });
+}
+
+/* 获取法条原始数据（用于重置） */
+function getArtData(id){
+  for(let ci=0;ci<DATA.length;ci++){
+    for(let ai=0;ai<DATA[ci].items.length;ai++){
+      if('a'+ci+'_'+ai === id) return DATA[ci].items[ai];
+    }
+  }
+  return null;
+}
+
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
 </body>
 </html>
