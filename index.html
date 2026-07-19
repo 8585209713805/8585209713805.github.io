@@ -32,6 +32,12 @@ aside a{display:flex; justify-content:space-between; align-items:center; padding
   color:var(--ink); text-decoration:none; font-size:13.5px; margin-bottom:2px;}
 aside a:hover{background:var(--primary-soft);}
 aside a .cnt{font-size:11px; color:var(--muted); background:var(--bg); border-radius:10px; padding:1px 8px;}
+/* 侧栏二级子领域 */
+aside .sb-field{font-weight:600; color:var(--primary); font-size:14px; margin-top:10px;
+  padding:6px 0 4px; letter-spacing:.3px;}
+aside .sb-sub{padding-left:14px;}
+aside .sb-sub a{font-size:12.8px; padding:5px 8px;}
+aside .sb-sub a .cnt{font-size:10.5px;}
 main{flex:1 1 auto; min-width:0;}
 
 .chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;}
@@ -311,11 +317,18 @@ function render(){
   const fields = getFields();
   const q = searchEl.value.trim();
 
-  // 侧栏：法律部门
-  sbNav.innerHTML = fields.map(f => {
-    const cnt = SITE_NOTES.filter(n => fieldOf(n.cat) === f).length;
-    return '<a href="#field-'+esc(f)+'" data-field="'+esc(f)+'"><span>'+esc(f)+'</span><span class="cnt">'+cnt+'</span></a>';
-  }).join('');
+  // 侧栏：法律部门 → 子领域 二级树
+  let sb = '';
+  fields.forEach(f => {
+    const subs = getSubs(f);
+    const fCnt = subs.reduce((a,s)=>a+s.notes.length,0);
+    sb += '<div class="sb-field">'+esc(f)+' <span class="cnt">'+fCnt+'</span></div>';
+    subs.forEach(s => {
+      sb += '<div class="sb-sub"><a href="#sub-'+esc(s.name)+'">'
+           + '<span>'+esc(s.name)+'</span><span class="cnt">'+s.notes.length+'</span></a></div>';
+    });
+  });
+  sbNav.innerHTML = sb;
 
   // 筛选条：全部 + 法律部门
   let chips = '<span class="chip'+(activeField==='全部'?' active':'')+'" data-field="全部">全部 <span class="cnt">'+SITE_NOTES.length+'</span></span>';
@@ -337,7 +350,7 @@ function render(){
     html += '<section class="field-section" id="field-'+esc(f)+'">'
          +  '<div class="field-head"><h2>'+esc(f)+'</h2><span class="fnum">'+fieldCount+' 篇</span></div>';
     subs.forEach(s => {
-      html += '<div class="sub-group">'
+      html += '<div class="sub-group" id="sub-'+esc(s.name)+'">'
            +  '<div class="sub-head">'+esc(s.name)+'<span class="snum">'+s.notes.length+'</span></div>'
            +  '<div class="grid">';
       s.notes.forEach(n => {
