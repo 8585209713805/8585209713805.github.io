@@ -194,7 +194,6 @@ footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--mute
   body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
 }
 
-/* ===== 法条编辑模式（浮动工具条） ===== */
 /* ===== 法条编辑模式（每条常驻工具条） ===== */
 .art-text.editable{outline:none; border-radius:5px; transition:box-shadow .15s;}
 body.edit-mode .art-text.editable{cursor:text;}
@@ -209,7 +208,6 @@ body.edit-mode .article .art-editbar{display:flex;}
 .art-editbar .fclear:hover{background:#eef1f4;}
 .art-editbar .ehint{font-size:11px;color:#9aa1a9;margin-left:auto;}
 body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modify:read-only;}
-
 </style>
 </head>
 <body>
@@ -219,6 +217,7 @@ body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modi
     <div class="toolbar">
       <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
       <span class="status" id="status">已就绪</span>
+      <button id="btnEdit" title="编辑模式：选中任意法条文字即可改字体色 / 高亮标注" style="padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);">✎ 编辑条文</button>
       <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
       <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
       <button id="btnPrint" title="打印 / 存为PDF">打印</button>
@@ -259,144 +258,383 @@ const CASES = {};
 const REL = {};
 
 /* 法条数据 */
-const DATA = [{"ch":"全文","items":[{"no":"","t":"（1990年6月16日江西省第七届人民代表大会常务委员会第十五次会议通过1995年6月 30日江西省第八届人民代表大会常务委员会第十六次会议第一次修订  1997年6月20日江西 省第八届人民代表大会常务委员会第二十八次会议第二次修订2002年7月29日江西省第九 届人民代表大会常务委员会第三十一次会议第三次修订2009年3月27日江西省第十一届人 民代表大会常务委员会第九次会议第四次修订2014年1月16日江西省第十二届人民代表大 会常务委员会第八次会议第一次修正  2016年1月20日江西省第十二届人民代表大会常务委 员会第二十二次会议第二次修正2018年5月31日江西省第十三届人民代表大会常务委员会 第三次会议第三次修正2021年9月29日江西省第十三届人民代表大会常务委员会第三十二 次会议第四次修正）\n目  录","ex":""}]},{"ch":"第一章  总  则","items":[]},{"ch":"第二章  生育调节","items":[{"no":"第八条","t":"第八条  实行生育登记服务制度。生育子女的夫妻，分娩前后可以通过生育服务网上 系统办理生育登记，或者凭结婚证、户口簿、身份证（含电子证照），到夫妻一方户籍所在 地或者经常居住地的乡镇人民政府（街道办事处）登记，享受免费基本项目的计划生育技 术服务，接受生殖保健服务。","ex":""},{"no":"第九条","t":"第九条  已生育三个子女的夫妻，有子女死亡或者经鉴定为残疾的，可以根据本条例 第三条的规定等额再生育。\n依法收养子女的夫妻或者再婚夫妻，可以生育三个子女。","ex":""},{"no":"第十条","t":"第十条  县级以上人民政府卫生健康主管部门许可的医疗卫生机构应当开展产前筛查 和产前诊断工作，预防或者减少出生缺陷发生，提高出生婴儿健康水平；对产前诊断胎儿 患有严重遗传性疾病或者严重缺陷的孕妇，应当提出终止妊娠的医学建议。\n县级以上人民政府卫生健康主管部门许可的医疗卫生机构对夫妻一方检查后确诊其患 有医学上认为不宜生育疾病的，应当提出落实避孕节育措施的医学建议；对已怀孕的，应 当提出终止妊娠的医学建议。\n生育过经医学鉴定属非遗传性残疾婴儿的，再次妊娠前，夫妻双方应当按照国家有关 规定到医疗卫生机构接受优生指导和优生检测。","ex":""},{"no":"第十一条","t":"第十一条  禁止任何单位和个人采取技术手段对胎儿进行性别鉴定。但是，对怀疑胎儿 可能为伴性遗传病等其他疾病，医学上确有需要进行性别鉴定的，由县级以上人民政府卫 生健康主管部门指定的医疗卫生机构出具证明，并经县级以上人民政府卫生健康主管部门 批准，到省人民政府卫生健康主管部门指定的医疗卫生机构进行性别鉴定。\n医疗卫生机构应当建立对孕妇的B型超声检查和其他能够鉴定胎儿性别的技术检查的 登记制度，登记检查原因及检查结果等事项，并由两名以上医务人员在登记表上签名。\n医疗卫生机构有义务向卫生健康主管部门提供前款规定的有关登记资料。","ex":""},{"no":"第十二条","t":"第十二条 禁止非医学需要的性别选择性引产。\n禁止任何单位和个人组织、介绍妊娠妇女进行非医学需要的胎儿性别鉴定或者选择性别的人工终止妊娠手术。\n省卫生健康主管部门以及药品监督主管部门应当分别制定针对运用有关技术手段进行 胎儿性别鉴定、人工终止妊娠手术、终止妊娠药品的管理制度，并定期组织检查。","ex":""},{"no":"第十三条","t":"第十三条  育龄夫妻自主选择计划生育避孕节育措施，预防和减少非意愿妊娠。\n各级人民政府应当创造条件，保障公民知情选择安全、有效、适宜的避孕节育措施。 施行避孕节育手术，应当保证受术者的安全。","ex":""}]},{"ch":"第三章  计划生育服务","items":[{"no":"第十四条","t":"第十四条 卫生健康主管部门负责计划生育技术服务、优生管理和指导工作。\n医疗卫生机构应当针对育龄人群开展优生优育知识宣传教育，对育龄妇女开展围孕期、 孕产期保健服务，承担计划生育、优生优育、生殖保健的咨询、指导和技术服务，规范开展 不孕不育症诊疗。","ex":""},{"no":"第十五条","t":"第十五条 各级财政应当保证国家规定免费的计划生育技术服务项目所需费用，但已 参加生育保险的国家工作人员、事业单位和各类企业职工除外。\n免费提供的技术服务范围包括：一般避孕药具、环孕检、放置和取出宫内节育器、绝 育手术、人工终止妊娠手术。\n国家工作人员、事业单位和各类企业职工的计划生育医疗费用，已参加生育保险的，从 职工基本医疗保险基金中支付；未参加生育保险的，由其所在单位支付。\n农民、城镇无业居民、个体工商户的计划生育医疗费用由其所在的县级人民政府卫生 健康主管部门结算，从计划生育事业费中支付。","ex":""},{"no":"第十六条","t":"第十六条 各级卫生健康主管部门应当协助同级药品监督主管部门对本行政区域内计 划生育避孕药具市场进行监督与管理。\n药品零售企业不得销售终止妊娠药品，药品生产、批发企业不得将终止妊娠药品销售 给未获得施行终止妊娠手术资格的机构和个人。\n禁止销售国家免费提供的计划生育避孕药具。","ex":""},{"no":"第十七条","t":"第十七条 经依法鉴定属计划生育手术引起并发症的，由县级以上人民政府卫生健康 主管部门指定的医疗卫生机构进行治疗，治疗费按照节育手术费支付办法处理。","ex":""}]},{"ch":"第四章  管理责任","items":[{"no":"第十八条","t":"第十八条 建立与完善依法管理、村（居）民自治、优质服务、政策推动、综合治理的 人口与计划生育工作机制。\n县级以上人民政府应当根据上级人民政府制定的人口发展规划和本行政区域的实际， 制定本行政区域的人口发展规划，将其纳入国民经济和社会发展计划，同时根据人口发展 规划制定人口与计划生育实施方案并组织实施。人口与计划生育实施方案应当规定调控人 口数量，提高人口素质，推动实现适度生育水平，优化人口结构，加强母婴保健和婴幼儿 照护服务，促进家庭发展的措施。\n各级人民政府应当加强对人口与计划生育工作的领导，实行人口均衡发展目标管理责 任制。","ex":""},{"no":"第十九条","t":"第十九条  县级以上人民政府卫生健康主管部门负责本行政区域内的计划生育工作和\n与计划生育有关的人口工作，其主要职责是：\n（一）结合本地实际，贯彻执行人口与计划生育法律、法规、规章和方针、政策；\n（二）在当地人民政府领导下，负责实施人口与计划生育实施方案的日常工作，开展 经常性的宣传教育、综合服务、科学管理工作；\n（三）加强基层基础工作和管理服务网络建设，依法建立计划生育行政管理、技术服 务、群众工作队伍。","ex":""},{"no":"第二十条","t":"第二十条 县级以上人民政府应当建立人口与计划生育工作协调制度。\n县级以上人民政府其他有关部门应当各司其职，互相配合，负责有关的人口与计划 生育工作，其主要职责是：\n（一）根据本级政府确定的职责分工，结合本部门业务特点，与卫生健康主管部门共 同做好人口与计划生育工作；\n（二）结合本部门职能，研究、制定有利于人口与计划生育工作的相关社会经济政 策及措施；\n（三）根据本部门人口与计划生育职责制定相应的措施与办法，并负责组织实施和 对下级督促指导。","ex":""},{"no":"第二十一条","t":"第二十一条 实行人口与计划生育情况通报制度。\n县级以上人民政府公安机关应当在每月初将新生儿户籍登记资料通报同级卫生健康 主管部门。\n县级以上人民政府民政部门应当在每月初将婚姻登记和收养登记相关资料通报同级 卫生健康主管部门。","ex":""},{"no":"第二十二条","t":"第二十二条 医疗卫生机构住院分娩实行实名登记制度。产妇分娩所在医疗卫生机 构应当在每季度末将产妇姓名等相关情况向当地卫生健康主管部门报告。","ex":""},{"no":"第二十三条","t":"第二十三条  乡（镇）人民政府、街道办事处负责管理本辖区的人口与计划生育工 作，设立人口和计划生育工作机构并配备专职计划生育工作人员。","ex":""},{"no":"第二十四条","t":"第二十四条 村（居）民委员会应当依法做好人口与计划生育工作，将人口与计划生 育工作纳入村（居）民自治内容；\n村（居）民委员会应当有专人负责人口与计划生育工作，并合理解决其报酬。村 （居）民委员会依法开展下列人口与计划生育工作：\n（一）向辖区内村（居）民宣传人口与计划生育的法律、法规、规章和方针、政策， 普及人口与计划生育科学知识；\n（二）及时向人民政府卫生健康主管部门或者工作机构通报辖区内人口与计划生育 工作的情况；\n（三）维护实行计划生育公民的合法权益，落实法律、法规规定的奖励与优待的规定；\n（四）组织村（居）民参与制定和实施人口与计划生育工作方案；\n（五）对人民政府及其卫生健康主管部门开展人口与计划生育工作实施监督。","ex":""},{"no":"第二十五条","t":"第二十五条 建立属地管理、单位负责、居民自治、社区服务的城市人口与计划生育 管理机制。\n市区人民政府、街道办事处、居民委员会统一管理驻本辖区各机关、社会团体、企业 事业单位、其他组织以及工作、生活在本辖区的常住人口、暂住人口的人口与计划生育工 作，承担宣传动员、监督检查、组织协调、综合服务的职能。\n城市人口与计划生育工作应当依托社区、面向家庭，广泛开展计划生育综合服务。","ex":""},{"no":"第二十六条","t":"第二十六条 本省行政区域内的机关、社会团体、企业事业单位和其他组织负有做好 本单位人口与计划生育工作的责任，保证奖惩与优待等措施的落实。","ex":""},{"no":"第二十七条","t":"第二十七条 卫生健康、教育、科技、文化和旅游、民政、新闻出版、广播电视等部 门应当组织开展人口与计划生育宣传教育工作。\n大众传媒应当开展人口与计划生育的社会公益性宣传。","ex":""},{"no":"第二十八条","t":"第二十八条 人口与计划生育统计工作必须严格执行统计法律、法规的规定，任何单 位和个人不得虚报、瞒报、伪造、篡改、拒报人口与计划生育统计资料。","ex":""},{"no":"第二十九条","t":"第二十九条 流动人口的计划生育工作由其户籍所在地和现居住地的人民政府共同管 理，以现居住地管理为主。","ex":""}]},{"ch":"第五章  保障与奖励","items":[{"no":"第三十条","t":"第三十条 县级以上人民政府及有关部门制定相关惠民政策时，应当优先考虑计划生 育家庭。","ex":""},{"no":"第三十一条","t":"第三十一条 符合法律、行政法规和本条例规定结婚、生育的夫妻，除享受国家规定 的假期外，增加婚假十五日；增加产假九十日，并给予男方护理假三十日；在子女三周岁 以下期间，给予夫妻双方每年各十日育儿假。假期工资和奖金照发，福利待遇不变。","ex":""},{"no":"第三十二条","t":"第三十二条 国家工作人员、事业单位和各类企业职工接受计划生育手术的，凭医疗 卫生机构的证明，可按照下列规定休假，假期工资、奖金照发，福利待遇不变：\n（一）放置宫内节育器的，休假三日，七日内不安排重体力劳动；\n（二）取宫内节育器的，休假一日；\n（三）结扎或者复通输精管的，休假七日；\n（四）结扎或者复通输卵管的，休假二十一日；\n（五）怀孕不满三个月施行计划生育补救措施的，休假二十五日；怀孕三个月以上施 行计划生育补救措施的，休假四十二日。\n同时接受两种计划生育手术的，假期合并计算。遇特殊情况需要增加假期的，由县以 上医疗卫生机构确定。\n施行计划生育手术确需护理的，经手术单位证明，给予其配偶护理假，视为出勤。","ex":""},{"no":"第三十三条","t":"第三十三条  县级以上人民政府采取财政、教育、住房、就业等支持措施，减轻家庭 生育、养育、教育负担。","ex":""},{"no":"第三十四条","t":"第三十四条  县级以上人民政府应当根据当地实际情况，将婴幼儿照护服务纳入经济 社会发展规划，综合采取规划、土地、住房、财政、金融、人才等措施，推动建立普惠托 育服务体系。","ex":""},{"no":"第三十五条","t":"第三十五条 居住（小）区应当按照标准建设婴幼儿照护服务设施及配套安全设施。 新建居住（小）区按照每千人口不少于十个托位的标准配套建设婴幼儿照护服务设施及配套安全设施。已建成的居住（小）区未配套建设或者建设的婴幼儿照护服务设施不符 合要求的，所在地县级人民政府应当通过新建、改建、购置、置换、腾退、租赁等方式按 照每千人口不少于八个托位的标准统筹配置。\n鼓励和引导社会力量兴办托育机构，支持幼儿园和机关、企业事业单位、社区提供托 育服务。公共场所和女职工比较多的用人单位应当配置母婴设施，为婴幼儿照护、哺乳提 供便利条件。托育机构的设置和服务应当符合托育服务相关标准和规范，托育机构应当向 县级人民政府卫生健康主管部门备案。","ex":""},{"no":"第三十六条","t":"第三十六条 在国家提倡一对夫妻生育一个子女期间，只生育一个子女，并已落实节 育措施的夫妻，经双方共同申请，其所在单位或者村（居）民委员会核实，由女方或者男 方户籍所在地县级人民政府卫生健康主管部门发给《独生子女父母光荣证》。\n对获得《独生子女父母光荣证》的夫妻，从其领证之日起至独生子女十四周岁止，每 月发给独生子女父母奖励费。对于城镇居民中的独生子女父母，男性满六十周岁，女性满 五十五周岁，按照一定标准发放计划生育奖励金。\n夫妻均为国家工作人员、事业单位和各类企业职工的，独生子女父母奖励费由双方所 在单位各负担50%;夫妻一方为国家工作人员、事业单位和各类企业职工，另一方为农民 或者城镇无业居民、个体工商户的，由国家工作人员、事业单位和各类企业职工所在单位 负担；夫妻均为农民或者城镇无业居民、个体工商户的，由乡（镇）人民政府、街道办事 处解决。\n农村居民中的独生子女父母或者生育两个女孩的父母，按照国家规定由人民政府发给 奖励扶助金。\n对终身只生育一个子女或者婚后终身无子女的农民或者无业人员，可给予一次性投保 奖励，或者在其年老丧失劳动能力时，由当地人民政府和集体经济组织通过各种形式给予 适当的经济补助和生活上的照顾。\n已领取《独生子女父母光荣证》后再生育的，生育后不需退还已领取的独生子女父母 奖励费。","ex":""},{"no":"第三十七条","t":"第三十七条 在国家提倡一对夫妻生育一个子女期间，只生育一个子女的夫妻患病住 院的，其子女所在单位应当每年给予适当的护理假。护理假期间工资福利待遇不变。","ex":""},{"no":"第三十八条","t":"第三十八条 在国家提倡一对夫妻生育一个子女期间，农村获得《独生子女父母光荣 证》的夫妻和双女户家庭，享受下列优待：\n（一）优先列为重点扶持对象，在乡村振兴项目、资金、技术等方面给予照顾；\n（二）在劳务输出时优先推荐其家庭劳动力；\n（三）多增加一人份的集体福利分配份额；\n（四）参加城乡居民医保的个人自缴费用，按照规定比例由人民政府负担；\n（五）在分配承包土地、帮助发展生产和审批宅基地等方面优先照顾，独生子女的宅 基地按两人计算，但不得超过法律、法规规定的上限标准；\n（六）当地人民政府规定的其他优待政策。","ex":""},{"no":"第三十九条","t":"第三十九条 提倡和鼓励男方到农村的女方家庭结婚落户，女方所在地应当准予落","ex":""},{"no":"第四十条","t":"第四十条 逐步完善社会保险、医疗保障、社会福利、社会救助等社会保障制度，促  进人口与计划生育工作，并采取多种社会救助制度帮助农村独女户、二女绝育户解决生活 困难。\n第四十 一 条 在国家提倡一对夫妻生育一个子女期间，获得《独生子女父母光荣证》 的夫妻，独生子女发生意外伤残、死亡，其父母不再生育或者收养子女的，应当按照国家 和省有关规定获得扶助。县级以上人民政府应当建立健全对上述人群的生活、养老、医\n疗、精神慰藉等全方位帮扶保障制度。","ex":""},{"no":"第四十二条","t":"第四十二条 对模范实行计划生育单位和人口与计划生育工作成绩显著的单位和个\n人，应当给予表彰、奖励，具体办法由省人民政府另行制定。对据实举报非医学需要的胎 儿性别鉴定和选择性别的人工终止妊娠手术、非法销售或者使用终止妊娠药品等违法行为 的人员，应当给予保护和奖励。","ex":""},{"no":"第四十三条","t":"第四十三条 县级以上人民政府可以设立人口与计划生育奖励专项经费，用于对实行 计划生育公民的奖励和社会保障。经费来源于各级人民政府的财政投入以及社会团体、企 业事业单位、其他组织和个人提供的捐助。\n机关、社会团体、企业事业单位和其他组织应当落实本条例规定的计划生育奖励与社 会保障措施的经费。","ex":""}]},{"ch":"第六章  法律责任","items":[{"no":"第四十四条","t":"第四十四条 为他人进行非医学需要的胎儿性别鉴定或者选择性别的人工终止妊娠手 术的，由县级以上人民政府卫生健康主管部门责令改正，给予警告，没收违法所得；违法 所得一万元以上的，处违法所得两倍以上六倍以下罚款；没有违法所得或者违法所得不足 一万元的，处一万元以上三万元以下罚款；情节严重的，由原发证机关吊销执业证书。对 其单位主要负责人、直接负责的主管人员和其他直接责任人员，依法给予处分。","ex":""},{"no":"第四十五条","t":"第四十五条 违反本条例第十二条第二款规定，组织、介绍妊娠妇女进行非医学需要 的胎儿性别鉴定或者选择性别的人工终止妊娠手术的，由县级以上人民政府卫生健康主管 部门没收违法所得；违法所得一万元以上的，处违法所得两倍以上五倍以下罚款；没有违 法所得或者违法所得不足一万元的，处一万元以上两万元以下罚款。属国家工作人员的， 依法给予处分。","ex":""},{"no":"第四十六条","t":"第四十六条 违反本条例第十六条第二款规定，药品零售企业销售终止妊娠药品，药 品生产、批发企业将终止妊娠药品销售给未获得施行终止妊娠手术资格的机构和个人的， 由县级以上人民政府药品监督主管部门没收违法经销药品和违法所得，并处违法经销药品 货值两倍以上五倍以下罚款。","ex":""},{"no":"第四十七条","t":"第四十七条 违反本条例规定，不履行协助计划生育管理义务的部门或者单位，由人 民政府责令改正，并予以通报批评；对直接负责的主管人员和其他直接责任人员依法给予 处分。","ex":""},{"no":"第四十八条","t":"第四十八条 经依法鉴定因施行计划生育手术造成身体伤害系施行手术单位过错所\n致，受术者的治疗费由施行手术的单位承担，施行手术的单位还应当依法承担相应的民事责任；构成医疗事故的，按照国家有关医疗事故处理的规定执行。","ex":""},{"no":"第四十九条","t":"第四十九条 计划生育工作人员有下列情形之一的，由其所在单位或者上级主管部门 依法给予处分；有违法所得的，没收违法所得：\n（一）虚报、瞒报、伪造、篡改、拒报人口与计划生育统计资料的；\n（二）侵犯公民人身权、财产权以及其他合法权益的；\n（三）对举报人口与计划生育工作中弄虚作假、徇私舞弊等行为的人员实施打击报复 的 ；\n（四）截留、贪污、侵占、挪用、私分计划生育经费或者罚款的；\n（五）其他滥用职权、玩忽职守、徇私舞弊的。","ex":""},{"no":"第五十条","t":"第五十条 违反本条例规定构成犯罪的，依法追究刑事责任。","ex":""}]},{"ch":"第七章  附  则","items":[{"no":"","t":"第 一 章  总  则\n第 一 条 为了优化人口结构，提高人口素质，实现人口与经济、社会、资源、环境的 协调发展，推行计划生育，推动实现适度生育水平，促进人口长期均衡发展，维护公民合 法权益，促进家庭幸福与社会和谐，根据《中华人民共和国人口与计划生育法》以及其他 有关法律、行政法规的规定，结合本省实际，制定本条例。","ex":""},{"no":"第二条","t":"第二条 户籍或者居住在本省行政区域内的中国公民、本省行政区域内的机关、社会 团体、企业事业单位和其他组织，应当遵守本条例。","ex":""},{"no":"第三条","t":"第三条  实行计划生育是国家的基本国策。公民有合法生育的权利，也有依法实行计 划生育的义务。夫妻双方在实行计划生育中负有共同的责任。公民实行计划生育的合法权 益受法律保护。\n提倡适龄婚育、优生优育。一对夫妻可以生育三个子女。\n夫妻有一方为其他省、自治区、直辖市户籍的，本省关于再生育子女的规定与其他省、 自治区、直辖市不一致的，按照有利于当事人的原则适用。","ex":""},{"no":"第四条","t":"第四条 开展人口与计划生育工作，应当坚持与发展经济、帮助群众勤劳致富、建设 文明幸福家庭相结合，坚持与增加妇女受教育和就业机会、增进妇女健康、提高妇女地位相结合。\n开展人口与计划生育工作，应当依靠宣传教育、科技进步、综合服务，建立健全奖励 和社会保障制度。","ex":""},{"no":"第五条","t":"第五条  各级人民政府及其工作人员在推行人口与计划生育工作中应当依法行政，文 明执法，不得侵犯公民的合法权益。\n卫生健康主管部门及其工作人员依法执行公务受法律保护。","ex":""},{"no":"第六条","t":"第六条  各级人民政府应当将人口与计划生育事业费纳入本级财政预算，并逐步增加 投入，保证人口与计划生育工作的正常开展。\n任何单位和个人不得截留、克扣、挪用人口与计划生育工作经费。\n鼓励社会团体、企业事业单位、其他组织和个人为人口与计划生育工作提供捐助。","ex":""},{"no":"第七条","t":"第七条  工会、共青团、妇联和计划生育协会等社会团体、企业事业单位、其他组织 和公民应当协助人民政府开展人口与计划生育工作。","ex":""},{"no":"第五十一条","t":"第五十一条  本条例自2009年5月1日起施行。","ex":""}]}];
+const DATA = [{"ch":"全文","items":[{"no":"","t":"（1990年6月16日江西省第七届人民代表大会常务委员会第十五次会议通过1995年6月 30日江西省第八届人民代表大会常务委员会第十六次会议第一次修订  1997年6月20日江西 省第八届人民代表大会常务委员会第二十八次会议第二次修订2002年7月29日江西省第九 届人民代表大会常务委员会第三十一次会议第三次修订2009年3月27日江西省第十一届人 民代表大会常务委员会第九次会议第四次修订2014年1月16日江西省第十二届人民代表大 会常务委员会第八次会议第一次修正  2016年1月20日江西省第十二届人民代表大会常务委 员会第二十二次会议第二次修正2018年5月31日江西省第十三届人民代表大会常务委员会 第三次会议第三次修正2021年9月29日江西省第十三届人民代表大会常务委员会第三十二 次会议第四次修正）\n目  录","ex":""}]},{"ch":"第一章  总  则","items":[]},{"ch":"第二章  生育调节","items":[{"no":"第八条","t":"第八条  实行生育登记服务制度。生育子女的夫妻，分娩前后可以通过生育服务网上 系统办理生育登记，或者凭结婚证、户口簿、身份证（含电子证照），到夫妻一方户籍所在 地或者经常居住地的乡镇人民政府（街道办事处）登记，享受免费基本项目的计划生育技 术服务，接受生殖保健服务。","ex":""},{"no":"第九条","t":"第九条  已生育三个子女的夫妻，有子女死亡或者经鉴定为残疾的，可以根据本条例 第三条的规定等额再生育。\n依法收养子女的夫妻或者再婚夫妻，可以生育三个子女。","ex":""},{"no":"第十条","t":"第十条  县级以上人民政府卫生健康主管部门许可的医疗卫生机构应当开展产前筛查 和产前诊断工作，预防或者减少出生缺陷发生，提高出生婴儿健康水平；对产前诊断胎儿 患有严重遗传性疾病或者严重缺陷的孕妇，应当提出终止妊娠的医学建议。\n县级以上人民政府卫生健康主管部门许可的医疗卫生机构对夫妻一方检查后确诊其患 有医学上认为不宜生育疾病的，应当提出落实避孕节育措施的医学建议；对已怀孕的，应 当提出终止妊娠的医学建议。\n生育过经医学鉴定属非遗传性残疾婴儿的，再次妊娠前，夫妻双方应当按照国家有关 规定到医疗卫生机构接受优生指导和优生检测。","ex":""},{"no":"第十一条","t":"第十一条  禁止任何单位和个人采取技术手段对胎儿进行性别鉴定。但是，对怀疑胎儿 可能为伴性遗传病等其他疾病，医学上确有需要进行性别鉴定的，由县级以上人民政府卫 生健康主管部门指定的医疗卫生机构出具证明，并经县级以上人民政府卫生健康主管部门 批准，到省人民政府卫生健康主管部门指定的医疗卫生机构进行性别鉴定。\n医疗卫生机构应当建立对孕妇的B型超声检查和其他能够鉴定胎儿性别的技术检查的 登记制度，登记检查原因及检查结果等事项，并由两名以上医务人员在登记表上签名。\n医疗卫生机构有义务向卫生健康主管部门提供前款规定的有关登记资料。","ex":""},{"no":"第十二条","t":"第十二条 禁止非医学需要的性别选择性引产。\n禁止任何单位和个人组织、介绍妊娠妇女进行非医学需要的胎儿性别鉴定或者选择性别的人工终止妊娠手术。\n省卫生健康主管部门以及药品监督主管部门应当分别制定针对运用有关技术手段进行 胎儿性别鉴定、人工终止妊娠手术、终止妊娠药品的管理制度，并定期组织检查。","ex":""},{"no":"第十三条","t":"第十三条  育龄夫妻自主选择计划生育避孕节育措施，预防和减少非意愿妊娠。\n各级人民政府应当创造条件，保障公民知情选择安全、有效、适宜的避孕节育措施。 施行避孕节育手术，应当保证受术者的安全。","ex":""}]},{"ch":"第三章  计划生育服务","items":[{"no":"第十四条","t":"第十四条 卫生健康主管部门负责计划生育技术服务、优生管理和指导工作。\n医疗卫生机构应当针对育龄人群开展优生优育知识宣传教育，对育龄妇女开展围孕期、 孕产期保健服务，承担计划生育、优生优育、生殖保健的咨询、指导和技术服务，规范开展 不孕不育症诊疗。","ex":""},{"no":"第十五条","t":"第十五条 各级财政应当保证国家规定免费的计划生育技术服务项目所需费用，但已 参加生育保险的国家工作人员、事业单位和各类企业职工除外。\n免费提供的技术服务范围包括：一般避孕药具、环孕检、放置和取出宫内节育器、绝 育手术、人工终止妊娠手术。\n国家工作人员、事业单位和各类企业职工的计划生育医疗费用，已参加生育保险的，从 职工基本医疗保险基金中支付；未参加生育保险的，由其所在单位支付。\n农民、城镇无业居民、个体工商户的计划生育医疗费用由其所在的县级人民政府卫生 健康主管部门结算，从计划生育事业费中支付。","ex":""},{"no":"第十六条","t":"第十六条 各级卫生健康主管部门应当协助同级药品监督主管部门对本行政区域内计 划生育避孕药具市场进行监督与管理。\n药品零售企业不得销售终止妊娠药品，药品生产、批发企业不得将终止妊娠药品销售 给未获得施行终止妊娠手术资格的机构和个人。\n禁止销售国家免费提供的计划生育避孕药具。","ex":""},{"no":"第十七条","t":"第十七条 经依法鉴定属计划生育手术引起并发症的，由县级以上人民政府卫生健康 主管部门指定的医疗卫生机构进行治疗，治疗费按照节育手术费支付办法处理。","ex":""}]},{"ch":"第四章  管理责任","items":[{"no":"第十八条","t":"第十八条 建立与完善依法管理、村（居）民自治、优质服务、政策推动、综合治理的 人口与计划生育工作机制。\n县级以上人民政府应当根据上级人民政府制定的人口发展规划和本行政区域的实际， 制定本行政区域的人口发展规划，将其纳入国民经济和社会发展计划，同时根据人口发展 规划制定人口与计划生育实施方案并组织实施。人口与计划生育实施方案应当规定调控人 口数量，提高人口素质，推动实现适度生育水平，优化人口结构，加强母婴保健和婴幼儿 照护服务，促进家庭发展的措施。\n各级人民政府应当加强对人口与计划生育工作的领导，实行人口均衡发展目标管理责 任制。","ex":""},{"no":"第十九条","t":"第十九条  县级以上人民政府卫生健康主管部门负责本行政区域内的计划生育工作和\n与计划生育有关的人口工作，其主要职责是：\n（一）结合本地实际，贯彻执行人口与计划生育法律、法规、规章和方针、政策；\n（二）在当地人民政府领导下，负责实施人口与计划生育实施方案的日常工作，开展 经常性的宣传教育、综合服务、科学管理工作；\n（三）加强基层基础工作和管理服务网络建设，依法建立计划生育行政管理、技术服 务、群众工作队伍。","ex":""},{"no":"第二十条","t":"第二十条 县级以上人民政府应当建立人口与计划生育工作协调制度。\n县级以上人民政府其他有关部门应当各司其职，互相配合，负责有关的人口与计划 生育工作，其主要职责是：\n（一）根据本级政府确定的职责分工，结合本部门业务特点，与卫生健康主管部门共 同做好人口与计划生育工作；\n（二）结合本部门职能，研究、制定有利于人口与计划生育工作的相关社会经济政 策及措施；\n（三）根据本部门人口与计划生育职责制定相应的措施与办法，并负责组织实施和 对下级督促指导。","ex":""},{"no":"第二十一条","t":"第二十一条 实行人口与计划生育情况通报制度。\n县级以上人民政府公安机关应当在每月初将新生儿户籍登记资料通报同级卫生健康 主管部门。\n县级以上人民政府民政部门应当在每月初将婚姻登记和收养登记相关资料通报同级 卫生健康主管部门。","ex":""},{"no":"第二十二条","t":"第二十二条 医疗卫生机构住院分娩实行实名登记制度。产妇分娩所在医疗卫生机 构应当在每季度末将产妇姓名等相关情况向当地卫生健康主管部门报告。","ex":""},{"no":"第二十三条","t":"第二十三条  乡（镇）人民政府、街道办事处负责管理本辖区的人口与计划生育工 作，设立人口和计划生育工作机构并配备专职计划生育工作人员。","ex":""},{"no":"第二十四条","t":"第二十四条 村（居）民委员会应当依法做好人口与计划生育工作，将人口与计划生 育工作纳入村（居）民自治内容；\n村（居）民委员会应当有专人负责人口与计划生育工作，并合理解决其报酬。村 （居）民委员会依法开展下列人口与计划生育工作：\n（一）向辖区内村（居）民宣传人口与计划生育的法律、法规、规章和方针、政策， 普及人口与计划生育科学知识；\n（二）及时向人民政府卫生健康主管部门或者工作机构通报辖区内人口与计划生育 工作的情况；\n（三）维护实行计划生育公民的合法权益，落实法律、法规规定的奖励与优待的规定；\n（四）组织村（居）民参与制定和实施人口与计划生育工作方案；\n（五）对人民政府及其卫生健康主管部门开展人口与计划生育工作实施监督。","ex":""},{"no":"第二十五条","t":"第二十五条 建立属地管理、单位负责、居民自治、社区服务的城市人口与计划生育 管理机制。\n市区人民政府、街道办事处、居民委员会统一管理驻本辖区各机关、社会团体、企业 事业单位、其他组织以及工作、生活在本辖区的常住人口、暂住人口的人口与计划生育工 作，承担宣传动员、监督检查、组织协调、综合服务的职能。\n城市人口与计划生育工作应当依托社区、面向家庭，广泛开展计划生育综合服务。","ex":""},{"no":"第二十六条","t":"第二十六条 本省行政区域内的机关、社会团体、企业事业单位和其他组织负有做好 本单位人口与计划生育工作的责任，保证奖惩与优待等措施的落实。","ex":""},{"no":"第二十七条","t":"第二十七条 卫生健康、教育、科技、文化和旅游、民政、新闻出版、广播电视等部 门应当组织开展人口与计划生育宣传教育工作。\n大众传媒应当开展人口与计划生育的社会公益性宣传。","ex":""},{"no":"第二十八条","t":"第二十八条 人口与计划生育统计工作必须严格执行统计法律、法规的规定，任何单 位和个人不得虚报、瞒报、伪造、篡改、拒报人口与计划生育统计资料。","ex":""},{"no":"第二十九条","t":"第二十九条 流动人口的计划生育工作由其户籍所在地和现居住地的人民政府共同管 理，以现居住地管理为主。","ex":""}]},{"ch":"第五章  保障与奖励","items":[{"no":"第三十条","t":"第三十条 县级以上人民政府及有关部门制定相关惠民政策时，应当优先考虑计划生 育家庭。","ex":""},{"no":"第三十一条","t":"第三十一条 符合法律、行政法规和本条例规定结婚、生育的夫妻，除享受国家规定 的假期外，增加婚假十五日；增加产假九十日，并给予男方护理假三十日；在子女三周岁 以下期间，给予夫妻双方每年各十日育儿假。假期工资和奖金照发，福利待遇不变。","ex":""},{"no":"第三十二条","t":"第三十二条 国家工作人员、事业单位和各类企业职工接受计划生育手术的，凭医疗 卫生机构的证明，可按照下列规定休假，假期工资、奖金照发，福利待遇不变：\n（一）放置宫内节育器的，休假三日，七日内不安排重体力劳动；\n（二）取宫内节育器的，休假一日；\n（三）结扎或者复通输精管的，休假七日；\n（四）结扎或者复通输卵管的，休假二十一日；\n（五）怀孕不满三个月施行计划生育补救措施的，休假二十五日；怀孕三个月以上施 行计划生育补救措施的，休假四十二日。\n同时接受两种计划生育手术的，假期合并计算。遇特殊情况需要增加假期的，由县以 上医疗卫生机构确定。\n施行计划生育手术确需护理的，经手术单位证明，给予其配偶护理假，视为出勤。","ex":""},{"no":"第三十三条","t":"第三十三条  县级以上人民政府采取财政、教育、住房、就业等支持措施，减轻家庭 生育、养育、教育负担。","ex":""},{"no":"第三十四条","t":"第三十四条  县级以上人民政府应当根据当地实际情况，将婴幼儿照护服务纳入经济 社会发展规划，综合采取规划、土地、住房、财政、金融、人才等措施，推动建立普惠托 育服务体系。","ex":""},{"no":"第三十五条","t":"第三十五条 居住（小）区应当按照标准建设婴幼儿照护服务设施及配套安全设施。 新建居住（小）区按照每千人口不少于十个托位的标准配套建设婴幼儿照护服务设施及配套安全设施。已建成的居住（小）区未配套建设或者建设的婴幼儿照护服务设施不符 合要求的，所在地县级人民政府应当通过新建、改建、购置、置换、腾退、租赁等方式按 照每千人口不少于八个托位的标准统筹配置。\n鼓励和引导社会力量兴办托育机构，支持幼儿园和机关、企业事业单位、社区提供托 育服务。公共场所和女职工比较多的用人单位应当配置母婴设施，为婴幼儿照护、哺乳提 供便利条件。托育机构的设置和服务应当符合托育服务相关标准和规范，托育机构应当向 县级人民政府卫生健康主管部门备案。","ex":""},{"no":"第三十六条","t":"第三十六条 在国家提倡一对夫妻生育一个子女期间，只生育一个子女，并已落实节 育措施的夫妻，经双方共同申请，其所在单位或者村（居）民委员会核实，由女方或者男 方户籍所在地县级人民政府卫生健康主管部门发给《独生子女父母光荣证》。\n对获得《独生子女父母光荣证》的夫妻，从其领证之日起至独生子女十四周岁止，每 月发给独生子女父母奖励费。对于城镇居民中的独生子女父母，男性满六十周岁，女性满 五十五周岁，按照一定标准发放计划生育奖励金。\n夫妻均为国家工作人员、事业单位和各类企业职工的，独生子女父母奖励费由双方所 在单位各负担50%;夫妻一方为国家工作人员、事业单位和各类企业职工，另一方为农民 或者城镇无业居民、个体工商户的，由国家工作人员、事业单位和各类企业职工所在单位 负担；夫妻均为农民或者城镇无业居民、个体工商户的，由乡（镇）人民政府、街道办事 处解决。\n农村居民中的独生子女父母或者生育两个女孩的父母，按照国家规定由人民政府发给 奖励扶助金。\n对终身只生育一个子女或者婚后终身无子女的农民或者无业人员，可给予一次性投保 奖励，或者在其年老丧失劳动能力时，由当地人民政府和集体经济组织通过各种形式给予 适当的经济补助和生活上的照顾。\n已领取《独生子女父母光荣证》后再生育的，生育后不需退还已领取的独生子女父母 奖励费。","ex":""},{"no":"第三十七条","t":"第三十七条 在国家提倡一对夫妻生育一个子女期间，只生育一个子女的夫妻患病住 院的，其子女所在单位应当每年给予适当的护理假。护理假期间工资福利待遇不变。","ex":""},{"no":"第三十八条","t":"第三十八条 在国家提倡一对夫妻生育一个子女期间，农村获得《独生子女父母光荣 证》的夫妻和双女户家庭，享受下列优待：\n（一）优先列为重点扶持对象，在乡村振兴项目、资金、技术等方面给予照顾；\n（二）在劳务输出时优先推荐其家庭劳动力；\n（三）多增加一人份的集体福利分配份额；\n（四）参加城乡居民医保的个人自缴费用，按照规定比例由人民政府负担；\n（五）在分配承包土地、帮助发展生产和审批宅基地等方面优先照顾，独生子女的宅 基地按两人计算，但不得超过法律、法规规定的上限标准；\n（六）当地人民政府规定的其他优待政策。","ex":""},{"no":"第三十九条","t":"第三十九条 提倡和鼓励男方到农村的女方家庭结婚落户，女方所在地应当准予落","ex":""},{"no":"第四十条","t":"第四十条 逐步完善社会保险、医疗保障、社会福利、社会救助等社会保障制度，促  进人口与计划生育工作，并采取多种社会救助制度帮助农村独女户、二女绝育户解决生活 困难。\n第四十 一 条 在国家提倡一对夫妻生育一个子女期间，获得《独生子女父母光荣证》 的夫妻，独生子女发生意外伤残、死亡，其父母不再生育或者收养子女的，应当按照国家 和省有关规定获得扶助。县级以上人民政府应当建立健全对上述人群的生活、养老、医\n疗、精神慰藉等全方位帮扶保障制度。","ex":""},{"no":"第四十二条","t":"第四十二条 对模范实行计划生育单位和人口与计划生育工作成绩显著的单位和个\n人，应当给予表彰、奖励，具体办法由省人民政府另行制定。对据实举报非医学需要的胎 儿性别鉴定和选择性别的人工终止妊娠手术、非法销售或者使用终止妊娠药品等违法行为 的人员，应当给予保护和奖励。","ex":""},{"no":"第四十三条","t":"第四十三条 县级以上人民政府可以设立人口与计划生育奖励专项经费，用于对实行 计划生育公民的奖励和社会保障。经费来源于各级人民政府的财政投入以及社会团体、企 业事业单位、其他组织和个人提供的捐助。\n机关、社会团体、企业事业单位和其他组织应当落实本条例规定的计划生育奖励与社 会保障措施的经费。","ex":""}]},{"ch":"第六章  法律责任","items":[{"no":"第四十四条","t":"第四十四条 为他人进行非医学需要的胎儿性别鉴定或者选择性别的人工终止妊娠手 术的，由县级以上人民政府卫生健康主管部门责令改正，给予警告，没收违法所得；违法 所得一万元以上的，处违法所得两倍以上六倍以下罚款；没有违法所得或者违法所得不足 一万元的，处一万元以上三万元以下罚款；情节严重的，由原发证机关吊销执业证书。对 其单位主要负责人、直接负责的主管人员和其他直接责任人员，依法给予处分。","ex":""},{"no":"第四十五条","t":"第四十五条 违反本条例第十二条第二款规定，组织、介绍妊娠妇女进行非医学需要 的胎儿性别鉴定或者选择性别的人工终止妊娠手术的，由县级以上人民政府卫生健康主管 部门没收违法所得；违法所得一万元以上的，处违法所得两倍以上五倍以下罚款；没有违 法所得或者违法所得不足一万元的，处一万元以上两万元以下罚款。属国家工作人员的， 依法给予处分。","ex":""},{"no":"第四十六条","t":"第四十六条 违反本条例第十六条第二款规定，药品零售企业销售终止妊娠药品，药 品生产、批发企业将终止妊娠药品销售给未获得施行终止妊娠手术资格的机构和个人的， 由县级以上人民政府药品监督主管部门没收违法经销药品和违法所得，并处违法经销药品 货值两倍以上五倍以下罚款。","ex":""},{"no":"第四十七条","t":"第四十七条 违反本条例规定，不履行协助计划生育管理义务的部门或者单位，由人 民政府责令改正，并予以通报批评；对直接负责的主管人员和其他直接责任人员依法给予 处分。","ex":""},{"no":"第四十八条","t":"第四十八条 经依法鉴定因施行计划生育手术造成身体伤害系施行手术单位过错所\n致，受术者的治疗费由施行手术的单位承担，施行手术的单位还应当依法承担相应的民事责任；构成医疗事故的，按照国家有关医疗事故处理的规定执行。","ex":""},{"no":"第四十九条","t":"第四十九条 计划生育工作人员有下列情形之一的，由其所在单位或者上级主管部门 依法给予处分；有违法所得的，没收违法所得：\n（一）虚报、瞒报、伪造、篡改、拒报人口与计划生育统计资料的；\n（二）侵犯公民人身权、财产权以及其他合法权益的；\n（三）对举报人口与计划生育工作中弄虚作假、徇私舞弊等行为的人员实施打击报复 的 ；\n（四）截留、贪污、侵占、挪用、私分计划生育经费或者罚款的；\n（五）其他滥用职权、玩忽职守、徇私舞弊的。","ex":""},{"no":"第五十条","t":"第五十条 违反本条例规定构成犯罪的，依法追究刑事责任。","ex":""}]},{"ch":"第七章  附  则","items":[{"no":"","t":"第 一 章  总  则\n第 一 条 为了优化人口结构，提高人口素质，实现人口与经济、社会、资源、环境的 协调发展，推行计划生育，推动实现适度生育水平，促进人口长期均衡发展，维护公民合 法权益，促进家庭幸福与社会和谐，根据《中华人民共和国人口与计划生育法》以及其他 有关法律、行政法规的规定，结合本省实际，制定本条例。","ex":""},{"no":"第二条","t":"第二条 户籍或者居住在本省行政区域内的中国公民、本省行政区域内的机关、社会 团体、企业事业单位和其他组织，应当遵守本条例。","ex":""},{"no":"第三条","t":"第三条  实行计划生育是国家的基本国策。公民有合法生育的权利，也有依法实行计 划生育的义务。夫妻双方在实行计划生育中负有共同的责任。公民实行计划生育的合法权 益受法律保护。\n提倡适龄婚育、优生优育。一对夫妻可以生育三个子女。\n夫妻有一方为其他省、自治区、直辖市户籍的，本省关于再生育子女的规定与其他省、 自治区、直辖市不一致的，按照有利于当事人的原则适用。","ex":""},{"no":"第四条","t":"第四条 开展人口与计划生育工作，应当坚持与发展经济、帮助群众勤劳致富、建设 文明幸福家庭相结合，坚持与增加妇女受教育和就业机会、增进妇女健康、提高妇女地位相结合。\n开展人口与计划生育工作，应当依靠宣传教育、科技进步、综合服务，建立健全奖励 和社会保障制度。","ex":""},{"no":"第五条","t":"第五条  各级人民政府及其工作人员在推行人口与计划生育工作中应当依法行政，文 明执法，不得侵犯公民的合法权益。\n卫生健康主管部门及其工作人员依法执行公务受法律保护。","ex":""},{"no":"第六条","t":"第六条  各级人民政府应当将人口与计划生育事业费纳入本级财政预算，并逐步增加 投入，保证人口与计划生育工作的正常开展。\n任何单位和个人不得截留、克扣、挪用人口与计划生育工作经费。\n鼓励社会团体、企业事业单位、其他组织和个人为人口与计划生育工作提供捐助。","ex":""},{"no":"第七条","t":"第七条  工会、共青团、妇联和计划生育协会等社会团体、企业事业单位、其他组织 和公民应当协助人民政府开展人口与计划生育工作。","ex":""},{"no":"第五十一条","t":"第五十一条  本条例自2009年5月1日起施行。","ex":""}]}]
+;
 /* =================================================== */
-
 
 /* ===== 存储（自动保存 + 导出烘焙）===== */
 const KEY = 'statute_note_' + LAW_KEY;
-let store = 
-(function(){
-  var editMode = false;
-
-  // 醒目入口按钮
-  var btnEdit = document.createElement('button');
-  btnEdit.id = 'btnEdit';
-  btnEdit.title = '编辑模式：每条法条上方出现颜色工具条，可选中局部或直接改整条';
-  btnEdit.innerHTML = '\u270E 编辑条文';
-  btnEdit.style.cssText = 'padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);';
-  var tip = document.createElement('span');
-  tip.className = 'edit-tip';
-  tip.textContent = '已开启：每条法条上方有颜色工具条（选中文字改局部，直接点改整条）';
-  tip.style.display = 'none';
-  var btnTest = document.getElementById('btnTest');
-  if(btnTest){ btnTest.parentNode.insertBefore(btnEdit, btnTest); btnEdit.insertAdjacentElement('afterend', tip); }
-  btnEdit.addEventListener('click', function(){
-    editMode = !editMode;
-    document.body.classList.toggle('edit-mode', editMode);
-    btnEdit.classList.toggle('active', editMode);
-    btnEdit.innerHTML = editMode ? '\u2713 退出编辑' : '\u270E 编辑条文';
-    if(editMode){ btnEdit.style.background='#27ae60'; btnEdit.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; tip.style.display='inline-block'; }
-    else { btnEdit.style.background='#e6a23c'; btnEdit.style.boxShadow='0 2px 6px rgba(230,162,60,.4)'; tip.style.display='none'; }
-    try{ showStatus(editMode ? '编辑模式已开启：点法条上方的颜色按钮即可改色 / 高亮' : '已退出编辑'); }catch(e){}
-  });
-
-  // 存储键（复用笔记已有 KEY）
-  var KEY = '';
-  try { document.querySelectorAll('script').forEach(function(s){ var m = s.textContent.match(/const KEY\s*=\s*'([^']+)'/); if(m) KEY = m[1]; }); }catch(e){}
-  if(!KEY) KEY = 'statute_note_edit';
-
-  var FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
-  var BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
-
-  function barHTML(){
-    var h = '<span class="elbl">字体</span>';
-    FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
-    h += '<span class="fsep"></span><span class="elbl">高亮</span>';
-    BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
-    h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
-    h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
-    return h;
-  }
-
-  function makeEditable(){
-    document.querySelectorAll('.article').forEach(function(art){
-      if(art.dataset.editInjected) return;
-      art.dataset.editInjected = '1';
-      var textEl = art.querySelector('.art-text');
-      if(textEl){
-        textEl.classList.add('editable');
-        textEl.setAttribute('contenteditable','true');
-        textEl.setAttribute('data-art', art.id || '');
-      }
-      var bar = document.createElement('div');
-      bar.className = 'art-editbar';
-      bar.setAttribute('data-bar', art.id || '');
-      bar.innerHTML = barHTML();
-      if(textEl && textEl.parentNode){ textEl.parentNode.insertBefore(bar, textEl); }
-    });
-  }
-
-  // 防止点击工具条导致法条失焦、选区丢失
-  document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
-
-  function applyColor(artId, c, hl){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 局部选区
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 整条
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-  function clearColor(artId){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand('removeFormat', false, null);
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand('removeFormat', false, null);
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-
-  document.addEventListener('click', function(e){
-    if(!editMode) return;
-    var bar = e.target.closest('.art-editbar');
-    if(!bar) return;
-    var artId = bar.getAttribute('data-bar') || '';
-    var clearBtn = e.target.closest('[data-clear]');
-    if(clearBtn){ clearColor(artId); return; }
-    var btn = e.target.closest('[data-c]');
-    if(!btn) return;
-    applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
-  });
-
-  function saveArt(id){
-    var el = document.querySelector('.art-text[data-art="'+id+'"]');
-    if(!el) return;
-    try{ var s = localStorage.getItem(KEY); var store = s ? JSON.parse(s) : {}; if(!store.artEdit) store.artEdit = {}; store.artEdit[id] = el.innerHTML; localStorage.setItem(KEY, JSON.stringify(store)); }catch(err){}
-  }
-  function restoreEdits(){
-    try{ var s = localStorage.getItem(KEY); if(!s) return; var store = JSON.parse(s); if(!store.artEdit) return;
-      Object.keys(store.artEdit).forEach(function(id){ var el = document.querySelector('.art-text[data-art="'+id+'"]'); if(el && store.artEdit[id]) el.innerHTML = store.artEdit[id]; });
-    }catch(e){}
-  }
-
-  var _ro = new MutationObserver(function(){
-    var content = document.getElementById('content');
-    if(content && content.children.length > 0){ makeEditable(); restoreEdits(); }
-  });
-  var mainEl = document.getElementById('content');
-  if(mainEl) _ro.observe(mainEl, {childList:true});
-  setTimeout(function(){ makeEditable(); restoreEdits(); }, 500);
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
 })();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        (m.revised ? '<span class="mk">修正时间</span><span class="mv">'+escapeHtml(m.revised)+'</span>' : '') +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+  // 法条原文（可编辑）
+  'barHTML(id) + <div class="art-text editable" contenteditable="true" data-art="' + id + '">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);  restoreArtEdits();
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
 
 
+/* ===== 编辑模式切换（浮动工具条） ===== */
+let editMode = false;
+const btnEdit = document.getElementById('btnEdit');
+btnEdit.addEventListener('click', function(){
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  this.classList.toggle('active', editMode);
+  this.textContent = editMode ? '✓ 退出编辑' : '✎ 编辑条文';
+  if(editMode){ this.style.background='#27ae60'; this.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; }
+  else { this.style.background=''; this.style.boxShadow=''; }
+  showStatus(editMode ? '编辑模式：每条法条上方有颜色工具条，选中改局部或整条改色' : '已退出编辑');
+});
+
+/* 常驻工具条：每条法条上方由 render 注入 .art-editbar，点击即改色 */
+const FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
+const BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
+function barHTML(id){
+  let h = '<span class="elbl">字体</span>';
+  FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
+  h += '<span class="fsep"></span><span class="elbl">高亮</span>';
+  BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
+  h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
+  h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
+  return '<div class="art-editbar" data-bar="'+id+'">' + h + '</div>';
+}
+
+// 防止点击工具条导致法条失焦、选区丢失
+document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
+
+function applyColor(artId, c, hl){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+  } else {
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+    sel.removeAllRanges();
+  }
+  saveArtText(artId, el.innerHTML);
+}
+function clearColor(artId){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand('removeFormat', false, null);
+  } else {
+    const artData = getArtData(artId);
+    el.innerHTML = artData ? escapeHtml(artData.t) : el.textContent;
+  }
+  saveArtText(artId, el.innerHTML);
+}
+
+document.addEventListener('click', function(e){
+  if(!editMode) return;
+  const bar = e.target.closest('.art-editbar');
+  if(!bar) return;
+  const artId = bar.getAttribute('data-bar') || '';
+  const clearBtn = e.target.closest('[data-clear]');
+  if(clearBtn){ clearColor(artId); showStatus('已清除格式'); return; }
+  const btn = e.target.closest('[data-c]');
+  if(!btn) return;
+  applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
+  showStatus(btn.dataset.hl === '1' ? '已高亮标注' : '已改字体色');
+});
+
+/* 保存法条编辑后的HTML */
+function saveArtText(id, html){
+  if(!store.artEdit) store.artEdit = {};
+  store.artEdit[id] = html;
+  save();
+}
+
+/* 恢复已保存的法条编辑 */
+function restoreArtEdits(){
+  if(!store.artEdit) return;
+  Object.keys(store.artEdit).forEach(function(id){
+    const el = document.querySelector('.art-text[data-art="'+id+'"]');
+    if(el && store.artEdit[id]){
+      el.innerHTML = store.artEdit[id];
+    }
+  });
+}
+
+/* 获取法条原始数据（用于重置） */
+function getArtData(id){
+  for(let ci=0;ci<DATA.length;ci++){
+    for(let ai=0;ai<DATA[ci].items.length;ai++){
+      if('a'+ci+'_'+ai === id) return DATA[ci].items[ai];
+    }
+  }
+  return null;
+}
+
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
 </body>
 </html>
