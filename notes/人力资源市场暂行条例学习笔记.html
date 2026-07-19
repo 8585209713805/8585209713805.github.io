@@ -194,7 +194,6 @@ footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--mute
   body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
 }
 
-/* ===== 法条编辑模式（浮动工具条） ===== */
 /* ===== 法条编辑模式（每条常驻工具条） ===== */
 .art-text.editable{outline:none; border-radius:5px; transition:box-shadow .15s;}
 body.edit-mode .art-text.editable{cursor:text;}
@@ -209,7 +208,6 @@ body.edit-mode .article .art-editbar{display:flex;}
 .art-editbar .fclear:hover{background:#eef1f4;}
 .art-editbar .ehint{font-size:11px;color:#9aa1a9;margin-left:auto;}
 body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modify:read-only;}
-
 </style>
 </head>
 <body>
@@ -219,6 +217,7 @@ body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modi
     <div class="toolbar">
       <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
       <span class="status" id="status">已就绪</span>
+      <button id="btnEdit" title="编辑模式：选中任意法条文字即可改字体色 / 高亮标注" style="padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);">✎ 编辑条文</button>
       <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
       <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
       <button id="btnPrint" title="打印 / 存为PDF">打印</button>
@@ -259,144 +258,383 @@ const CASES = {};
 const REL = {};
 
 /* 法条数据 */
-const DATA = [{"ch":"全文","items":[{"no":"","t":"中华人民共和国国务院令第700号\n《人力资源市场暂行条例》已经2018年5月2日国务院第7次常务会议通过，现予公布， 自2018年10月1日起施行。\n国务院总理 李克强\n2018年6月29日","ex":""}]},{"ch":"第一章  总 则","items":[{"no":"第一条","t":"第一条 为了规范人力资源市场活动，促进人力资源合理流动和优化配置，促进就业 创业，根据《中华人民共和国就业促进法》和有关法律，制定本条例。","ex":""},{"no":"第二条","t":"第二条 在中华人民共和国境内通过人力资源市场求职、招聘和开展人力资源服务， 适用本条例。\n法律、行政法规和国务院规定对求职、招聘和开展人力资源服务另有规定的，从其规 定。","ex":""},{"no":"第三条","t":"第三条 通过人力资源市场求职、招聘和开展人力资源服务，应当遵循合法、公平、诚 实信用的原则。","ex":""},{"no":"第四条","t":"第四条  国务院人力资源社会保障行政部门负责全国人力资源市场的统筹规划和综合 管理工作。\n县级以上地方人民政府人力资源社会保障行政部门负责本行政区域人力资源市场的管 理工作。\n县级以上人民政府发展改革、教育、公安、财政、商务、税务、市场监督管理等有关 部门在各自职责范围内做好人力资源市场的管理工作。","ex":""},{"no":"第五条","t":"第五条 国家加强人力资源服务标准化建设，发挥人力资源服务标准在行业引导、服 务规范、市场监管等方面的作用。","ex":""},{"no":"第六条","t":"第六条 人力资源服务行业协会应当依照法律、法规、规章及其章程的规定，制定行 业自律规范，推进行业诚信建设，提高服务质量，对会员的人力资源服务活动进行指导、 监督，依法维护会员合法权益，反映会员诉求，促进行业公平竞争。","ex":""}]},{"ch":"第二章 人力资源市场培育","items":[{"no":"第七条","t":"第七条 国家建立统一开放、竞争有序的人力资源市场体系，发挥市场在人力资源配 置中的决定性作用，健全人力资源开发机制，激发人力资源创新创造创业活力，促进人力 资源市场繁荣发展。","ex":""},{"no":"第八条","t":"第八条 国家建立政府宏观调控、市场公平竞争、单位自主用人、个人自主择业、人 力资源服务机构诚信服务的人力资源流动配置机制，促进人力资源自由有序流动。","ex":""},{"no":"第九条","t":"第九条 县级以上人民政府应当将人力资源市场建设纳入国民经济和社会发展规划，运\n用区域、产业、土地等政策，推进人力资源市场建设，发展专业性、行业性人力资源市场， 鼓励并规范高端人力资源服务等业态发展，提高人力资源服务业发展水平。\n国家鼓励社会力量参与人力资源市场建设。","ex":""},{"no":"第十条","t":"第十条  县级以上人民政府建立覆盖城乡和各行业的人力资源市场供求信息系统，完 善市场信息发布制度，为求职、招聘提供服务。","ex":""},{"no":"第十一条","t":"第十一条 国家引导和促进人力资源在机关、 企业、事业单位、社会组织之间以及不 同地区之间合理流动。任何地方和单位不得违反国家规定在户籍、地域、身份等方面设置 限制人力资源流动的条件。","ex":""},{"no":"第十二条","t":"第十二条 人力资源社会保障行政部门应当加强人力资源市场监管，维护市场秩序，保 障公平竞争。","ex":""},{"no":"第十三条","t":"第十三条 国家鼓励开展平等、互利的人力资源国际合作与交流，充分开发利用国际 国内人力资源。","ex":""}]},{"ch":"第三章 人力资源服务机构","items":[{"no":"第十四条","t":"第十四条  本条例所称人力资源服务机构，包括公共人力资源服务机构和经营性人力 资源服务机构。\n公共人力资源服务机构，是指县级以上人民政府设立的公共就业和人才服务机构。\n经营性人力资源服务机构，是指依法设立的从事人力资源服务经营活动的机构。","ex":""},{"no":"第十五条","t":"第十五条 公共人力资源服务机构提供下列服务，不得收费：\n（一）人力资源供求、市场工资指导价位、职业培训等信息发布；\n（二）职业介绍、职业指导和创业开业指导；\n（三）就业创业和人才政策法规咨询；\n（四）对就业困难人员实施就业援助；\n（五）办理就业登记、失业登记等事务；\n（六）办理高等学校、中等职业学校、技工学校毕业生接收手续；\n（七）流动人员人事档案管理；\n（八）县级以上人民政府确定的其他服务。","ex":""},{"no":"第十六条","t":"第十六条 公共人力资源服务机构应当加强信息化建设，不断提高服务质量和效率。\n公共人力资源服务经费纳入政府预算。人力资源社会保障行政部门应当依法加强公共 人力资源服务经费管理。","ex":""},{"no":"第十七条","t":"第十七条 国家通过政府购买服务等方式支持经营性人力资源服务机构提供公益性人 力资源服务。","ex":""},{"no":"第十八条","t":"第十八条 经营性人力资源服务机构从事职业中介活动的，应当依法向人力资源社会 保障行政部门申请行政许可，取得人力资源服务许可证。\n经营性人力资源服务机构开展人力资源供求信息的收集和发布、就业和创业指导、人 力资源管理咨询、人力资源测评、人力资源培训、承接人力资源服务外包等人力资源服务 业务的，应当自开展业务之日起15日内向人力资源社会保障行政部门备案。\n经营性人力资源服务机构从事劳务派遣业务的，执行国家有关劳务派遣的规定。","ex":""},{"no":"第十九条","t":"第十九条 人力资源社会保障行政部门应当自收到经营性人力资源服务机构从事职业 中介活动的申请之日起20日内依法作出行政许可决定。符合条件的，颁发人力资源服务许 可证；不符合条件的，作出不予批准的书面决定并说明理由。","ex":""},{"no":"第二十条","t":"第二十条 经营性人力资源服务机构设立分支机构的，应当自工商登记办理完毕之日 起15日内，书面报告分支机构所在地人力资源社会保障行政部门。","ex":""},{"no":"第二十一条","t":"第二十一条 经营性人力资源服务机构变更名称、住所、法定代表人或者终止经营活 动的，应当自工商变更登记或者注销登记办理完毕之日起15日内，书面报告人力资源社会 保障行政部门。","ex":""},{"no":"第二十二条","t":"第二十二条  人力资源社会保障行政部门应当及时向社会公布取得行政许可或者经过 备案的经营性人力资源服务机构名单及其变更、延续等情况。","ex":""}]},{"ch":"第四章 人力资源市场活动规范","items":[{"no":"第二十三条","t":"第二十三条 个人求职，应当如实提供本人基本信息以及与应聘岗位相关的知识、技 能、工作经历等情况。","ex":""},{"no":"第二十四条","t":"第二十四条 用人单位发布或者向人力资源服务机构提供的单位基本情况、招聘人\n数、招聘条件、工作内容、工作地点、基本劳动报酬等招聘信息，应当真实、合法，不得 含有民族、种族、性别、宗教信仰等方面的歧视性内容。\n用人单位自主招用人员，需要建立劳动关系的，应当依法与劳动者订立劳动合同，并 按照国家有关规定办理社会保险等相关手续。","ex":""},{"no":"第二十五条","t":"第二十五条 人力资源流动，应当遵守法律、法规对服务期、从业限制、保密等方面 的规定。","ex":""},{"no":"第二十六条","t":"第二十六条  人力资源服务机构接受用人单位委托招聘人员，应当要求用人单位提供 招聘简章、营业执照或者有关部门批准设立的文件、经办人的身份证件、用人单位的委托 证明，并对所提供材料的真实性、合法性进行审查。","ex":""},{"no":"第二十七条","t":"第二十七条  人力资源服务机构接受用人单位委托招聘人员或者开展其他人力资源服 务，不得采取欺诈、暴力、胁迫或者其他不正当手段，不得以招聘为名牟取不正当利益， 不得介绍单位或者个人从事违法活动。","ex":""},{"no":"第二十八条","t":"第二十八条 人力资源服务机构举办现场招聘会，应当制定组织实施办法、应急预案 和安全保卫工作方案，核实参加招聘会的招聘单位及其招聘简章的真实性、合法性，提前 将招聘会信息向社会公布，并对招聘中的各项活动进行管理。\n举办大型现场招聘会，应当符合《大型群众性活动安全管理条例》等法律法规的规定。","ex":""},{"no":"第二十九条","t":"第二十九条 人力资源服务机构发布人力资源供求信息，应当建立健全信息发布审查 和投诉处理机制，确保发布的信息真实、合法、有效。\n人力资源服务机构在业务活动中收集用人单位和个人信息的，不得泄露或者违法使用 所知悉的商业秘密和个人信息。","ex":""},{"no":"第三十条","t":"第三十条 经营性人力资源服务机构接受用人单位委托提供人力资源服务外包的，不 得改变用人单位与个人的劳动关系，不得与用人单位串通侵害个人的合法权益。","ex":""},{"no":"第三十一条","t":"第三十一条 人力资源服务机构通过互联网提供人力资源服务的，应当遵守本条例和\n国家有关网络安全、互联网信息服务管理的规定。","ex":""},{"no":"第三十二条","t":"第三十二条  经营性人力资源服务机构应当在服务场所明示下列事项，并接受人力资 源社会保障行政部门和市场监督管理、价格等主管部门的监督检查：\n（一）营业执照；\n（二）服务项目；\n（三）收费标准；\n（四）监督机关和监督电话。\n从事职业中介活动的，还应当在服务场所明示人力资源服务许可证。","ex":""},{"no":"第三十三条","t":"第三十三条  人力资源服务机构应当加强内部制度建设，健全财务管理制度，建立服 务台账，如实记录服务对象、服务过程、服务结果等信息。服务台账应当保存2年以上。","ex":""}]},{"ch":"第五章 监督管理","items":[{"no":"第三十四条","t":"第三十四条  人力资源社会保障行政部门对经营性人力资源服务机构实施监督检查， 可以采取下列措施：\n（一）进入被检查单位进行检查；\n（二）询问有关人员，查阅服务台账等服务信息档案；\n（三）要求被检查单位提供与检查事项相关的文件资料，并作出解释和说明；\n（四）采取记录、录音、录像、照相或者复制等方式收集有关情况和资料；\n（五）法律、法规规定的其他措施。\n人力资源社会保障行政部门实施监督检查时，监督检查人员不得少于2人，应当出示执 法证件，并对被检查单位的商业秘密予以保密。\n对人力资源社会保障行政部门依法进行的监督检查，被检查单位应当配合，如实提供 相关资料和信息，不得隐瞒、拒绝、阻碍。","ex":""},{"no":"第三十五条","t":"第三十五条 人力资源社会保障行政部门采取随机抽取检查对象、随机选派执法人员 的方式实施监督检查。\n监督检查的情况应当及时向社会公布。其中，行政处罚、监督检查结果可以通过国家 企业信用信息公示系统或者其他系统向社会公示。","ex":""},{"no":"第三十六条","t":"第三十六条 经营性人力资源服务机构应当在规定期限内，向人力资源社会保障行政 部门提交经营情况年度报告。人力资源社会保障行政部门可以依法公示或者引导经营性人 力资源服务机构依法公示年度报告的有关内容。\n人力资源社会保障行政部门应当加强与市场监督管理等部门的信息共享。通过信息共 享可以获取的信息，不得要求经营性人力资源服务机构重复提供。","ex":""},{"no":"第三十七条","t":"第三十七条 人力资源社会保障行政部门应当加强人力资源市场诚信建设，把用人单 位、个人和经营性人力资源服务机构的信用数据和失信情况等纳入市场诚信建设体系，建 立守信激励和失信惩戒机制，实施信用分类监管。","ex":""},{"no":"第三十八条","t":"第三十八条  人力资源社会保障行政部门应当按照国家有关规定，对公共人力资源服 务机构进行监督管理。","ex":""},{"no":"第三十九条","t":"第三十九条  在人力资源服务机构中，根据中国共产党章程及有关规定，建立党的组\n织并开展活动，加强对流动党员的教育监督和管理服务。人力资源服务机构应当为中国共 产党组织的活动提供必要条件。","ex":""},{"no":"第四十条","t":"第四十条 人力资源社会保障行政部门应当畅通对用人单位和人力资源服务机构的举 报投诉渠道，依法及时处理有关举报投诉。","ex":""},{"no":"第四十一条","t":"第四十一条 公安机关应当依法查处人力资源市场的违法犯罪行为，人力资源社会保 障行政部门予以配合。","ex":""}]},{"ch":"第六章 法律责任","items":[{"no":"第四十二条","t":"第四十二条 违反本条例第十八条第一款规定，未经许可擅自从事职业中介活动的，由 人力资源社会保障行政部门予以关闭或者责令停止从事职业中介活动；有违法所得的，没 收违法所得，并处1万元以上5万元以下的罚款。\n违反本条例第十八条第二款规定，开展人力资源服务业务未备案，违反本条例第二十 条、第二十一条规定，设立分支机构、办理变更或者注销登记未书面报告的，由人力资源 社会保障行政部门责令改正；拒不改正的，处5000元以上1万元以下的罚款。","ex":""},{"no":"第四十三条","t":"第四十三条  违反本条例第二十四条、第二十七条、第二十八条、第二十九条、第三 十条、第三十一条规定，发布的招聘信息不真实、不合法，未依法开展人力资源服务业务 的，由人力资源社会保障行政部门责令改正；有违法所得的，没收违法所得；拒不改正的， 处1万元以上5万元以下的罚款；情节严重的，吊销人力资源服务许可证；给个人造成损害 的，依法承担民事责任。违反其他法律、行政法规的，由有关主管部门依法给予处罚。","ex":""},{"no":"第四十四条","t":"第四十四条  未按照本条例第三十二条规定明示有关事项，未按照本条例第三十三条 规定建立健全内部制度或者保存服务台账，未按照本条例第三十六条规定提交经营情况年 度报告的，由人力资源社会保障行政部门责令改正；拒不改正的，处5000元以上1万元以下 的罚款。违反其他法律、行政法规的，由有关主管部门依法给予处罚。","ex":""},{"no":"第四十五条","t":"第四十五条 公共人力资源服务机构违反本条例规定的，由上级主管机关责令改正； 拒不改正的，对直接负责的主管人员和其他直接责任人员依法给予处分。","ex":""},{"no":"第四十六条","t":"第四十六条  人力资源社会保障行政部门和有关主管部门及其工作人员有下列情形之 一的，对直接负责的领导人员和其他直接责任人员依法给予处分：\n（一）不依法作出行政许可决定；\n（二）在办理行政许可或者备案、实施监督检查中，索取或者收受他人财物，或者谋 取其他利益；\n（三）不依法履行监督职责或者监督不力，造成严重后果；\n（四）其他滥用职权、玩忽职守、徇私舞弊的情形。","ex":""},{"no":"第四十七条","t":"第四十七条 违反本条例规定，构成违反治安管理行为的，依法给予治安管理处罚； 构成犯罪的，依法追究刑事责任。","ex":""}]},{"ch":"第七章  附 则","items":[{"no":"第四十八条","t":"第四十八条 本条例自2018年10月1日起施行。","ex":""}]}];
+const DATA = [{"ch":"全文","items":[{"no":"","t":"中华人民共和国国务院令第700号\n《人力资源市场暂行条例》已经2018年5月2日国务院第7次常务会议通过，现予公布， 自2018年10月1日起施行。\n国务院总理 李克强\n2018年6月29日","ex":""}]},{"ch":"第一章  总 则","items":[{"no":"第一条","t":"第一条 为了规范人力资源市场活动，促进人力资源合理流动和优化配置，促进就业 创业，根据《中华人民共和国就业促进法》和有关法律，制定本条例。","ex":""},{"no":"第二条","t":"第二条 在中华人民共和国境内通过人力资源市场求职、招聘和开展人力资源服务， 适用本条例。\n法律、行政法规和国务院规定对求职、招聘和开展人力资源服务另有规定的，从其规 定。","ex":""},{"no":"第三条","t":"第三条 通过人力资源市场求职、招聘和开展人力资源服务，应当遵循合法、公平、诚 实信用的原则。","ex":""},{"no":"第四条","t":"第四条  国务院人力资源社会保障行政部门负责全国人力资源市场的统筹规划和综合 管理工作。\n县级以上地方人民政府人力资源社会保障行政部门负责本行政区域人力资源市场的管 理工作。\n县级以上人民政府发展改革、教育、公安、财政、商务、税务、市场监督管理等有关 部门在各自职责范围内做好人力资源市场的管理工作。","ex":""},{"no":"第五条","t":"第五条 国家加强人力资源服务标准化建设，发挥人力资源服务标准在行业引导、服 务规范、市场监管等方面的作用。","ex":""},{"no":"第六条","t":"第六条 人力资源服务行业协会应当依照法律、法规、规章及其章程的规定，制定行 业自律规范，推进行业诚信建设，提高服务质量，对会员的人力资源服务活动进行指导、 监督，依法维护会员合法权益，反映会员诉求，促进行业公平竞争。","ex":""}]},{"ch":"第二章 人力资源市场培育","items":[{"no":"第七条","t":"第七条 国家建立统一开放、竞争有序的人力资源市场体系，发挥市场在人力资源配 置中的决定性作用，健全人力资源开发机制，激发人力资源创新创造创业活力，促进人力 资源市场繁荣发展。","ex":""},{"no":"第八条","t":"第八条 国家建立政府宏观调控、市场公平竞争、单位自主用人、个人自主择业、人 力资源服务机构诚信服务的人力资源流动配置机制，促进人力资源自由有序流动。","ex":""},{"no":"第九条","t":"第九条 县级以上人民政府应当将人力资源市场建设纳入国民经济和社会发展规划，运\n用区域、产业、土地等政策，推进人力资源市场建设，发展专业性、行业性人力资源市场， 鼓励并规范高端人力资源服务等业态发展，提高人力资源服务业发展水平。\n国家鼓励社会力量参与人力资源市场建设。","ex":""},{"no":"第十条","t":"第十条  县级以上人民政府建立覆盖城乡和各行业的人力资源市场供求信息系统，完 善市场信息发布制度，为求职、招聘提供服务。","ex":""},{"no":"第十一条","t":"第十一条 国家引导和促进人力资源在机关、 企业、事业单位、社会组织之间以及不 同地区之间合理流动。任何地方和单位不得违反国家规定在户籍、地域、身份等方面设置 限制人力资源流动的条件。","ex":""},{"no":"第十二条","t":"第十二条 人力资源社会保障行政部门应当加强人力资源市场监管，维护市场秩序，保 障公平竞争。","ex":""},{"no":"第十三条","t":"第十三条 国家鼓励开展平等、互利的人力资源国际合作与交流，充分开发利用国际 国内人力资源。","ex":""}]},{"ch":"第三章 人力资源服务机构","items":[{"no":"第十四条","t":"第十四条  本条例所称人力资源服务机构，包括公共人力资源服务机构和经营性人力 资源服务机构。\n公共人力资源服务机构，是指县级以上人民政府设立的公共就业和人才服务机构。\n经营性人力资源服务机构，是指依法设立的从事人力资源服务经营活动的机构。","ex":""},{"no":"第十五条","t":"第十五条 公共人力资源服务机构提供下列服务，不得收费：\n（一）人力资源供求、市场工资指导价位、职业培训等信息发布；\n（二）职业介绍、职业指导和创业开业指导；\n（三）就业创业和人才政策法规咨询；\n（四）对就业困难人员实施就业援助；\n（五）办理就业登记、失业登记等事务；\n（六）办理高等学校、中等职业学校、技工学校毕业生接收手续；\n（七）流动人员人事档案管理；\n（八）县级以上人民政府确定的其他服务。","ex":""},{"no":"第十六条","t":"第十六条 公共人力资源服务机构应当加强信息化建设，不断提高服务质量和效率。\n公共人力资源服务经费纳入政府预算。人力资源社会保障行政部门应当依法加强公共 人力资源服务经费管理。","ex":""},{"no":"第十七条","t":"第十七条 国家通过政府购买服务等方式支持经营性人力资源服务机构提供公益性人 力资源服务。","ex":""},{"no":"第十八条","t":"第十八条 经营性人力资源服务机构从事职业中介活动的，应当依法向人力资源社会 保障行政部门申请行政许可，取得人力资源服务许可证。\n经营性人力资源服务机构开展人力资源供求信息的收集和发布、就业和创业指导、人 力资源管理咨询、人力资源测评、人力资源培训、承接人力资源服务外包等人力资源服务 业务的，应当自开展业务之日起15日内向人力资源社会保障行政部门备案。\n经营性人力资源服务机构从事劳务派遣业务的，执行国家有关劳务派遣的规定。","ex":""},{"no":"第十九条","t":"第十九条 人力资源社会保障行政部门应当自收到经营性人力资源服务机构从事职业 中介活动的申请之日起20日内依法作出行政许可决定。符合条件的，颁发人力资源服务许 可证；不符合条件的，作出不予批准的书面决定并说明理由。","ex":""},{"no":"第二十条","t":"第二十条 经营性人力资源服务机构设立分支机构的，应当自工商登记办理完毕之日 起15日内，书面报告分支机构所在地人力资源社会保障行政部门。","ex":""},{"no":"第二十一条","t":"第二十一条 经营性人力资源服务机构变更名称、住所、法定代表人或者终止经营活 动的，应当自工商变更登记或者注销登记办理完毕之日起15日内，书面报告人力资源社会 保障行政部门。","ex":""},{"no":"第二十二条","t":"第二十二条  人力资源社会保障行政部门应当及时向社会公布取得行政许可或者经过 备案的经营性人力资源服务机构名单及其变更、延续等情况。","ex":""}]},{"ch":"第四章 人力资源市场活动规范","items":[{"no":"第二十三条","t":"第二十三条 个人求职，应当如实提供本人基本信息以及与应聘岗位相关的知识、技 能、工作经历等情况。","ex":""},{"no":"第二十四条","t":"第二十四条 用人单位发布或者向人力资源服务机构提供的单位基本情况、招聘人\n数、招聘条件、工作内容、工作地点、基本劳动报酬等招聘信息，应当真实、合法，不得 含有民族、种族、性别、宗教信仰等方面的歧视性内容。\n用人单位自主招用人员，需要建立劳动关系的，应当依法与劳动者订立劳动合同，并 按照国家有关规定办理社会保险等相关手续。","ex":""},{"no":"第二十五条","t":"第二十五条 人力资源流动，应当遵守法律、法规对服务期、从业限制、保密等方面 的规定。","ex":""},{"no":"第二十六条","t":"第二十六条  人力资源服务机构接受用人单位委托招聘人员，应当要求用人单位提供 招聘简章、营业执照或者有关部门批准设立的文件、经办人的身份证件、用人单位的委托 证明，并对所提供材料的真实性、合法性进行审查。","ex":""},{"no":"第二十七条","t":"第二十七条  人力资源服务机构接受用人单位委托招聘人员或者开展其他人力资源服 务，不得采取欺诈、暴力、胁迫或者其他不正当手段，不得以招聘为名牟取不正当利益， 不得介绍单位或者个人从事违法活动。","ex":""},{"no":"第二十八条","t":"第二十八条 人力资源服务机构举办现场招聘会，应当制定组织实施办法、应急预案 和安全保卫工作方案，核实参加招聘会的招聘单位及其招聘简章的真实性、合法性，提前 将招聘会信息向社会公布，并对招聘中的各项活动进行管理。\n举办大型现场招聘会，应当符合《大型群众性活动安全管理条例》等法律法规的规定。","ex":""},{"no":"第二十九条","t":"第二十九条 人力资源服务机构发布人力资源供求信息，应当建立健全信息发布审查 和投诉处理机制，确保发布的信息真实、合法、有效。\n人力资源服务机构在业务活动中收集用人单位和个人信息的，不得泄露或者违法使用 所知悉的商业秘密和个人信息。","ex":""},{"no":"第三十条","t":"第三十条 经营性人力资源服务机构接受用人单位委托提供人力资源服务外包的，不 得改变用人单位与个人的劳动关系，不得与用人单位串通侵害个人的合法权益。","ex":""},{"no":"第三十一条","t":"第三十一条 人力资源服务机构通过互联网提供人力资源服务的，应当遵守本条例和\n国家有关网络安全、互联网信息服务管理的规定。","ex":""},{"no":"第三十二条","t":"第三十二条  经营性人力资源服务机构应当在服务场所明示下列事项，并接受人力资 源社会保障行政部门和市场监督管理、价格等主管部门的监督检查：\n（一）营业执照；\n（二）服务项目；\n（三）收费标准；\n（四）监督机关和监督电话。\n从事职业中介活动的，还应当在服务场所明示人力资源服务许可证。","ex":""},{"no":"第三十三条","t":"第三十三条  人力资源服务机构应当加强内部制度建设，健全财务管理制度，建立服 务台账，如实记录服务对象、服务过程、服务结果等信息。服务台账应当保存2年以上。","ex":""}]},{"ch":"第五章 监督管理","items":[{"no":"第三十四条","t":"第三十四条  人力资源社会保障行政部门对经营性人力资源服务机构实施监督检查， 可以采取下列措施：\n（一）进入被检查单位进行检查；\n（二）询问有关人员，查阅服务台账等服务信息档案；\n（三）要求被检查单位提供与检查事项相关的文件资料，并作出解释和说明；\n（四）采取记录、录音、录像、照相或者复制等方式收集有关情况和资料；\n（五）法律、法规规定的其他措施。\n人力资源社会保障行政部门实施监督检查时，监督检查人员不得少于2人，应当出示执 法证件，并对被检查单位的商业秘密予以保密。\n对人力资源社会保障行政部门依法进行的监督检查，被检查单位应当配合，如实提供 相关资料和信息，不得隐瞒、拒绝、阻碍。","ex":""},{"no":"第三十五条","t":"第三十五条 人力资源社会保障行政部门采取随机抽取检查对象、随机选派执法人员 的方式实施监督检查。\n监督检查的情况应当及时向社会公布。其中，行政处罚、监督检查结果可以通过国家 企业信用信息公示系统或者其他系统向社会公示。","ex":""},{"no":"第三十六条","t":"第三十六条 经营性人力资源服务机构应当在规定期限内，向人力资源社会保障行政 部门提交经营情况年度报告。人力资源社会保障行政部门可以依法公示或者引导经营性人 力资源服务机构依法公示年度报告的有关内容。\n人力资源社会保障行政部门应当加强与市场监督管理等部门的信息共享。通过信息共 享可以获取的信息，不得要求经营性人力资源服务机构重复提供。","ex":""},{"no":"第三十七条","t":"第三十七条 人力资源社会保障行政部门应当加强人力资源市场诚信建设，把用人单 位、个人和经营性人力资源服务机构的信用数据和失信情况等纳入市场诚信建设体系，建 立守信激励和失信惩戒机制，实施信用分类监管。","ex":""},{"no":"第三十八条","t":"第三十八条  人力资源社会保障行政部门应当按照国家有关规定，对公共人力资源服 务机构进行监督管理。","ex":""},{"no":"第三十九条","t":"第三十九条  在人力资源服务机构中，根据中国共产党章程及有关规定，建立党的组\n织并开展活动，加强对流动党员的教育监督和管理服务。人力资源服务机构应当为中国共 产党组织的活动提供必要条件。","ex":""},{"no":"第四十条","t":"第四十条 人力资源社会保障行政部门应当畅通对用人单位和人力资源服务机构的举 报投诉渠道，依法及时处理有关举报投诉。","ex":""},{"no":"第四十一条","t":"第四十一条 公安机关应当依法查处人力资源市场的违法犯罪行为，人力资源社会保 障行政部门予以配合。","ex":""}]},{"ch":"第六章 法律责任","items":[{"no":"第四十二条","t":"第四十二条 违反本条例第十八条第一款规定，未经许可擅自从事职业中介活动的，由 人力资源社会保障行政部门予以关闭或者责令停止从事职业中介活动；有违法所得的，没 收违法所得，并处1万元以上5万元以下的罚款。\n违反本条例第十八条第二款规定，开展人力资源服务业务未备案，违反本条例第二十 条、第二十一条规定，设立分支机构、办理变更或者注销登记未书面报告的，由人力资源 社会保障行政部门责令改正；拒不改正的，处5000元以上1万元以下的罚款。","ex":""},{"no":"第四十三条","t":"第四十三条  违反本条例第二十四条、第二十七条、第二十八条、第二十九条、第三 十条、第三十一条规定，发布的招聘信息不真实、不合法，未依法开展人力资源服务业务 的，由人力资源社会保障行政部门责令改正；有违法所得的，没收违法所得；拒不改正的， 处1万元以上5万元以下的罚款；情节严重的，吊销人力资源服务许可证；给个人造成损害 的，依法承担民事责任。违反其他法律、行政法规的，由有关主管部门依法给予处罚。","ex":""},{"no":"第四十四条","t":"第四十四条  未按照本条例第三十二条规定明示有关事项，未按照本条例第三十三条 规定建立健全内部制度或者保存服务台账，未按照本条例第三十六条规定提交经营情况年 度报告的，由人力资源社会保障行政部门责令改正；拒不改正的，处5000元以上1万元以下 的罚款。违反其他法律、行政法规的，由有关主管部门依法给予处罚。","ex":""},{"no":"第四十五条","t":"第四十五条 公共人力资源服务机构违反本条例规定的，由上级主管机关责令改正； 拒不改正的，对直接负责的主管人员和其他直接责任人员依法给予处分。","ex":""},{"no":"第四十六条","t":"第四十六条  人力资源社会保障行政部门和有关主管部门及其工作人员有下列情形之 一的，对直接负责的领导人员和其他直接责任人员依法给予处分：\n（一）不依法作出行政许可决定；\n（二）在办理行政许可或者备案、实施监督检查中，索取或者收受他人财物，或者谋 取其他利益；\n（三）不依法履行监督职责或者监督不力，造成严重后果；\n（四）其他滥用职权、玩忽职守、徇私舞弊的情形。","ex":""},{"no":"第四十七条","t":"第四十七条 违反本条例规定，构成违反治安管理行为的，依法给予治安管理处罚； 构成犯罪的，依法追究刑事责任。","ex":""}]},{"ch":"第七章  附 则","items":[{"no":"第四十八条","t":"第四十八条 本条例自2018年10月1日起施行。","ex":""}]}]
+;
 /* =================================================== */
-
 
 /* ===== 存储（自动保存 + 导出烘焙）===== */
 const KEY = 'statute_note_' + LAW_KEY;
-let store = 
-(function(){
-  var editMode = false;
-
-  // 醒目入口按钮
-  var btnEdit = document.createElement('button');
-  btnEdit.id = 'btnEdit';
-  btnEdit.title = '编辑模式：每条法条上方出现颜色工具条，可选中局部或直接改整条';
-  btnEdit.innerHTML = '\u270E 编辑条文';
-  btnEdit.style.cssText = 'padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);';
-  var tip = document.createElement('span');
-  tip.className = 'edit-tip';
-  tip.textContent = '已开启：每条法条上方有颜色工具条（选中文字改局部，直接点改整条）';
-  tip.style.display = 'none';
-  var btnTest = document.getElementById('btnTest');
-  if(btnTest){ btnTest.parentNode.insertBefore(btnEdit, btnTest); btnEdit.insertAdjacentElement('afterend', tip); }
-  btnEdit.addEventListener('click', function(){
-    editMode = !editMode;
-    document.body.classList.toggle('edit-mode', editMode);
-    btnEdit.classList.toggle('active', editMode);
-    btnEdit.innerHTML = editMode ? '\u2713 退出编辑' : '\u270E 编辑条文';
-    if(editMode){ btnEdit.style.background='#27ae60'; btnEdit.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; tip.style.display='inline-block'; }
-    else { btnEdit.style.background='#e6a23c'; btnEdit.style.boxShadow='0 2px 6px rgba(230,162,60,.4)'; tip.style.display='none'; }
-    try{ showStatus(editMode ? '编辑模式已开启：点法条上方的颜色按钮即可改色 / 高亮' : '已退出编辑'); }catch(e){}
-  });
-
-  // 存储键（复用笔记已有 KEY）
-  var KEY = '';
-  try { document.querySelectorAll('script').forEach(function(s){ var m = s.textContent.match(/const KEY\s*=\s*'([^']+)'/); if(m) KEY = m[1]; }); }catch(e){}
-  if(!KEY) KEY = 'statute_note_edit';
-
-  var FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
-  var BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
-
-  function barHTML(){
-    var h = '<span class="elbl">字体</span>';
-    FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
-    h += '<span class="fsep"></span><span class="elbl">高亮</span>';
-    BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
-    h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
-    h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
-    return h;
-  }
-
-  function makeEditable(){
-    document.querySelectorAll('.article').forEach(function(art){
-      if(art.dataset.editInjected) return;
-      art.dataset.editInjected = '1';
-      var textEl = art.querySelector('.art-text');
-      if(textEl){
-        textEl.classList.add('editable');
-        textEl.setAttribute('contenteditable','true');
-        textEl.setAttribute('data-art', art.id || '');
-      }
-      var bar = document.createElement('div');
-      bar.className = 'art-editbar';
-      bar.setAttribute('data-bar', art.id || '');
-      bar.innerHTML = barHTML();
-      if(textEl && textEl.parentNode){ textEl.parentNode.insertBefore(bar, textEl); }
-    });
-  }
-
-  // 防止点击工具条导致法条失焦、选区丢失
-  document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
-
-  function applyColor(artId, c, hl){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 局部选区
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 整条
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-  function clearColor(artId){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand('removeFormat', false, null);
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand('removeFormat', false, null);
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-
-  document.addEventListener('click', function(e){
-    if(!editMode) return;
-    var bar = e.target.closest('.art-editbar');
-    if(!bar) return;
-    var artId = bar.getAttribute('data-bar') || '';
-    var clearBtn = e.target.closest('[data-clear]');
-    if(clearBtn){ clearColor(artId); return; }
-    var btn = e.target.closest('[data-c]');
-    if(!btn) return;
-    applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
-  });
-
-  function saveArt(id){
-    var el = document.querySelector('.art-text[data-art="'+id+'"]');
-    if(!el) return;
-    try{ var s = localStorage.getItem(KEY); var store = s ? JSON.parse(s) : {}; if(!store.artEdit) store.artEdit = {}; store.artEdit[id] = el.innerHTML; localStorage.setItem(KEY, JSON.stringify(store)); }catch(err){}
-  }
-  function restoreEdits(){
-    try{ var s = localStorage.getItem(KEY); if(!s) return; var store = JSON.parse(s); if(!store.artEdit) return;
-      Object.keys(store.artEdit).forEach(function(id){ var el = document.querySelector('.art-text[data-art="'+id+'"]'); if(el && store.artEdit[id]) el.innerHTML = store.artEdit[id]; });
-    }catch(e){}
-  }
-
-  var _ro = new MutationObserver(function(){
-    var content = document.getElementById('content');
-    if(content && content.children.length > 0){ makeEditable(); restoreEdits(); }
-  });
-  var mainEl = document.getElementById('content');
-  if(mainEl) _ro.observe(mainEl, {childList:true});
-  setTimeout(function(){ makeEditable(); restoreEdits(); }, 500);
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
 })();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        (m.revised ? '<span class="mk">修正时间</span><span class="mv">'+escapeHtml(m.revised)+'</span>' : '') +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+  // 法条原文（可编辑）
+  'barHTML(id) + <div class="art-text editable" contenteditable="true" data-art="' + id + '">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);  restoreArtEdits();
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
 
 
+/* ===== 编辑模式切换（浮动工具条） ===== */
+let editMode = false;
+const btnEdit = document.getElementById('btnEdit');
+btnEdit.addEventListener('click', function(){
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  this.classList.toggle('active', editMode);
+  this.textContent = editMode ? '✓ 退出编辑' : '✎ 编辑条文';
+  if(editMode){ this.style.background='#27ae60'; this.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; }
+  else { this.style.background=''; this.style.boxShadow=''; }
+  showStatus(editMode ? '编辑模式：每条法条上方有颜色工具条，选中改局部或整条改色' : '已退出编辑');
+});
+
+/* 常驻工具条：每条法条上方由 render 注入 .art-editbar，点击即改色 */
+const FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
+const BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
+function barHTML(id){
+  let h = '<span class="elbl">字体</span>';
+  FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
+  h += '<span class="fsep"></span><span class="elbl">高亮</span>';
+  BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
+  h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
+  h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
+  return '<div class="art-editbar" data-bar="'+id+'">' + h + '</div>';
+}
+
+// 防止点击工具条导致法条失焦、选区丢失
+document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
+
+function applyColor(artId, c, hl){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+  } else {
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+    sel.removeAllRanges();
+  }
+  saveArtText(artId, el.innerHTML);
+}
+function clearColor(artId){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand('removeFormat', false, null);
+  } else {
+    const artData = getArtData(artId);
+    el.innerHTML = artData ? escapeHtml(artData.t) : el.textContent;
+  }
+  saveArtText(artId, el.innerHTML);
+}
+
+document.addEventListener('click', function(e){
+  if(!editMode) return;
+  const bar = e.target.closest('.art-editbar');
+  if(!bar) return;
+  const artId = bar.getAttribute('data-bar') || '';
+  const clearBtn = e.target.closest('[data-clear]');
+  if(clearBtn){ clearColor(artId); showStatus('已清除格式'); return; }
+  const btn = e.target.closest('[data-c]');
+  if(!btn) return;
+  applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
+  showStatus(btn.dataset.hl === '1' ? '已高亮标注' : '已改字体色');
+});
+
+/* 保存法条编辑后的HTML */
+function saveArtText(id, html){
+  if(!store.artEdit) store.artEdit = {};
+  store.artEdit[id] = html;
+  save();
+}
+
+/* 恢复已保存的法条编辑 */
+function restoreArtEdits(){
+  if(!store.artEdit) return;
+  Object.keys(store.artEdit).forEach(function(id){
+    const el = document.querySelector('.art-text[data-art="'+id+'"]');
+    if(el && store.artEdit[id]){
+      el.innerHTML = store.artEdit[id];
+    }
+  });
+}
+
+/* 获取法条原始数据（用于重置） */
+function getArtData(id){
+  for(let ci=0;ci<DATA.length;ci++){
+    for(let ai=0;ai<DATA[ci].items.length;ai++){
+      if('a'+ci+'_'+ai === id) return DATA[ci].items[ai];
+    }
+  }
+  return null;
+}
+
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
 </body>
 </html>
