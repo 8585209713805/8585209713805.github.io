@@ -194,7 +194,6 @@ footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--mute
   body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
 }
 
-/* ===== 法条编辑模式（浮动工具条） ===== */
 /* ===== 法条编辑模式（每条常驻工具条） ===== */
 .art-text.editable{outline:none; border-radius:5px; transition:box-shadow .15s;}
 body.edit-mode .art-text.editable{cursor:text;}
@@ -209,7 +208,6 @@ body.edit-mode .article .art-editbar{display:flex;}
 .art-editbar .fclear:hover{background:#eef1f4;}
 .art-editbar .ehint{font-size:11px;color:#9aa1a9;margin-left:auto;}
 body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modify:read-only;}
-
 </style>
 </head>
 <body>
@@ -219,6 +217,7 @@ body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modi
     <div class="toolbar">
       <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
       <span class="status" id="status">已就绪</span>
+      <button id="btnEdit" title="编辑模式：选中任意法条文字即可改字体色 / 高亮标注" style="padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);">✎ 编辑条文</button>
       <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
       <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
       <button id="btnPrint" title="打印 / 存为PDF">打印</button>
@@ -259,144 +258,383 @@ const CASES = {};
 const REL = {};
 
 /* 法条数据 */
-const DATA = [{"ch":"全文","items":[{"no":"","t":"中华人民共和国人力资源和社会保障部令第22号\n《劳务派遣暂行规定》已于2013年12月20日经人力资源社会保障部第21次部务会审议通 过，现予公布，自2014年3月1日起施行。\n部长 尹蔚民\n2014年1月24日","ex":""}]},{"ch":"第一章 总 则","items":[{"no":"第一条","t":"第一条 为规范劳务派遣，维护劳动者的合法权益，促进劳动关系和谐稳定，依据《中 华人民共和国劳动合同法》（以下简称劳动合同法）和《中华人民共和国劳动合同法实施条 例》（以下简称劳动合同法实施条例）等法律、行政法规，制定本规定。","ex":""},{"no":"第二条","t":"第二条 劳务派遣单位经营劳务派遣业务，企业（以下称用工单位）使用被派遣劳动者，适用本规定。\n依法成立的会计师事务所、律师事务所等合伙组织和基金会以及民办非企业单位等组织 使用被派遣劳动者，依照本规定执行。","ex":""}]},{"ch":"第二章  用工范围和用工比例","items":[{"no":"第三条","t":"第三条 用工单位只能在临时性、辅助性或者替代性的工作岗位上使用被派遣劳动者。\n前款规定的临时性工作岗位是指存续时间不超过6个月的岗位；辅助性工作岗位是指为主 营业务岗位提供服务的非主营业务岗位；替代性工作岗位是指用工单位的劳动者因脱产学习、 休假等原因无法工作的一定期间内，可以由其他劳动者替代工作的岗位。\n用工单位决定使用被派遣劳动者的辅助性岗位，应当经职工代表大会或者全体职工讨论， 提出方案和意见，与工会或者职工代表平等协商确定，并在用工单位内公示。","ex":""},{"no":"第四条","t":"第四条 用工单位应当严格控制劳务派遣用工数量，使用的被派遣劳动者数量不得超过 其用工总量的10%。\n前款所称用工总量是指用工单位订立劳动合同人数与使用的被派遣劳动者人数之和。\n计算劳务派遣用工比例的用工单位是指依照劳动合同法和劳动合同法实施条例可以与劳 动者订立劳动合同的用人单位。","ex":""}]},{"ch":"第三章  劳动合同、劳务派遣协议的订立和履行","items":[{"no":"第五条","t":"第五条 劳务派遣单位应当依法与被派遣劳动者订立2年以上的固定期限书面劳动合同。","ex":""},{"no":"第六条","t":"第六条 劳务派遣单位可以依法与被派遣劳动者约定试用期。劳务派遣单位与同一被派 遣劳动者只能约定一次试用期。","ex":""},{"no":"第七条","t":"第七条 劳务派遣协议应当载明下列内容：\n（一）派遣的工作岗位名称和岗位性质；\n（二）工作地点；\n（三）派遣人员数量和派遣期限；\n（四）按照同工同酬原则确定的劳动报酬数额和支付方式；\n（五）社会保险费的数额和支付方式；\n（六）工作时间和休息休假事项；\n（ 七 ）被派遣劳动者工伤、生育或者患病期间的相关待遇；\n（八）劳动安全卫生以及培训事项；\n（九）经济补偿等费用；\n（十）劳务派遣协议期限；\n（十一）劳务派遣服务费的支付方式和标准；\n（十二）违反劳务派遣协议的责任；\n（十三）法律、法规、规章规定应当纳入劳务派遣协议的其他事项。","ex":""},{"no":"第八条","t":"第八条 劳务派遣单位应当对被派遣劳动者履行下列义务：\n（一）如实告知被派遣劳动者劳动合同法第八条规定的事项、应遵守的规章制度以及劳 务派遣协议的内容；\n（二）建立培训制度，对被派遣劳动者进行上岗知识、安全教育培训；\n（三）按照国家规定和劳务派遣协议约定，依法支付被派遣劳动者的劳动报酬和相关待 遇；\n（四）按照国家规定和劳务派遣协议约定，依法为被派遣劳动者缴纳社会保险费，并办理社会保险相关手续；\n（五）督促用工单位依法为被派遣劳动者提供劳动保护和劳动安全卫生条件；\n（六）依法出具解除或者终止劳动合同的证明；\n（七）协助处理被派遣劳动者与用工单位的纠纷；\n（八）法律、法规和规章规定的其他事项。","ex":""},{"no":"第九条","t":"第九条 用工单位应当按照劳动合同法第六十二条规定，向被派遣劳动者提供与工作岗 位相关的福利待遇，不得歧视被派遣劳动者。","ex":""},{"no":"第十条","t":"第十条 被派遣劳动者在用工单位因工作遭受事故伤害的，劳务派遣单位应当依法申请工伤认定，用工单位应当协助工伤认定的调查核实工作。劳务派遣单位承担工伤保险责任， 但可以与用工单位约定补偿办法。\n被派遣劳动者在申请进行职业病诊断、鉴定时，用工单位应当负责处理职业病诊断、鉴定事宜，并如实提供职业病诊断、鉴定所需的劳动者职业史和职业危害接触史、工作场所职 业病危害因素检测结果等资料，劳务派遣单位应当提供被派遣劳动者职业病诊断、鉴定所需的其他材料。","ex":""},{"no":"第十一条","t":"第十一条 劳务派遣单位行政许可有效期未延续或者《劳务派遣经营许可证》被撤销、吊 销的，已经与被派遣劳动者依法订立的劳动合同应当履行至期限届满。双方经协商一致，可 以解除劳动合同。","ex":""},{"no":"第十二条","t":"第十二条 有下列情形之一的，用工单位可以将被派遣劳动者退回劳务派遣单位：\n（一）用工单位有劳动合同法第四十条第三项、第四十一条规定情形的；\n（二）用工单位被依法宣告破产、吊销营业执照、责令关闭、撤销、决定提前解散或者 经营期限届满不再继续经营的；\n（三）劳务派遣协议期满终止的。\n被派遣劳动者退回后在无工作期间，劳务派遣单位应当按照不低于所在地人民政府规定的最低工资标准，向其按月支付报酬。","ex":""},{"no":"第十三条","t":"第十三条  被派遣劳动者有劳动合同法第四十二条规定情形的，在派遣期限届满前，用工单位不得依据本规定第十二条第一款第一项规定将被派遣劳动者退回劳务派遣单位；派遣期限届满的，应当延续至相应情形消失时方可退回。","ex":""}]},{"ch":"第四章  劳动合同的解除和终止","items":[{"no":"第十四条","t":"第十四条  被派遣劳动者提前30日以书面形式通知劳务派遣单位，可以解除劳动合同。被 派遣劳动者在试用期内提前3日通知劳务派遣单位，可以解除劳动合同。劳务派遣单位应当将 被派遣劳动者通知解除劳动合同的情况及时告知用工单位。","ex":""},{"no":"第十五条","t":"第十五条  被派遣劳动者因本规定第十二条规定被用工单位退回，劳务派遣单位重新派 遣时维持或者提高劳动合同约定条件，被派遣劳动者不同意的，劳务派遣单位可以解除劳动合同。\n被派遣劳动者因本规定第十二条规定被用工单位退回，劳务派遣单位重新派遣时降低劳 动合同约定条件，被派遣劳动者不同意的，劳务派遣单位不得解除劳动合同。但被派遣劳动 者提出解除劳动合同的除外。","ex":""},{"no":"第十六条","t":"第十六条  劳务派遣单位被依法宣告破产、吊销营业执照、责令关闭、撤销、决定提前 解散或者经营期限届满不再继续经营的，劳动合同终止。用工单位应当与劳务派遣单位协商 妥善安置被派遣劳动者。","ex":""},{"no":"第十七条","t":"第十七条 劳务派遣单位因劳动合同法第四十六条或者本规定第十五条、第十六条规定 的情形，与被派遣劳动者解除或者终止劳动合同的，应当依法向被派遣劳动者支付经济补偿。","ex":""}]},{"ch":"第五章 跨地区劳务派遣的社会保险","items":[{"no":"第十八条","t":"第十八条 劳务派遣单位跨地区派遣劳动者的，应当在用工单位所在地为被派遣劳动者 参加社会保险，按照用工单位所在地的规定缴纳社会保险费，被派遣劳动者按照国家规定享 受社会保险待遇。","ex":""},{"no":"第十九条","t":"第十九条 劳务派遣单位在用工单位所在地设立分支机构的，由分支机构为被派遣劳动 者办理参保手续，缴纳社会保险费。\n劳务派遣单位未在用工单位所在地设立分支机构的，由用工单位代劳务派遣单位为被派 遣劳动者办理参保手续，缴纳社会保险费。","ex":""}]},{"ch":"第六章 法律责任","items":[{"no":"第二十条","t":"第二十条 劳务派遣单位、用工单位违反劳动合同法和劳动合同法实施条例有关劳务派 遣规定的，按照劳动合同法第九十二条规定执行。","ex":""},{"no":"第二十一条","t":"第二十一条 劳务派遣单位违反本规定解除或者终止被派遣劳动者劳动合同的，按照劳动合同法第四十八条、第八十七条规定执行。","ex":""},{"no":"第二十二条","t":"第二十二条 用工单位违反本规定第三条第三款规定的，由人力资源社会保障行政部门 责令改正，给予警告；给被派遣劳动者造成损害的，依法承担赔偿责任。","ex":""},{"no":"第二十三条","t":"第二十三条 劳务派遣单位违反本规定第六条规定的，按照劳动合同法第八十三条规定 执行。","ex":""},{"no":"第二十四条","t":"第二十四条 用工单位违反本规定退回被派遣劳动者的，按照劳动合同法第九十二条第 二款规定执行。","ex":""}]},{"ch":"第七章  附  则","items":[{"no":"第二十五条","t":"第二十五条 外国企业常驻代表机构和外国金融机构驻华代表机构等使用被派遣劳动者 的，以及船员用人单位以劳务派遣形式使用国际远洋海员的，不受临时性、辅助性、替代性 岗位和劳务派遣用工比例的限制。","ex":""},{"no":"第二十六条","t":"第二十六条 用人单位将本单位劳动者派往境外工作或者派往家庭、自然人处提供劳动 的，不属于本规定所称劳务派遣。","ex":""},{"no":"第二十七条","t":"第二十七条 用人单位以承揽、外包等名义，按劳务派遣用工形式使用劳动者的，按照 本规定处理。","ex":""},{"no":"第二十八条","t":"第二十八条 用工单位在本规定施行前使用被派遣劳动者数量超过其用工总量10%的，应当制定调整用工方案，于本规定施行之日起2年内降至规定比例。但是，《全国人民代表大会 常务委员会关于修改<中华人民共和国劳动合同法〉的决定》公布前已依法订立的劳动合同和 劳务派遣协议期限届满日期在本规定施行之日起2年后的，可以依法继续履行至期限届满。\n用工单位应当将制定的调整用工方案报当地人力资源社会保障行政部门备案。\n用工单位未将本规定施行前使用的被派遣劳动者数量降至符合规定比例之前，不得新用 被派遣劳动者。","ex":""},{"no":"第二十九条","t":"第二十九条 本规定自2014年3月1日起施行。","ex":""}]}];
+const DATA = [{"ch":"全文","items":[{"no":"","t":"中华人民共和国人力资源和社会保障部令第22号\n《劳务派遣暂行规定》已于2013年12月20日经人力资源社会保障部第21次部务会审议通 过，现予公布，自2014年3月1日起施行。\n部长 尹蔚民\n2014年1月24日","ex":""}]},{"ch":"第一章 总 则","items":[{"no":"第一条","t":"第一条 为规范劳务派遣，维护劳动者的合法权益，促进劳动关系和谐稳定，依据《中 华人民共和国劳动合同法》（以下简称劳动合同法）和《中华人民共和国劳动合同法实施条 例》（以下简称劳动合同法实施条例）等法律、行政法规，制定本规定。","ex":""},{"no":"第二条","t":"第二条 劳务派遣单位经营劳务派遣业务，企业（以下称用工单位）使用被派遣劳动者，适用本规定。\n依法成立的会计师事务所、律师事务所等合伙组织和基金会以及民办非企业单位等组织 使用被派遣劳动者，依照本规定执行。","ex":""}]},{"ch":"第二章  用工范围和用工比例","items":[{"no":"第三条","t":"第三条 用工单位只能在临时性、辅助性或者替代性的工作岗位上使用被派遣劳动者。\n前款规定的临时性工作岗位是指存续时间不超过6个月的岗位；辅助性工作岗位是指为主 营业务岗位提供服务的非主营业务岗位；替代性工作岗位是指用工单位的劳动者因脱产学习、 休假等原因无法工作的一定期间内，可以由其他劳动者替代工作的岗位。\n用工单位决定使用被派遣劳动者的辅助性岗位，应当经职工代表大会或者全体职工讨论， 提出方案和意见，与工会或者职工代表平等协商确定，并在用工单位内公示。","ex":""},{"no":"第四条","t":"第四条 用工单位应当严格控制劳务派遣用工数量，使用的被派遣劳动者数量不得超过 其用工总量的10%。\n前款所称用工总量是指用工单位订立劳动合同人数与使用的被派遣劳动者人数之和。\n计算劳务派遣用工比例的用工单位是指依照劳动合同法和劳动合同法实施条例可以与劳 动者订立劳动合同的用人单位。","ex":""}]},{"ch":"第三章  劳动合同、劳务派遣协议的订立和履行","items":[{"no":"第五条","t":"第五条 劳务派遣单位应当依法与被派遣劳动者订立2年以上的固定期限书面劳动合同。","ex":""},{"no":"第六条","t":"第六条 劳务派遣单位可以依法与被派遣劳动者约定试用期。劳务派遣单位与同一被派 遣劳动者只能约定一次试用期。","ex":""},{"no":"第七条","t":"第七条 劳务派遣协议应当载明下列内容：\n（一）派遣的工作岗位名称和岗位性质；\n（二）工作地点；\n（三）派遣人员数量和派遣期限；\n（四）按照同工同酬原则确定的劳动报酬数额和支付方式；\n（五）社会保险费的数额和支付方式；\n（六）工作时间和休息休假事项；\n（ 七 ）被派遣劳动者工伤、生育或者患病期间的相关待遇；\n（八）劳动安全卫生以及培训事项；\n（九）经济补偿等费用；\n（十）劳务派遣协议期限；\n（十一）劳务派遣服务费的支付方式和标准；\n（十二）违反劳务派遣协议的责任；\n（十三）法律、法规、规章规定应当纳入劳务派遣协议的其他事项。","ex":""},{"no":"第八条","t":"第八条 劳务派遣单位应当对被派遣劳动者履行下列义务：\n（一）如实告知被派遣劳动者劳动合同法第八条规定的事项、应遵守的规章制度以及劳 务派遣协议的内容；\n（二）建立培训制度，对被派遣劳动者进行上岗知识、安全教育培训；\n（三）按照国家规定和劳务派遣协议约定，依法支付被派遣劳动者的劳动报酬和相关待 遇；\n（四）按照国家规定和劳务派遣协议约定，依法为被派遣劳动者缴纳社会保险费，并办理社会保险相关手续；\n（五）督促用工单位依法为被派遣劳动者提供劳动保护和劳动安全卫生条件；\n（六）依法出具解除或者终止劳动合同的证明；\n（七）协助处理被派遣劳动者与用工单位的纠纷；\n（八）法律、法规和规章规定的其他事项。","ex":""},{"no":"第九条","t":"第九条 用工单位应当按照劳动合同法第六十二条规定，向被派遣劳动者提供与工作岗 位相关的福利待遇，不得歧视被派遣劳动者。","ex":""},{"no":"第十条","t":"第十条 被派遣劳动者在用工单位因工作遭受事故伤害的，劳务派遣单位应当依法申请工伤认定，用工单位应当协助工伤认定的调查核实工作。劳务派遣单位承担工伤保险责任， 但可以与用工单位约定补偿办法。\n被派遣劳动者在申请进行职业病诊断、鉴定时，用工单位应当负责处理职业病诊断、鉴定事宜，并如实提供职业病诊断、鉴定所需的劳动者职业史和职业危害接触史、工作场所职 业病危害因素检测结果等资料，劳务派遣单位应当提供被派遣劳动者职业病诊断、鉴定所需的其他材料。","ex":""},{"no":"第十一条","t":"第十一条 劳务派遣单位行政许可有效期未延续或者《劳务派遣经营许可证》被撤销、吊 销的，已经与被派遣劳动者依法订立的劳动合同应当履行至期限届满。双方经协商一致，可 以解除劳动合同。","ex":""},{"no":"第十二条","t":"第十二条 有下列情形之一的，用工单位可以将被派遣劳动者退回劳务派遣单位：\n（一）用工单位有劳动合同法第四十条第三项、第四十一条规定情形的；\n（二）用工单位被依法宣告破产、吊销营业执照、责令关闭、撤销、决定提前解散或者 经营期限届满不再继续经营的；\n（三）劳务派遣协议期满终止的。\n被派遣劳动者退回后在无工作期间，劳务派遣单位应当按照不低于所在地人民政府规定的最低工资标准，向其按月支付报酬。","ex":""},{"no":"第十三条","t":"第十三条  被派遣劳动者有劳动合同法第四十二条规定情形的，在派遣期限届满前，用工单位不得依据本规定第十二条第一款第一项规定将被派遣劳动者退回劳务派遣单位；派遣期限届满的，应当延续至相应情形消失时方可退回。","ex":""}]},{"ch":"第四章  劳动合同的解除和终止","items":[{"no":"第十四条","t":"第十四条  被派遣劳动者提前30日以书面形式通知劳务派遣单位，可以解除劳动合同。被 派遣劳动者在试用期内提前3日通知劳务派遣单位，可以解除劳动合同。劳务派遣单位应当将 被派遣劳动者通知解除劳动合同的情况及时告知用工单位。","ex":""},{"no":"第十五条","t":"第十五条  被派遣劳动者因本规定第十二条规定被用工单位退回，劳务派遣单位重新派 遣时维持或者提高劳动合同约定条件，被派遣劳动者不同意的，劳务派遣单位可以解除劳动合同。\n被派遣劳动者因本规定第十二条规定被用工单位退回，劳务派遣单位重新派遣时降低劳 动合同约定条件，被派遣劳动者不同意的，劳务派遣单位不得解除劳动合同。但被派遣劳动 者提出解除劳动合同的除外。","ex":""},{"no":"第十六条","t":"第十六条  劳务派遣单位被依法宣告破产、吊销营业执照、责令关闭、撤销、决定提前 解散或者经营期限届满不再继续经营的，劳动合同终止。用工单位应当与劳务派遣单位协商 妥善安置被派遣劳动者。","ex":""},{"no":"第十七条","t":"第十七条 劳务派遣单位因劳动合同法第四十六条或者本规定第十五条、第十六条规定 的情形，与被派遣劳动者解除或者终止劳动合同的，应当依法向被派遣劳动者支付经济补偿。","ex":""}]},{"ch":"第五章 跨地区劳务派遣的社会保险","items":[{"no":"第十八条","t":"第十八条 劳务派遣单位跨地区派遣劳动者的，应当在用工单位所在地为被派遣劳动者 参加社会保险，按照用工单位所在地的规定缴纳社会保险费，被派遣劳动者按照国家规定享 受社会保险待遇。","ex":""},{"no":"第十九条","t":"第十九条 劳务派遣单位在用工单位所在地设立分支机构的，由分支机构为被派遣劳动 者办理参保手续，缴纳社会保险费。\n劳务派遣单位未在用工单位所在地设立分支机构的，由用工单位代劳务派遣单位为被派 遣劳动者办理参保手续，缴纳社会保险费。","ex":""}]},{"ch":"第六章 法律责任","items":[{"no":"第二十条","t":"第二十条 劳务派遣单位、用工单位违反劳动合同法和劳动合同法实施条例有关劳务派 遣规定的，按照劳动合同法第九十二条规定执行。","ex":""},{"no":"第二十一条","t":"第二十一条 劳务派遣单位违反本规定解除或者终止被派遣劳动者劳动合同的，按照劳动合同法第四十八条、第八十七条规定执行。","ex":""},{"no":"第二十二条","t":"第二十二条 用工单位违反本规定第三条第三款规定的，由人力资源社会保障行政部门 责令改正，给予警告；给被派遣劳动者造成损害的，依法承担赔偿责任。","ex":""},{"no":"第二十三条","t":"第二十三条 劳务派遣单位违反本规定第六条规定的，按照劳动合同法第八十三条规定 执行。","ex":""},{"no":"第二十四条","t":"第二十四条 用工单位违反本规定退回被派遣劳动者的，按照劳动合同法第九十二条第 二款规定执行。","ex":""}]},{"ch":"第七章  附  则","items":[{"no":"第二十五条","t":"第二十五条 外国企业常驻代表机构和外国金融机构驻华代表机构等使用被派遣劳动者 的，以及船员用人单位以劳务派遣形式使用国际远洋海员的，不受临时性、辅助性、替代性 岗位和劳务派遣用工比例的限制。","ex":""},{"no":"第二十六条","t":"第二十六条 用人单位将本单位劳动者派往境外工作或者派往家庭、自然人处提供劳动 的，不属于本规定所称劳务派遣。","ex":""},{"no":"第二十七条","t":"第二十七条 用人单位以承揽、外包等名义，按劳务派遣用工形式使用劳动者的，按照 本规定处理。","ex":""},{"no":"第二十八条","t":"第二十八条 用工单位在本规定施行前使用被派遣劳动者数量超过其用工总量10%的，应当制定调整用工方案，于本规定施行之日起2年内降至规定比例。但是，《全国人民代表大会 常务委员会关于修改<中华人民共和国劳动合同法〉的决定》公布前已依法订立的劳动合同和 劳务派遣协议期限届满日期在本规定施行之日起2年后的，可以依法继续履行至期限届满。\n用工单位应当将制定的调整用工方案报当地人力资源社会保障行政部门备案。\n用工单位未将本规定施行前使用的被派遣劳动者数量降至符合规定比例之前，不得新用 被派遣劳动者。","ex":""},{"no":"第二十九条","t":"第二十九条 本规定自2014年3月1日起施行。","ex":""}]}]
+;
 /* =================================================== */
-
 
 /* ===== 存储（自动保存 + 导出烘焙）===== */
 const KEY = 'statute_note_' + LAW_KEY;
-let store = 
-(function(){
-  var editMode = false;
-
-  // 醒目入口按钮
-  var btnEdit = document.createElement('button');
-  btnEdit.id = 'btnEdit';
-  btnEdit.title = '编辑模式：每条法条上方出现颜色工具条，可选中局部或直接改整条';
-  btnEdit.innerHTML = '\u270E 编辑条文';
-  btnEdit.style.cssText = 'padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);';
-  var tip = document.createElement('span');
-  tip.className = 'edit-tip';
-  tip.textContent = '已开启：每条法条上方有颜色工具条（选中文字改局部，直接点改整条）';
-  tip.style.display = 'none';
-  var btnTest = document.getElementById('btnTest');
-  if(btnTest){ btnTest.parentNode.insertBefore(btnEdit, btnTest); btnEdit.insertAdjacentElement('afterend', tip); }
-  btnEdit.addEventListener('click', function(){
-    editMode = !editMode;
-    document.body.classList.toggle('edit-mode', editMode);
-    btnEdit.classList.toggle('active', editMode);
-    btnEdit.innerHTML = editMode ? '\u2713 退出编辑' : '\u270E 编辑条文';
-    if(editMode){ btnEdit.style.background='#27ae60'; btnEdit.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; tip.style.display='inline-block'; }
-    else { btnEdit.style.background='#e6a23c'; btnEdit.style.boxShadow='0 2px 6px rgba(230,162,60,.4)'; tip.style.display='none'; }
-    try{ showStatus(editMode ? '编辑模式已开启：点法条上方的颜色按钮即可改色 / 高亮' : '已退出编辑'); }catch(e){}
-  });
-
-  // 存储键（复用笔记已有 KEY）
-  var KEY = '';
-  try { document.querySelectorAll('script').forEach(function(s){ var m = s.textContent.match(/const KEY\s*=\s*'([^']+)'/); if(m) KEY = m[1]; }); }catch(e){}
-  if(!KEY) KEY = 'statute_note_edit';
-
-  var FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
-  var BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
-
-  function barHTML(){
-    var h = '<span class="elbl">字体</span>';
-    FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
-    h += '<span class="fsep"></span><span class="elbl">高亮</span>';
-    BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
-    h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
-    h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
-    return h;
-  }
-
-  function makeEditable(){
-    document.querySelectorAll('.article').forEach(function(art){
-      if(art.dataset.editInjected) return;
-      art.dataset.editInjected = '1';
-      var textEl = art.querySelector('.art-text');
-      if(textEl){
-        textEl.classList.add('editable');
-        textEl.setAttribute('contenteditable','true');
-        textEl.setAttribute('data-art', art.id || '');
-      }
-      var bar = document.createElement('div');
-      bar.className = 'art-editbar';
-      bar.setAttribute('data-bar', art.id || '');
-      bar.innerHTML = barHTML();
-      if(textEl && textEl.parentNode){ textEl.parentNode.insertBefore(bar, textEl); }
-    });
-  }
-
-  // 防止点击工具条导致法条失焦、选区丢失
-  document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
-
-  function applyColor(artId, c, hl){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 局部选区
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 整条
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-  function clearColor(artId){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand('removeFormat', false, null);
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand('removeFormat', false, null);
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-
-  document.addEventListener('click', function(e){
-    if(!editMode) return;
-    var bar = e.target.closest('.art-editbar');
-    if(!bar) return;
-    var artId = bar.getAttribute('data-bar') || '';
-    var clearBtn = e.target.closest('[data-clear]');
-    if(clearBtn){ clearColor(artId); return; }
-    var btn = e.target.closest('[data-c]');
-    if(!btn) return;
-    applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
-  });
-
-  function saveArt(id){
-    var el = document.querySelector('.art-text[data-art="'+id+'"]');
-    if(!el) return;
-    try{ var s = localStorage.getItem(KEY); var store = s ? JSON.parse(s) : {}; if(!store.artEdit) store.artEdit = {}; store.artEdit[id] = el.innerHTML; localStorage.setItem(KEY, JSON.stringify(store)); }catch(err){}
-  }
-  function restoreEdits(){
-    try{ var s = localStorage.getItem(KEY); if(!s) return; var store = JSON.parse(s); if(!store.artEdit) return;
-      Object.keys(store.artEdit).forEach(function(id){ var el = document.querySelector('.art-text[data-art="'+id+'"]'); if(el && store.artEdit[id]) el.innerHTML = store.artEdit[id]; });
-    }catch(e){}
-  }
-
-  var _ro = new MutationObserver(function(){
-    var content = document.getElementById('content');
-    if(content && content.children.length > 0){ makeEditable(); restoreEdits(); }
-  });
-  var mainEl = document.getElementById('content');
-  if(mainEl) _ro.observe(mainEl, {childList:true});
-  setTimeout(function(){ makeEditable(); restoreEdits(); }, 500);
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
 })();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        (m.revised ? '<span class="mk">修正时间</span><span class="mv">'+escapeHtml(m.revised)+'</span>' : '') +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+  // 法条原文（可编辑）
+  'barHTML(id) + <div class="art-text editable" contenteditable="true" data-art="' + id + '">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);  restoreArtEdits();
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
 
 
+/* ===== 编辑模式切换（浮动工具条） ===== */
+let editMode = false;
+const btnEdit = document.getElementById('btnEdit');
+btnEdit.addEventListener('click', function(){
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  this.classList.toggle('active', editMode);
+  this.textContent = editMode ? '✓ 退出编辑' : '✎ 编辑条文';
+  if(editMode){ this.style.background='#27ae60'; this.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; }
+  else { this.style.background=''; this.style.boxShadow=''; }
+  showStatus(editMode ? '编辑模式：每条法条上方有颜色工具条，选中改局部或整条改色' : '已退出编辑');
+});
+
+/* 常驻工具条：每条法条上方由 render 注入 .art-editbar，点击即改色 */
+const FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
+const BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
+function barHTML(id){
+  let h = '<span class="elbl">字体</span>';
+  FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
+  h += '<span class="fsep"></span><span class="elbl">高亮</span>';
+  BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
+  h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
+  h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
+  return '<div class="art-editbar" data-bar="'+id+'">' + h + '</div>';
+}
+
+// 防止点击工具条导致法条失焦、选区丢失
+document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
+
+function applyColor(artId, c, hl){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+  } else {
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+    sel.removeAllRanges();
+  }
+  saveArtText(artId, el.innerHTML);
+}
+function clearColor(artId){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand('removeFormat', false, null);
+  } else {
+    const artData = getArtData(artId);
+    el.innerHTML = artData ? escapeHtml(artData.t) : el.textContent;
+  }
+  saveArtText(artId, el.innerHTML);
+}
+
+document.addEventListener('click', function(e){
+  if(!editMode) return;
+  const bar = e.target.closest('.art-editbar');
+  if(!bar) return;
+  const artId = bar.getAttribute('data-bar') || '';
+  const clearBtn = e.target.closest('[data-clear]');
+  if(clearBtn){ clearColor(artId); showStatus('已清除格式'); return; }
+  const btn = e.target.closest('[data-c]');
+  if(!btn) return;
+  applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
+  showStatus(btn.dataset.hl === '1' ? '已高亮标注' : '已改字体色');
+});
+
+/* 保存法条编辑后的HTML */
+function saveArtText(id, html){
+  if(!store.artEdit) store.artEdit = {};
+  store.artEdit[id] = html;
+  save();
+}
+
+/* 恢复已保存的法条编辑 */
+function restoreArtEdits(){
+  if(!store.artEdit) return;
+  Object.keys(store.artEdit).forEach(function(id){
+    const el = document.querySelector('.art-text[data-art="'+id+'"]');
+    if(el && store.artEdit[id]){
+      el.innerHTML = store.artEdit[id];
+    }
+  });
+}
+
+/* 获取法条原始数据（用于重置） */
+function getArtData(id){
+  for(let ci=0;ci<DATA.length;ci++){
+    for(let ai=0;ai<DATA[ci].items.length;ai++){
+      if('a'+ci+'_'+ai === id) return DATA[ci].items[ai];
+    }
+  }
+  return null;
+}
+
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
 </body>
 </html>
