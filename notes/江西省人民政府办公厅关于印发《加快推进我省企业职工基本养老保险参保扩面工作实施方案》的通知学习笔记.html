@@ -194,7 +194,6 @@ footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--mute
   body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
 }
 
-/* ===== 法条编辑模式（浮动工具条） ===== */
 /* ===== 法条编辑模式（每条常驻工具条） ===== */
 .art-text.editable{outline:none; border-radius:5px; transition:box-shadow .15s;}
 body.edit-mode .art-text.editable{cursor:text;}
@@ -209,7 +208,6 @@ body.edit-mode .article .art-editbar{display:flex;}
 .art-editbar .fclear:hover{background:#eef1f4;}
 .art-editbar .ehint{font-size:11px;color:#9aa1a9;margin-left:auto;}
 body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modify:read-only;}
-
 </style>
 </head>
 <body>
@@ -219,6 +217,7 @@ body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modi
     <div class="toolbar">
       <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
       <span class="status" id="status">已就绪</span>
+      <button id="btnEdit" title="编辑模式：选中任意法条文字即可改字体色 / 高亮标注" style="padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);">✎ 编辑条文</button>
       <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
       <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
       <button id="btnPrint" title="打印 / 存为PDF">打印</button>
@@ -259,144 +258,383 @@ const CASES = {};
 const REL = {};
 
 /* 法条数据 */
-const DATA = [{"ch":"全文","items":[{"no":"","t":"赣府厅字〔2019〕117号  2019年12月31日\n各市、县（区）人民政府，省政府各部门：\n《加快推进我省企业职工基本养老保险参保扩面工作实施方案》已经省政府同意，现 印发给你们，请认真贯彻执行。\n加快推进我省企业职工基本养老保险参保扩面工作实施方案\n为切实提高我省企业职工基本养老保险参保率，维护企业和职工合法权益，促进养老 保险事业可持续发展，提升公平竞争的营商环境，根据《中华人民共和国社会保险法》 《社会保险费申报缴纳管理规定》（人社部令第20号）、《人力资源社会保障部财政部国 家税务总局关于规范企业职工基本养老保险省级统筹制度的通知》（人社部发 〔2019〕112号）等相关规定，结合我省实际，制定本方案。\n一 、工作目标\n持续开展企业职工基本养老保险参保扩面行动，提高参保扩面针对性和有效性，形成 数据共享、部门协同、便捷高效的参保扩面长效机制。力争两年内将工业园区正常经营企 业基本纳入企业职工基本养老保险，全省企业和职工参保率显著提高，逐步实现企业职工 基本养老保险法定人员全覆盖。","ex":""},{"no":"二、","t":"二、工作措施","ex":""},{"no":"（一）","t":"（一）明确相关政策。","ex":""},{"no":"1.","t":"1. 严格落实降低社会保险费率政策，企业职工基本养老保险费单位缴费比例为 16%，职工个人缴费比例为8%;职工个人缴费基数上下限按全口径城镇单位就业人员平均 工资核定，用人单位月缴费基数按本单位参保职工个人月缴费基数之和确定。对已参加企 业职工基本养老保险的人员，可不参加城乡居民基本养老保险（以下简称居民养老保 险），缴纳了企业职工基本养老保险费的年度可不缴纳居民养老保险费。","ex":""},{"no":"2.","t":"2.稳定缴费方式，企业职工基本养老保险费暂由社保经办机构继续征收，条件成熟 时，按国家要求适时移交税务部门征收。征收体制改革过程中不得自行对企业职工基本养 老保险历史欠费进行集中清缴。","ex":""},{"no":"3.","t":"3.与企业形成劳动关系的职工（不包括非全日制用工）应当参加企业职工基本养老保 险，由企业和职工按规定共同缴纳基本养老保险费。职工参保缴费后灵活就业（包括非全 日制用工）或从事个体经营期间，可按灵活就业人员身份继续缴费；中断缴费的，中断期 间不计算缴费年限，个人账户不间断计息；继续缴费后，中断缴费前后缴费年限累计计 算。对重复缴费的，个人账户按规定实行清退或合并。","ex":""},{"no":"4.","t":"4.对劳动关系存续期间，企业未依法及时为其职工办理参保缴费的，企业和职工在向 社保经办机构提交劳动合同或工资支付凭证等能证明双方劳动关系原始材料的，按规定为 其办理补缴手续。社保经办机构和劳动监察部门受理参保人员投诉、举报后核实企业应缴 未缴企业职工基本养老保险费的，按规定为其办理补缴手续。对无法确认其劳动关系，或 对劳动关系存续有异议的，经劳动仲裁或人民法院裁定其劳动关系存续期后，社保经办机 构依据相关法律文书为其及时办理补缴手续。补缴金额按企业职工基本养老保险历年单位 和个人缴费比例、该职工历年工资总额、以及历年使用的社会平均工资的60%-300%之间 确定，利息、滞纳金按规定计算。","ex":""},{"no":"5.","t":"5.积极引导达到法定退休年龄时缴费不足15年的职工继续缴纳企业职工基本养老保险 至满15年。对达到企业职工基本养老保险法定退休年龄后，企业职工基本养老保险缴费不 足15年的人员，不愿继续缴费的，可申请从企业职工基本养老保险转入居民养老保险，企 业职工基本养老保险个人账户全部储存额并入居民养老保险个人账户，企业职工基本养老 保险的缴费年限合并计算为居民养老保险的缴费年限。","ex":""},{"no":"6.","t":"6.加大助保贷款实施力度，完善个人自愿申请、政府贴息、银行贷款缴费的筹资负担 机制。将达到法定退休年龄时缴费不满15年的缴费困难人员纳入助保贷款范围，引导其继 续缴费，享受水平较高的养老保险待遇。申请助保贷款人员年龄可适当放宽；结合申请人 信用，最长贷款年限同步放宽。建立助保贷款额度动态调整机制，贷款金额根据企业职工 基本养老保险年缴费水平同步增长。加大政府贴息，简化贷款和还款手续。","ex":""},{"no":"（二）","t":"（二）优化经办服务。","ex":""},{"no":"7.","t":"7.从2020年1月起，企业职工基本养老保险关系省内转移，只转关系，不转基金。加快 完善全省数据集中的社会保险信息系统，推进社会保险业务在“赣服通”、江西人社一体 化综合信息系统、 “江西人社”APP 、 “ 江西人社”支付宝生活号的运用，推进平台缴 费、网点缴费、网上缴费、手机缴费，提高社会保险业务网上办理和手机办理覆盖面。加 快实现社会保险业务“一次注册、各地互认，单点登录、全网通行， 一网通办、全省通 办”。向社会提供简明易懂的政策解读、信息查询和待遇测算等服务，让政策“看得 懂”，待遇“算得清”。","ex":""},{"no":"8.","t":"8.新设立企业在办理登记注册时，通过江西省企业开办“一网通办”平台同步办理社 会保险登记。企业设立后有用工人员的，自用工之日起30日内到当地社保经办机构为其职 工申报参保缴费。对已申报纳税但未参保登记的企业，省社保经办机构定期向各地推送已 申报纳税的企业数据，各地社保经办机构据此为其办理参保登记并督促企业申报缴费。要 按照全省统一要求开展告知、催办、处理等程序，对尚未申报缴费的企业，采取书面、短 信等多种方式告知。税务部门配合做好告知工作。","ex":""},{"no":"9.","t":"9.省社保经办机构定期向各地推送已申报纳税的未参保职工人员名单，作为参保扩面 重点。各级人力资源社会保障部门要加强与当地园区管委会、税务部门、市场监管等部门 协调，核实园区企业用工、薪酬等情况，督促企业据实为员工参保缴费。","ex":""},{"no":"10.","t":"10.以工业园区企业为重点，突出重点企业和人群，主动服务。要主动对接出口企业、 上市和拟上市企业，服务企业全员参加企业职工基本养老保险，助推企业高质量快速发\n展；要督促规模大、盈利能力强、用工数量大的规模以上企业积极参保缴费，示范带动其 他中小微企业参加企业职工基本养老保险；逐步落实已申报纳税的企业全部参保缴费，引 导已申报纳税的个体工商户参保缴费。要将企业法人代表、管理人员、技术人员、技能人 员纳入企业职工基本养老保险参保扩面重点，助力企业稳定人员队伍、长远发展。对流动 性较大岗位的职工，要加强引导，督促企业为其参保缴费。","ex":""},{"no":"11.","t":"11.各级社保经办机构要按照相关部门要求，积极提供企业和个人缴纳企业职工基本养 老保险费情况查询服务。对按规定缴纳企业职工基本养老保险后才能开展相关商业活动的 企业，社保经办机构要提醒督促企业为法定人员参保缴费；对按规定缴纳企业职工基本养 老保险后才能办理购房、落户、子女入学手续的人员，社保经办机构要如实提供参保缴费 情况。积极推行参保缴费情况自助机、网上、手机查询打印。","ex":""},{"no":"（三）","t":"（三）构建协同机制。","ex":""},{"no":"12.","t":"12.贯彻落实《中华人民共和国社会保险法》，参加工伤保险的企业按规定同步参加企 业职工基本养老保险。","ex":""},{"no":"13.","t":"13.社保经办机构要做好日常稽核，督促企业如实参保缴费。人力资源社会保障部门要 整合劳动关系、社保经办、基金征缴、劳动监察、调解仲裁等职能，统一参保扩面程序， 并将企业参保缴费情况纳入“双随机、 一公开”定期监管。对未按规定参保缴费的，人力 资源社会保障部门要主动做好劝导示范、行政指导、行政执法等工作。","ex":""},{"no":"14.","t":"14.按照国家有关规定将企业缴纳企业职工基本养老保险情况作为企业信用信息公示报 告公开项目。完善社会保险领域信用体系，将企业参保缴费情况纳入国家企业信用公示系 统（江西）、人民银行征信系统。对经劝导仍不参保缴费的企业，列入国家企业信用信息 公示系统（江西）预警信息；对拒不改正的，将依法依规作出行政处罚，通过国家企业信 用信息公示系统（江西）向社会公示。充分利用各地行业协会，督促行业内企业相互监 督，自觉参保，积累信用。","ex":""},{"no":"15.","t":"15.落实完善《江西省财园信贷通企业融资管理办法》，将企业参保缴费情况作为评估 “财园信贷通”贷款、“财政惠农信贷通”贷款、中小企业担保贷款、“政银保”贷款，\n政策性贴息贷款，企业过桥资金借款、企业申请产业引导基金等政策性贷款风险评估的重 要内容。探索建立基于企业职工基本养老保险足额缴费，企业无需提供抵押品或第三方担 保的商业信用贷款新机制，助力缓解中小微企业融资难题。","ex":""},{"no":"16.","t":"16.将企业参加企业职工基本养老保险情况作为发放稳岗补贴、小微企业创业担保贷 款、人力资源培训补贴、社保补贴重要条件，建立企业职工基本养老保险先缴后补或缴补 同步的涉企补贴放款机制。","ex":""},{"no":"17.","t":"17.省突出贡献人才评比表彰，省科学技术奖、省劳动模范和先进工作者、回乡投资优 秀赣商、省青年创业风云人物、省模范劳动关系和谐企业等涉企评先表彰，以及推荐党中 央国务院或国家部委评先表彰，向如实履行企业职工基本养老保险缴费义务的企业倾斜， 将参保缴费情况作为涉企评先表彰的重要条件。","ex":""},{"no":"三、","t":"三、加强组织领导","ex":""},{"no":"（一）","t":"（一）落实部门责任。 人力资源社会保障部门负责制定企业参保扩面具体工作方案并\n组织实施，强化人员培训，加强社保经办机构队伍建设，将优秀人员充实一线，增强服务 企业和群众的本领；根据需要，可依法在工业园区设立社保经办分支机构或服务网点。财 政部门保障必要的人员和工作经费，落实养老保险基金预算绩效考核激励约束机制。市场 监管部门依法依规在国家企业信用信息公示系统（江西）发布人力资源社会保障部门归集 的企业参保、欠缴、行政处罚信息，并嵌入电子政务云服务平台，依法依规实施市场监管 限制性联合惩戒。税务部门负责提供《企业所得税年度纳税申报基础信息表》中的纳税人 自主申报的从业人数，配合督促企业参保缴费。","ex":""},{"no":"（二）","t":"（二）加强目标考核。 将企业参加企业职工基本养老保险情况纳入地方高质量发展考 评重要内容并增加分值。结合企业职工基本养老保险基金全省统收统支，将未参保企业作 为计算当地新增基金征缴预算的重要依据。","ex":""},{"no":"（三）","t":"（三）加强宣传引导。 加强宣传针对性，充分宣传企业职工基本养老保险在扶持优势 企业、营造公平竞争环境、体现高质量发展的作用；在帮助企业留住人才、减少纠纷、防 范风险的作用；在维护个人权益、保障年老生活的作用。回应企业和职工关切，讲清个人 缴费水平、个人账户记账利率、养老金水平、个人账户继承、丧葬抚恤费标准、关系转移 接续等问题，增强制度吸引力。加强宣传有效性，持续开展企业职工基本养老保险全省流 动宣讲和政策进企业活动，将企业职工基本养老保险政策纳入高校毕业培训、员工岗前培 训、招聘会专题咨询的内容；人力资源社会保障部门要定期开展园区企业法人代表、企业 社保办事人员、企业职工等人员培训，增强参保意识，实现从“要我参保”向“我要参 保”的转变。","ex":""},{"no":"（四）","t":"（四）工伤保险","ex":""}]}];
+const DATA = [{"ch":"全文","items":[{"no":"","t":"赣府厅字〔2019〕117号  2019年12月31日\n各市、县（区）人民政府，省政府各部门：\n《加快推进我省企业职工基本养老保险参保扩面工作实施方案》已经省政府同意，现 印发给你们，请认真贯彻执行。\n加快推进我省企业职工基本养老保险参保扩面工作实施方案\n为切实提高我省企业职工基本养老保险参保率，维护企业和职工合法权益，促进养老 保险事业可持续发展，提升公平竞争的营商环境，根据《中华人民共和国社会保险法》 《社会保险费申报缴纳管理规定》（人社部令第20号）、《人力资源社会保障部财政部国 家税务总局关于规范企业职工基本养老保险省级统筹制度的通知》（人社部发 〔2019〕112号）等相关规定，结合我省实际，制定本方案。\n一 、工作目标\n持续开展企业职工基本养老保险参保扩面行动，提高参保扩面针对性和有效性，形成 数据共享、部门协同、便捷高效的参保扩面长效机制。力争两年内将工业园区正常经营企 业基本纳入企业职工基本养老保险，全省企业和职工参保率显著提高，逐步实现企业职工 基本养老保险法定人员全覆盖。","ex":""},{"no":"二、","t":"二、工作措施","ex":""},{"no":"（一）","t":"（一）明确相关政策。","ex":""},{"no":"1.","t":"1. 严格落实降低社会保险费率政策，企业职工基本养老保险费单位缴费比例为 16%，职工个人缴费比例为8%;职工个人缴费基数上下限按全口径城镇单位就业人员平均 工资核定，用人单位月缴费基数按本单位参保职工个人月缴费基数之和确定。对已参加企 业职工基本养老保险的人员，可不参加城乡居民基本养老保险（以下简称居民养老保 险），缴纳了企业职工基本养老保险费的年度可不缴纳居民养老保险费。","ex":""},{"no":"2.","t":"2.稳定缴费方式，企业职工基本养老保险费暂由社保经办机构继续征收，条件成熟 时，按国家要求适时移交税务部门征收。征收体制改革过程中不得自行对企业职工基本养 老保险历史欠费进行集中清缴。","ex":""},{"no":"3.","t":"3.与企业形成劳动关系的职工（不包括非全日制用工）应当参加企业职工基本养老保 险，由企业和职工按规定共同缴纳基本养老保险费。职工参保缴费后灵活就业（包括非全 日制用工）或从事个体经营期间，可按灵活就业人员身份继续缴费；中断缴费的，中断期 间不计算缴费年限，个人账户不间断计息；继续缴费后，中断缴费前后缴费年限累计计 算。对重复缴费的，个人账户按规定实行清退或合并。","ex":""},{"no":"4.","t":"4.对劳动关系存续期间，企业未依法及时为其职工办理参保缴费的，企业和职工在向 社保经办机构提交劳动合同或工资支付凭证等能证明双方劳动关系原始材料的，按规定为 其办理补缴手续。社保经办机构和劳动监察部门受理参保人员投诉、举报后核实企业应缴 未缴企业职工基本养老保险费的，按规定为其办理补缴手续。对无法确认其劳动关系，或 对劳动关系存续有异议的，经劳动仲裁或人民法院裁定其劳动关系存续期后，社保经办机 构依据相关法律文书为其及时办理补缴手续。补缴金额按企业职工基本养老保险历年单位 和个人缴费比例、该职工历年工资总额、以及历年使用的社会平均工资的60%-300%之间 确定，利息、滞纳金按规定计算。","ex":""},{"no":"5.","t":"5.积极引导达到法定退休年龄时缴费不足15年的职工继续缴纳企业职工基本养老保险 至满15年。对达到企业职工基本养老保险法定退休年龄后，企业职工基本养老保险缴费不 足15年的人员，不愿继续缴费的，可申请从企业职工基本养老保险转入居民养老保险，企 业职工基本养老保险个人账户全部储存额并入居民养老保险个人账户，企业职工基本养老 保险的缴费年限合并计算为居民养老保险的缴费年限。","ex":""},{"no":"6.","t":"6.加大助保贷款实施力度，完善个人自愿申请、政府贴息、银行贷款缴费的筹资负担 机制。将达到法定退休年龄时缴费不满15年的缴费困难人员纳入助保贷款范围，引导其继 续缴费，享受水平较高的养老保险待遇。申请助保贷款人员年龄可适当放宽；结合申请人 信用，最长贷款年限同步放宽。建立助保贷款额度动态调整机制，贷款金额根据企业职工 基本养老保险年缴费水平同步增长。加大政府贴息，简化贷款和还款手续。","ex":""},{"no":"（二）","t":"（二）优化经办服务。","ex":""},{"no":"7.","t":"7.从2020年1月起，企业职工基本养老保险关系省内转移，只转关系，不转基金。加快 完善全省数据集中的社会保险信息系统，推进社会保险业务在“赣服通”、江西人社一体 化综合信息系统、 “江西人社”APP 、 “ 江西人社”支付宝生活号的运用，推进平台缴 费、网点缴费、网上缴费、手机缴费，提高社会保险业务网上办理和手机办理覆盖面。加 快实现社会保险业务“一次注册、各地互认，单点登录、全网通行， 一网通办、全省通 办”。向社会提供简明易懂的政策解读、信息查询和待遇测算等服务，让政策“看得 懂”，待遇“算得清”。","ex":""},{"no":"8.","t":"8.新设立企业在办理登记注册时，通过江西省企业开办“一网通办”平台同步办理社 会保险登记。企业设立后有用工人员的，自用工之日起30日内到当地社保经办机构为其职 工申报参保缴费。对已申报纳税但未参保登记的企业，省社保经办机构定期向各地推送已 申报纳税的企业数据，各地社保经办机构据此为其办理参保登记并督促企业申报缴费。要 按照全省统一要求开展告知、催办、处理等程序，对尚未申报缴费的企业，采取书面、短 信等多种方式告知。税务部门配合做好告知工作。","ex":""},{"no":"9.","t":"9.省社保经办机构定期向各地推送已申报纳税的未参保职工人员名单，作为参保扩面 重点。各级人力资源社会保障部门要加强与当地园区管委会、税务部门、市场监管等部门 协调，核实园区企业用工、薪酬等情况，督促企业据实为员工参保缴费。","ex":""},{"no":"10.","t":"10.以工业园区企业为重点，突出重点企业和人群，主动服务。要主动对接出口企业、 上市和拟上市企业，服务企业全员参加企业职工基本养老保险，助推企业高质量快速发\n展；要督促规模大、盈利能力强、用工数量大的规模以上企业积极参保缴费，示范带动其 他中小微企业参加企业职工基本养老保险；逐步落实已申报纳税的企业全部参保缴费，引 导已申报纳税的个体工商户参保缴费。要将企业法人代表、管理人员、技术人员、技能人 员纳入企业职工基本养老保险参保扩面重点，助力企业稳定人员队伍、长远发展。对流动 性较大岗位的职工，要加强引导，督促企业为其参保缴费。","ex":""},{"no":"11.","t":"11.各级社保经办机构要按照相关部门要求，积极提供企业和个人缴纳企业职工基本养 老保险费情况查询服务。对按规定缴纳企业职工基本养老保险后才能开展相关商业活动的 企业，社保经办机构要提醒督促企业为法定人员参保缴费；对按规定缴纳企业职工基本养 老保险后才能办理购房、落户、子女入学手续的人员，社保经办机构要如实提供参保缴费 情况。积极推行参保缴费情况自助机、网上、手机查询打印。","ex":""},{"no":"（三）","t":"（三）构建协同机制。","ex":""},{"no":"12.","t":"12.贯彻落实《中华人民共和国社会保险法》，参加工伤保险的企业按规定同步参加企 业职工基本养老保险。","ex":""},{"no":"13.","t":"13.社保经办机构要做好日常稽核，督促企业如实参保缴费。人力资源社会保障部门要 整合劳动关系、社保经办、基金征缴、劳动监察、调解仲裁等职能，统一参保扩面程序， 并将企业参保缴费情况纳入“双随机、 一公开”定期监管。对未按规定参保缴费的，人力 资源社会保障部门要主动做好劝导示范、行政指导、行政执法等工作。","ex":""},{"no":"14.","t":"14.按照国家有关规定将企业缴纳企业职工基本养老保险情况作为企业信用信息公示报 告公开项目。完善社会保险领域信用体系，将企业参保缴费情况纳入国家企业信用公示系 统（江西）、人民银行征信系统。对经劝导仍不参保缴费的企业，列入国家企业信用信息 公示系统（江西）预警信息；对拒不改正的，将依法依规作出行政处罚，通过国家企业信 用信息公示系统（江西）向社会公示。充分利用各地行业协会，督促行业内企业相互监 督，自觉参保，积累信用。","ex":""},{"no":"15.","t":"15.落实完善《江西省财园信贷通企业融资管理办法》，将企业参保缴费情况作为评估 “财园信贷通”贷款、“财政惠农信贷通”贷款、中小企业担保贷款、“政银保”贷款，\n政策性贴息贷款，企业过桥资金借款、企业申请产业引导基金等政策性贷款风险评估的重 要内容。探索建立基于企业职工基本养老保险足额缴费，企业无需提供抵押品或第三方担 保的商业信用贷款新机制，助力缓解中小微企业融资难题。","ex":""},{"no":"16.","t":"16.将企业参加企业职工基本养老保险情况作为发放稳岗补贴、小微企业创业担保贷 款、人力资源培训补贴、社保补贴重要条件，建立企业职工基本养老保险先缴后补或缴补 同步的涉企补贴放款机制。","ex":""},{"no":"17.","t":"17.省突出贡献人才评比表彰，省科学技术奖、省劳动模范和先进工作者、回乡投资优 秀赣商、省青年创业风云人物、省模范劳动关系和谐企业等涉企评先表彰，以及推荐党中 央国务院或国家部委评先表彰，向如实履行企业职工基本养老保险缴费义务的企业倾斜， 将参保缴费情况作为涉企评先表彰的重要条件。","ex":""},{"no":"三、","t":"三、加强组织领导","ex":""},{"no":"（一）","t":"（一）落实部门责任。 人力资源社会保障部门负责制定企业参保扩面具体工作方案并\n组织实施，强化人员培训，加强社保经办机构队伍建设，将优秀人员充实一线，增强服务 企业和群众的本领；根据需要，可依法在工业园区设立社保经办分支机构或服务网点。财 政部门保障必要的人员和工作经费，落实养老保险基金预算绩效考核激励约束机制。市场 监管部门依法依规在国家企业信用信息公示系统（江西）发布人力资源社会保障部门归集 的企业参保、欠缴、行政处罚信息，并嵌入电子政务云服务平台，依法依规实施市场监管 限制性联合惩戒。税务部门负责提供《企业所得税年度纳税申报基础信息表》中的纳税人 自主申报的从业人数，配合督促企业参保缴费。","ex":""},{"no":"（二）","t":"（二）加强目标考核。 将企业参加企业职工基本养老保险情况纳入地方高质量发展考 评重要内容并增加分值。结合企业职工基本养老保险基金全省统收统支，将未参保企业作 为计算当地新增基金征缴预算的重要依据。","ex":""},{"no":"（三）","t":"（三）加强宣传引导。 加强宣传针对性，充分宣传企业职工基本养老保险在扶持优势 企业、营造公平竞争环境、体现高质量发展的作用；在帮助企业留住人才、减少纠纷、防 范风险的作用；在维护个人权益、保障年老生活的作用。回应企业和职工关切，讲清个人 缴费水平、个人账户记账利率、养老金水平、个人账户继承、丧葬抚恤费标准、关系转移 接续等问题，增强制度吸引力。加强宣传有效性，持续开展企业职工基本养老保险全省流 动宣讲和政策进企业活动，将企业职工基本养老保险政策纳入高校毕业培训、员工岗前培 训、招聘会专题咨询的内容；人力资源社会保障部门要定期开展园区企业法人代表、企业 社保办事人员、企业职工等人员培训，增强参保意识，实现从“要我参保”向“我要参 保”的转变。","ex":""},{"no":"（四）","t":"（四）工伤保险","ex":""}]}]
+;
 /* =================================================== */
-
 
 /* ===== 存储（自动保存 + 导出烘焙）===== */
 const KEY = 'statute_note_' + LAW_KEY;
-let store = 
-(function(){
-  var editMode = false;
-
-  // 醒目入口按钮
-  var btnEdit = document.createElement('button');
-  btnEdit.id = 'btnEdit';
-  btnEdit.title = '编辑模式：每条法条上方出现颜色工具条，可选中局部或直接改整条';
-  btnEdit.innerHTML = '\u270E 编辑条文';
-  btnEdit.style.cssText = 'padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);';
-  var tip = document.createElement('span');
-  tip.className = 'edit-tip';
-  tip.textContent = '已开启：每条法条上方有颜色工具条（选中文字改局部，直接点改整条）';
-  tip.style.display = 'none';
-  var btnTest = document.getElementById('btnTest');
-  if(btnTest){ btnTest.parentNode.insertBefore(btnEdit, btnTest); btnEdit.insertAdjacentElement('afterend', tip); }
-  btnEdit.addEventListener('click', function(){
-    editMode = !editMode;
-    document.body.classList.toggle('edit-mode', editMode);
-    btnEdit.classList.toggle('active', editMode);
-    btnEdit.innerHTML = editMode ? '\u2713 退出编辑' : '\u270E 编辑条文';
-    if(editMode){ btnEdit.style.background='#27ae60'; btnEdit.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; tip.style.display='inline-block'; }
-    else { btnEdit.style.background='#e6a23c'; btnEdit.style.boxShadow='0 2px 6px rgba(230,162,60,.4)'; tip.style.display='none'; }
-    try{ showStatus(editMode ? '编辑模式已开启：点法条上方的颜色按钮即可改色 / 高亮' : '已退出编辑'); }catch(e){}
-  });
-
-  // 存储键（复用笔记已有 KEY）
-  var KEY = '';
-  try { document.querySelectorAll('script').forEach(function(s){ var m = s.textContent.match(/const KEY\s*=\s*'([^']+)'/); if(m) KEY = m[1]; }); }catch(e){}
-  if(!KEY) KEY = 'statute_note_edit';
-
-  var FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
-  var BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
-
-  function barHTML(){
-    var h = '<span class="elbl">字体</span>';
-    FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
-    h += '<span class="fsep"></span><span class="elbl">高亮</span>';
-    BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
-    h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
-    h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
-    return h;
-  }
-
-  function makeEditable(){
-    document.querySelectorAll('.article').forEach(function(art){
-      if(art.dataset.editInjected) return;
-      art.dataset.editInjected = '1';
-      var textEl = art.querySelector('.art-text');
-      if(textEl){
-        textEl.classList.add('editable');
-        textEl.setAttribute('contenteditable','true');
-        textEl.setAttribute('data-art', art.id || '');
-      }
-      var bar = document.createElement('div');
-      bar.className = 'art-editbar';
-      bar.setAttribute('data-bar', art.id || '');
-      bar.innerHTML = barHTML();
-      if(textEl && textEl.parentNode){ textEl.parentNode.insertBefore(bar, textEl); }
-    });
-  }
-
-  // 防止点击工具条导致法条失焦、选区丢失
-  document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
-
-  function applyColor(artId, c, hl){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 局部选区
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 整条
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-  function clearColor(artId){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand('removeFormat', false, null);
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand('removeFormat', false, null);
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-
-  document.addEventListener('click', function(e){
-    if(!editMode) return;
-    var bar = e.target.closest('.art-editbar');
-    if(!bar) return;
-    var artId = bar.getAttribute('data-bar') || '';
-    var clearBtn = e.target.closest('[data-clear]');
-    if(clearBtn){ clearColor(artId); return; }
-    var btn = e.target.closest('[data-c]');
-    if(!btn) return;
-    applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
-  });
-
-  function saveArt(id){
-    var el = document.querySelector('.art-text[data-art="'+id+'"]');
-    if(!el) return;
-    try{ var s = localStorage.getItem(KEY); var store = s ? JSON.parse(s) : {}; if(!store.artEdit) store.artEdit = {}; store.artEdit[id] = el.innerHTML; localStorage.setItem(KEY, JSON.stringify(store)); }catch(err){}
-  }
-  function restoreEdits(){
-    try{ var s = localStorage.getItem(KEY); if(!s) return; var store = JSON.parse(s); if(!store.artEdit) return;
-      Object.keys(store.artEdit).forEach(function(id){ var el = document.querySelector('.art-text[data-art="'+id+'"]'); if(el && store.artEdit[id]) el.innerHTML = store.artEdit[id]; });
-    }catch(e){}
-  }
-
-  var _ro = new MutationObserver(function(){
-    var content = document.getElementById('content');
-    if(content && content.children.length > 0){ makeEditable(); restoreEdits(); }
-  });
-  var mainEl = document.getElementById('content');
-  if(mainEl) _ro.observe(mainEl, {childList:true});
-  setTimeout(function(){ makeEditable(); restoreEdits(); }, 500);
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
 })();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        (m.revised ? '<span class="mk">修正时间</span><span class="mv">'+escapeHtml(m.revised)+'</span>' : '') +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+  // 法条原文（可编辑）
+  'barHTML(id) + <div class="art-text editable" contenteditable="true" data-art="' + id + '">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);  restoreArtEdits();
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
 
 
+/* ===== 编辑模式切换（浮动工具条） ===== */
+let editMode = false;
+const btnEdit = document.getElementById('btnEdit');
+btnEdit.addEventListener('click', function(){
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  this.classList.toggle('active', editMode);
+  this.textContent = editMode ? '✓ 退出编辑' : '✎ 编辑条文';
+  if(editMode){ this.style.background='#27ae60'; this.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; }
+  else { this.style.background=''; this.style.boxShadow=''; }
+  showStatus(editMode ? '编辑模式：每条法条上方有颜色工具条，选中改局部或整条改色' : '已退出编辑');
+});
+
+/* 常驻工具条：每条法条上方由 render 注入 .art-editbar，点击即改色 */
+const FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
+const BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
+function barHTML(id){
+  let h = '<span class="elbl">字体</span>';
+  FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
+  h += '<span class="fsep"></span><span class="elbl">高亮</span>';
+  BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
+  h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
+  h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
+  return '<div class="art-editbar" data-bar="'+id+'">' + h + '</div>';
+}
+
+// 防止点击工具条导致法条失焦、选区丢失
+document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
+
+function applyColor(artId, c, hl){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+  } else {
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+    sel.removeAllRanges();
+  }
+  saveArtText(artId, el.innerHTML);
+}
+function clearColor(artId){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand('removeFormat', false, null);
+  } else {
+    const artData = getArtData(artId);
+    el.innerHTML = artData ? escapeHtml(artData.t) : el.textContent;
+  }
+  saveArtText(artId, el.innerHTML);
+}
+
+document.addEventListener('click', function(e){
+  if(!editMode) return;
+  const bar = e.target.closest('.art-editbar');
+  if(!bar) return;
+  const artId = bar.getAttribute('data-bar') || '';
+  const clearBtn = e.target.closest('[data-clear]');
+  if(clearBtn){ clearColor(artId); showStatus('已清除格式'); return; }
+  const btn = e.target.closest('[data-c]');
+  if(!btn) return;
+  applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
+  showStatus(btn.dataset.hl === '1' ? '已高亮标注' : '已改字体色');
+});
+
+/* 保存法条编辑后的HTML */
+function saveArtText(id, html){
+  if(!store.artEdit) store.artEdit = {};
+  store.artEdit[id] = html;
+  save();
+}
+
+/* 恢复已保存的法条编辑 */
+function restoreArtEdits(){
+  if(!store.artEdit) return;
+  Object.keys(store.artEdit).forEach(function(id){
+    const el = document.querySelector('.art-text[data-art="'+id+'"]');
+    if(el && store.artEdit[id]){
+      el.innerHTML = store.artEdit[id];
+    }
+  });
+}
+
+/* 获取法条原始数据（用于重置） */
+function getArtData(id){
+  for(let ci=0;ci<DATA.length;ci++){
+    for(let ai=0;ai<DATA[ci].items.length;ai++){
+      if('a'+ci+'_'+ai === id) return DATA[ci].items[ai];
+    }
+  }
+  return null;
+}
+
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
 </body>
 </html>
