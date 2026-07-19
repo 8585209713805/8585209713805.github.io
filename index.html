@@ -551,23 +551,6 @@ sbNav.addEventListener('click', function(e){
   highlightCard(targetId);
 });
 
-
-let _hlTimer = null;
-function highlightCard(idStr){
-  const el = document.getElementById(idStr); if(!el) return;
-  document.querySelectorAll('.note-card.active-highlight').forEach(function(e){ e.classList.remove('active-highlight'); });
-  el.classList.add('active-highlight');
-  el.scrollIntoView({behavior:'smooth', block:'center'});
-  clearTimeout(_hlTimer);
-  _hlTimer = setTimeout(function(){ el.classList.remove('active-highlight'); }, 2800);
-}
-sbNav.addEventListener('click', function(e){
-  var a = e.target.closest('.sb-note > a'); if(!a) return;
-  e.preventDefault();
-  var tid = a.getAttribute('href').replace('#','');
-  highlightCard(tid);
-});
-
 chipsEl.addEventListener('click', function(e){
   const el = e.target.closest('.chip'); if(!el) return;
   activeField = el.dataset.field; render();
