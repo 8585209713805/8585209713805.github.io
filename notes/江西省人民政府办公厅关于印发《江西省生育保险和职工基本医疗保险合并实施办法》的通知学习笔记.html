@@ -194,7 +194,6 @@ footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--mute
   body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
 }
 
-/* ===== 法条编辑模式（浮动工具条） ===== */
 /* ===== 法条编辑模式（每条常驻工具条） ===== */
 .art-text.editable{outline:none; border-radius:5px; transition:box-shadow .15s;}
 body.edit-mode .art-text.editable{cursor:text;}
@@ -209,7 +208,6 @@ body.edit-mode .article .art-editbar{display:flex;}
 .art-editbar .fclear:hover{background:#eef1f4;}
 .art-editbar .ehint{font-size:11px;color:#9aa1a9;margin-left:auto;}
 body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modify:read-only;}
-
 </style>
 </head>
 <body>
@@ -219,6 +217,7 @@ body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modi
     <div class="toolbar">
       <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
       <span class="status" id="status">已就绪</span>
+      <button id="btnEdit" title="编辑模式：选中任意法条文字即可改字体色 / 高亮标注" style="padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);">✎ 编辑条文</button>
       <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
       <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
       <button id="btnPrint" title="打印 / 存为PDF">打印</button>
@@ -259,144 +258,383 @@ const CASES = {};
 const REL = {};
 
 /* 法条数据 */
-const DATA = [{"ch":"全文","items":[{"no":"","t":"赣府厅字〔2019〕94号  2019年11月15日\n各市、县（区）人民政府，省政府各部门：\n《江西省生育保险和职工基本医疗保险合并实施办法》已经省政府同意，现印发给你 们，请认真贯彻执行。\n江西省生育保险和职工基本医疗保险合并实施办法\n全面推进生育保险和职工基本医疗保险（以下统称两项保险）合并实施，是保障职工 社会保险待遇、增强基金共济能力、提升经办服务水平的重要举措。根据《中华人民共和 国社会保险法》和《国务院办公厅关于全面推进生育保险和职工基本医疗保险合并实施的 意见》（国办发〔2019〕10号）有关规定，结合我省实际，制定本办法。","ex":""},{"no":"一、","t":"一、指导思想\n坚持以习近平新时代中国特色社会主义思想为指导，深入学习贯彻习近平总书记视察 江西重要讲话精神，聚焦“作示范、勇争先”的目标定位和“五个推进”的更高要求，坚 持以人民为中心的发展思想，遵循保留险种、保障待遇、统一管理、降低成本的总体思 路，推进两项保险合并实施，实现参保同步登记、基金合并运行、征缴管理一致、监督管 理统一、经办服务一体化。","ex":""},{"no":"二、","t":"二、主要目标\n通过整合两项保险基金及管理资源，强化基金共济能力，提升管理综合效能，降低管 理运行成本，建立适应我省经济发展水平、优化保险管理资源、实现两项保险长期稳定可 持续发展的制度体系和运行机制。自2020年1月1日起，两项保险在全省全面合并实施。\n三 、主要政策\n（ 一）参保登记。 统筹区域内的企业、 机关、事业单位、社会团体、民办非企业单 位、有雇工的个体工商户（以下统称用人单位）及其在职职工和有意愿的无雇工的个体工 商户、未在用人单位参加职工基本医疗保险的非全日制从业人员以及其他灵活就业人员参 加职工基本医疗保险时同步参加生育保险。实施过程中要完善参保范围，结合全民参保登 记计划摸清底数，实现应保尽保。\n（ 二 ） 基金征缴和管理。 生育保险基金经审核确认后并入职工基本医疗保险基金统一 征缴。按照用人单位参加生育保险和职工基本医疗保险的缴费比例之和确定新的用人单位 职工基本医疗保险费率，个人不缴纳生育保险费。合并后，在职职工的职工基本医疗保险 个人缴费费率仍为2%。\n无雇工的个体工商户、未在用人单位参加职工基本医疗保险的非全日制从业人员以及 其他灵活就业等人员自愿参加生育保险和职工基本医疗保险的，由个人按照职工基本医疗 保险和生育保险合并费率缴费。\n根据基金支出情况和医疗、生育待遇的需求，按照收支平衡的原则，建立费率确定和 动态调整机制，防范风险转嫁，实现制度可持续发展。\n合并实施前，参保单位或个人欠缴职工基本医疗保险费或生育保险费的，按有关补缴 规定执行，补缴后视同连续缴费。合并实施前后，职工基本医疗保险和生育保险参保缴费 年限分别合并计算。\n职工基本医疗保险基金执行社会保险基金财务制度，不再单列生育保险基金收入，在 职工基本医疗保险统筹基金待遇支出中设置生育待遇支出项目。加强基金预决算管理，跟 踪分析合并实施后基金运行情况和支出结构，完善生育保险监测指标，探索建立健全基金 风险预警机制。坚持基金运行情况公开，加强内部控制，强化基金监督，确保基金安全。","ex":""},{"no":"（三）","t":"（三）生育保险待遇。 生育保险待遇包括《中华人民共和国社会保险法》《江西省女 职工劳动保护特别规定》规定的生育医疗费用和生育津贴，所需资金从职工基本医疗保险 基金中支付。","ex":""},{"no":"1.","t":"1.生育医疗费用。\n因生育发生的医疗费用，含从怀孕至分娩住院期间所需的检查费、接生费、手术费、 住院费和药费等费用以及生育出院后3个月内因生育引起的疾病的医疗费，以及实施计划 生育避孕节育情况检查、实施避孕节育手术以及符合生育政策实施复通手术所需的医疗费 用。不含人工授精、试管婴儿等辅助生殖项目，不育（孕）症、性功能障碍的治疗项目， 按规定免费的计划生育技术服务项目，各种科研性、临床验证性的生育医疗项目，以及因 生育医疗事故发生的医疗费用。\n参保女职工及参保男职工的未就业配偶在定点医疗机构发生的符合规定的生育医疗费 用，经统筹基金报销后，个人自付部分，可以使用职工基本医疗保险个人账户支付。其 中，门诊发生的符合规定的生育医疗费用可实行按人头、按项目等方式纳入统筹基金支 付；住院发生的符合规定的生育医疗费用，执行职工基本医疗保险的起付标准、报销比 例、年度最高支付限额等有关规定。","ex":""},{"no":"2.","t":"2.生育津贴。\n生育津贴为参保职工在规定的产假及计划生育手术假期期间获得的工资性补偿。生育 津贴按照职工所在用人单位上年度职工月平均工资计发；以个人身份参保的，生育津贴按 照本人上年度生育保险月平均缴费基数计发。生育津贴支付期限按照《江西省人口与计划 生育条例》《江西省女职工劳动保护特别规定》等规定的产假期限执行。\n（1）正常分娩的，按规定享受九十八天生育津贴；\n（2）符合《江西省人口与计划生育条例》规定生育的，除享受第一项外，增加六十天 生育津贴；\n（3）难产或实施剖宫产手术分娩的，增加十五天生育津贴；\n（4）生育多胞胎的，每多生育一个婴儿，增加十五天生育津贴；\n（5）怀孕不满三个月流产的，享受二十五天生育津贴；\n（6）怀孕满三个月不满七个月流产的，享受四十二天生育津贴；\n（7）怀孕满七个月以上终止妊娠的，享受九十八天生育津贴；\n（8）放置宫内节育器的，享受三天生育津贴；\n（9）取出宫内节育器的，享受一天生育津贴；\n（10）结扎或复通输卵管的，享受二十一天生育津贴。\n生育津贴由医疗保险经办机构按照规定拨付给用人单位，自愿参保的灵活就业人员直 接发放给个人。用人单位按规定发放工资且工资标准高于或等于生育津贴计发标准的，职 工不再领取生育津贴；用人单位按规定发放工资但工资标准低于生育津贴计发标准的，差 额部分由用人单位予以补足；用人单位未按照规定发放工资的，生育津贴由用人单位发放 给职工个人，不得截留挪用。","ex":""},{"no":"3.","t":"3.待遇享受条件。\n两项保险合并实施后，自参保缴费三十日后，女职工和男职工未就业配偶享受生育医 疗费用待遇；男职工未就业配偶参加居民医保的，其生育医疗费用由职工医保基金按规定 支付，不得在居民医保基金中重复报销。\n在江西省范围内女职工连续缴费至生育时满一年以上（含合并实施前的生育保险缴费 时限）且生育后处于正常缴费状态的，享受生育津贴待遇。男职工未就业配偶不享受生育 津贴待遇。\n参保职工退休后生育的，可继续享受生育医疗费用待遇，不享受生育津贴待遇。","ex":""},{"no":"（四）","t":"（四） 医疗服务管理。两项保险合并实施后实行统一定点医疗服务管理。医疗保险经 办机构与定点医疗机构签订相关医疗服务协议时，要将生育医疗服务有关要求和指标增加 到协议内容中，并充分利用协议管理，强化对生育医疗服务的监控。执行全省统一的基本 医疗保险、工伤保险和生育保险药品目录以及基本医疗保险诊疗项目和医疗服务设施范 围。\n促进生育医疗服务行为规范。将生育医疗费用纳入医保支付方式改革范围，推动住院 分娩等医疗费用按病种、产前检查按人头等方式付费。生育医疗费用原则上实行医疗保险 经办机构与定点医疗机构直接结算。充分利用医保智能监控系统，强化监控和审核，控制 生育医疗费用不合理增长。","ex":""},{"no":"（五）","t":"（五）经办和信息服务。 两项保险合并实施后，要统一经办管理，规范经办流程。经 办管理统一由基本医疗保险经办机构负责，经费列入同级财政预算。充分利用医疗保障信 息平台，实行信息系统一体化运行。原有生育保险医疗费用结算平台可暂时保留，待条件 成熟后并入医疗保险结算平台。按照国家统一部署，完善统计信息系统，做好医疗生育保 险统计工作，确保及时全面准确反映生育保险基金运行、待遇享受人员、待遇支付等方面 情况。\n深入推进生育保险领域“放管服”改革，进一步提升生育保险便民服务水平，取消职 工享受生育医疗待遇前需到经办机构申请备案手续，取消（再）生育服务证和婴儿出生医 学证明材料，通过部门间公共信息共享，提供生育信息查询服务。","ex":""},{"no":"四、","t":"四、保障措施\n（ 一 ） 强化组织领导。 两项保险合并实施是党中央、 国务院和省委、省政府作出的一 项重要部署，是推动建立更加公平更可持续医疗保障制度的重要内容。各市、县（区）要 高度重视，加强领导，有序推进相关工作。省医保局、省财政厅、省卫生健康委要会同有 关方面加强工作指导，及时研究解决工作中遇到的困难和问题，重要情况及时报告省政 府。","ex":""},{"no":"（二）","t":"（二）精心组织实施。 各统筹地区要高度重视两项保险合并实施工作， 按照本办法要 求，根据当地生育保险和职工基本医疗保险参保人群差异、基金支付能力、待遇保障水平 等因素进行综合分析和研究，按照“尽力而为、量力而行”的原则，坚持从实际出发，从 保障基本权益做起，制定实施细则，周密组织实施，确保参保人员相关待遇不降低、基金 收支平衡，保证平稳过渡。\n各统筹地区要加强工作部署，认真研判当前和今后人口形势对生育保险支出的影响， 增强风险防范意识和制度保障能力，加大督促指导，加快推进落实，确保2019年底前出台 两项保险合并实施细则，并报送省医保局和省财政厅，2020年1月1日起正式执行。","ex":""},{"no":"（三）","t":"（三）加强政策宣传。 各市、县（区）要坚持正确的舆论导向，准确解读相关政策， 大力宣传两项保险合并实施的重要意义，合理引导预期，让社会公众充分了解合并实施不 会影响参保人员享受相关待遇，且有利于提高基金共济能力、减轻用人单位事务性负担、 提高管理效率，为推动两项保险合并实施创造良好的社会氛围。\n本办法实施前我省生育保险和职工基本医疗保险规定与本办法不一致的，按本办法规 定执行。","ex":""},{"no":"（二）","t":"（二）就业与失业","ex":""}]}];
+const DATA = [{"ch":"全文","items":[{"no":"","t":"赣府厅字〔2019〕94号  2019年11月15日\n各市、县（区）人民政府，省政府各部门：\n《江西省生育保险和职工基本医疗保险合并实施办法》已经省政府同意，现印发给你 们，请认真贯彻执行。\n江西省生育保险和职工基本医疗保险合并实施办法\n全面推进生育保险和职工基本医疗保险（以下统称两项保险）合并实施，是保障职工 社会保险待遇、增强基金共济能力、提升经办服务水平的重要举措。根据《中华人民共和 国社会保险法》和《国务院办公厅关于全面推进生育保险和职工基本医疗保险合并实施的 意见》（国办发〔2019〕10号）有关规定，结合我省实际，制定本办法。","ex":""},{"no":"一、","t":"一、指导思想\n坚持以习近平新时代中国特色社会主义思想为指导，深入学习贯彻习近平总书记视察 江西重要讲话精神，聚焦“作示范、勇争先”的目标定位和“五个推进”的更高要求，坚 持以人民为中心的发展思想，遵循保留险种、保障待遇、统一管理、降低成本的总体思 路，推进两项保险合并实施，实现参保同步登记、基金合并运行、征缴管理一致、监督管 理统一、经办服务一体化。","ex":""},{"no":"二、","t":"二、主要目标\n通过整合两项保险基金及管理资源，强化基金共济能力，提升管理综合效能，降低管 理运行成本，建立适应我省经济发展水平、优化保险管理资源、实现两项保险长期稳定可 持续发展的制度体系和运行机制。自2020年1月1日起，两项保险在全省全面合并实施。\n三 、主要政策\n（ 一）参保登记。 统筹区域内的企业、 机关、事业单位、社会团体、民办非企业单 位、有雇工的个体工商户（以下统称用人单位）及其在职职工和有意愿的无雇工的个体工 商户、未在用人单位参加职工基本医疗保险的非全日制从业人员以及其他灵活就业人员参 加职工基本医疗保险时同步参加生育保险。实施过程中要完善参保范围，结合全民参保登 记计划摸清底数，实现应保尽保。\n（ 二 ） 基金征缴和管理。 生育保险基金经审核确认后并入职工基本医疗保险基金统一 征缴。按照用人单位参加生育保险和职工基本医疗保险的缴费比例之和确定新的用人单位 职工基本医疗保险费率，个人不缴纳生育保险费。合并后，在职职工的职工基本医疗保险 个人缴费费率仍为2%。\n无雇工的个体工商户、未在用人单位参加职工基本医疗保险的非全日制从业人员以及 其他灵活就业等人员自愿参加生育保险和职工基本医疗保险的，由个人按照职工基本医疗 保险和生育保险合并费率缴费。\n根据基金支出情况和医疗、生育待遇的需求，按照收支平衡的原则，建立费率确定和 动态调整机制，防范风险转嫁，实现制度可持续发展。\n合并实施前，参保单位或个人欠缴职工基本医疗保险费或生育保险费的，按有关补缴 规定执行，补缴后视同连续缴费。合并实施前后，职工基本医疗保险和生育保险参保缴费 年限分别合并计算。\n职工基本医疗保险基金执行社会保险基金财务制度，不再单列生育保险基金收入，在 职工基本医疗保险统筹基金待遇支出中设置生育待遇支出项目。加强基金预决算管理，跟 踪分析合并实施后基金运行情况和支出结构，完善生育保险监测指标，探索建立健全基金 风险预警机制。坚持基金运行情况公开，加强内部控制，强化基金监督，确保基金安全。","ex":""},{"no":"（三）","t":"（三）生育保险待遇。 生育保险待遇包括《中华人民共和国社会保险法》《江西省女 职工劳动保护特别规定》规定的生育医疗费用和生育津贴，所需资金从职工基本医疗保险 基金中支付。","ex":""},{"no":"1.","t":"1.生育医疗费用。\n因生育发生的医疗费用，含从怀孕至分娩住院期间所需的检查费、接生费、手术费、 住院费和药费等费用以及生育出院后3个月内因生育引起的疾病的医疗费，以及实施计划 生育避孕节育情况检查、实施避孕节育手术以及符合生育政策实施复通手术所需的医疗费 用。不含人工授精、试管婴儿等辅助生殖项目，不育（孕）症、性功能障碍的治疗项目， 按规定免费的计划生育技术服务项目，各种科研性、临床验证性的生育医疗项目，以及因 生育医疗事故发生的医疗费用。\n参保女职工及参保男职工的未就业配偶在定点医疗机构发生的符合规定的生育医疗费 用，经统筹基金报销后，个人自付部分，可以使用职工基本医疗保险个人账户支付。其 中，门诊发生的符合规定的生育医疗费用可实行按人头、按项目等方式纳入统筹基金支 付；住院发生的符合规定的生育医疗费用，执行职工基本医疗保险的起付标准、报销比 例、年度最高支付限额等有关规定。","ex":""},{"no":"2.","t":"2.生育津贴。\n生育津贴为参保职工在规定的产假及计划生育手术假期期间获得的工资性补偿。生育 津贴按照职工所在用人单位上年度职工月平均工资计发；以个人身份参保的，生育津贴按 照本人上年度生育保险月平均缴费基数计发。生育津贴支付期限按照《江西省人口与计划 生育条例》《江西省女职工劳动保护特别规定》等规定的产假期限执行。\n（1）正常分娩的，按规定享受九十八天生育津贴；\n（2）符合《江西省人口与计划生育条例》规定生育的，除享受第一项外，增加六十天 生育津贴；\n（3）难产或实施剖宫产手术分娩的，增加十五天生育津贴；\n（4）生育多胞胎的，每多生育一个婴儿，增加十五天生育津贴；\n（5）怀孕不满三个月流产的，享受二十五天生育津贴；\n（6）怀孕满三个月不满七个月流产的，享受四十二天生育津贴；\n（7）怀孕满七个月以上终止妊娠的，享受九十八天生育津贴；\n（8）放置宫内节育器的，享受三天生育津贴；\n（9）取出宫内节育器的，享受一天生育津贴；\n（10）结扎或复通输卵管的，享受二十一天生育津贴。\n生育津贴由医疗保险经办机构按照规定拨付给用人单位，自愿参保的灵活就业人员直 接发放给个人。用人单位按规定发放工资且工资标准高于或等于生育津贴计发标准的，职 工不再领取生育津贴；用人单位按规定发放工资但工资标准低于生育津贴计发标准的，差 额部分由用人单位予以补足；用人单位未按照规定发放工资的，生育津贴由用人单位发放 给职工个人，不得截留挪用。","ex":""},{"no":"3.","t":"3.待遇享受条件。\n两项保险合并实施后，自参保缴费三十日后，女职工和男职工未就业配偶享受生育医 疗费用待遇；男职工未就业配偶参加居民医保的，其生育医疗费用由职工医保基金按规定 支付，不得在居民医保基金中重复报销。\n在江西省范围内女职工连续缴费至生育时满一年以上（含合并实施前的生育保险缴费 时限）且生育后处于正常缴费状态的，享受生育津贴待遇。男职工未就业配偶不享受生育 津贴待遇。\n参保职工退休后生育的，可继续享受生育医疗费用待遇，不享受生育津贴待遇。","ex":""},{"no":"（四）","t":"（四） 医疗服务管理。两项保险合并实施后实行统一定点医疗服务管理。医疗保险经 办机构与定点医疗机构签订相关医疗服务协议时，要将生育医疗服务有关要求和指标增加 到协议内容中，并充分利用协议管理，强化对生育医疗服务的监控。执行全省统一的基本 医疗保险、工伤保险和生育保险药品目录以及基本医疗保险诊疗项目和医疗服务设施范 围。\n促进生育医疗服务行为规范。将生育医疗费用纳入医保支付方式改革范围，推动住院 分娩等医疗费用按病种、产前检查按人头等方式付费。生育医疗费用原则上实行医疗保险 经办机构与定点医疗机构直接结算。充分利用医保智能监控系统，强化监控和审核，控制 生育医疗费用不合理增长。","ex":""},{"no":"（五）","t":"（五）经办和信息服务。 两项保险合并实施后，要统一经办管理，规范经办流程。经 办管理统一由基本医疗保险经办机构负责，经费列入同级财政预算。充分利用医疗保障信 息平台，实行信息系统一体化运行。原有生育保险医疗费用结算平台可暂时保留，待条件 成熟后并入医疗保险结算平台。按照国家统一部署，完善统计信息系统，做好医疗生育保 险统计工作，确保及时全面准确反映生育保险基金运行、待遇享受人员、待遇支付等方面 情况。\n深入推进生育保险领域“放管服”改革，进一步提升生育保险便民服务水平，取消职 工享受生育医疗待遇前需到经办机构申请备案手续，取消（再）生育服务证和婴儿出生医 学证明材料，通过部门间公共信息共享，提供生育信息查询服务。","ex":""},{"no":"四、","t":"四、保障措施\n（ 一 ） 强化组织领导。 两项保险合并实施是党中央、 国务院和省委、省政府作出的一 项重要部署，是推动建立更加公平更可持续医疗保障制度的重要内容。各市、县（区）要 高度重视，加强领导，有序推进相关工作。省医保局、省财政厅、省卫生健康委要会同有 关方面加强工作指导，及时研究解决工作中遇到的困难和问题，重要情况及时报告省政 府。","ex":""},{"no":"（二）","t":"（二）精心组织实施。 各统筹地区要高度重视两项保险合并实施工作， 按照本办法要 求，根据当地生育保险和职工基本医疗保险参保人群差异、基金支付能力、待遇保障水平 等因素进行综合分析和研究，按照“尽力而为、量力而行”的原则，坚持从实际出发，从 保障基本权益做起，制定实施细则，周密组织实施，确保参保人员相关待遇不降低、基金 收支平衡，保证平稳过渡。\n各统筹地区要加强工作部署，认真研判当前和今后人口形势对生育保险支出的影响， 增强风险防范意识和制度保障能力，加大督促指导，加快推进落实，确保2019年底前出台 两项保险合并实施细则，并报送省医保局和省财政厅，2020年1月1日起正式执行。","ex":""},{"no":"（三）","t":"（三）加强政策宣传。 各市、县（区）要坚持正确的舆论导向，准确解读相关政策， 大力宣传两项保险合并实施的重要意义，合理引导预期，让社会公众充分了解合并实施不 会影响参保人员享受相关待遇，且有利于提高基金共济能力、减轻用人单位事务性负担、 提高管理效率，为推动两项保险合并实施创造良好的社会氛围。\n本办法实施前我省生育保险和职工基本医疗保险规定与本办法不一致的，按本办法规 定执行。","ex":""},{"no":"（二）","t":"（二）就业与失业","ex":""}]}]
+;
 /* =================================================== */
-
 
 /* ===== 存储（自动保存 + 导出烘焙）===== */
 const KEY = 'statute_note_' + LAW_KEY;
-let store = 
-(function(){
-  var editMode = false;
-
-  // 醒目入口按钮
-  var btnEdit = document.createElement('button');
-  btnEdit.id = 'btnEdit';
-  btnEdit.title = '编辑模式：每条法条上方出现颜色工具条，可选中局部或直接改整条';
-  btnEdit.innerHTML = '\u270E 编辑条文';
-  btnEdit.style.cssText = 'padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);';
-  var tip = document.createElement('span');
-  tip.className = 'edit-tip';
-  tip.textContent = '已开启：每条法条上方有颜色工具条（选中文字改局部，直接点改整条）';
-  tip.style.display = 'none';
-  var btnTest = document.getElementById('btnTest');
-  if(btnTest){ btnTest.parentNode.insertBefore(btnEdit, btnTest); btnEdit.insertAdjacentElement('afterend', tip); }
-  btnEdit.addEventListener('click', function(){
-    editMode = !editMode;
-    document.body.classList.toggle('edit-mode', editMode);
-    btnEdit.classList.toggle('active', editMode);
-    btnEdit.innerHTML = editMode ? '\u2713 退出编辑' : '\u270E 编辑条文';
-    if(editMode){ btnEdit.style.background='#27ae60'; btnEdit.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; tip.style.display='inline-block'; }
-    else { btnEdit.style.background='#e6a23c'; btnEdit.style.boxShadow='0 2px 6px rgba(230,162,60,.4)'; tip.style.display='none'; }
-    try{ showStatus(editMode ? '编辑模式已开启：点法条上方的颜色按钮即可改色 / 高亮' : '已退出编辑'); }catch(e){}
-  });
-
-  // 存储键（复用笔记已有 KEY）
-  var KEY = '';
-  try { document.querySelectorAll('script').forEach(function(s){ var m = s.textContent.match(/const KEY\s*=\s*'([^']+)'/); if(m) KEY = m[1]; }); }catch(e){}
-  if(!KEY) KEY = 'statute_note_edit';
-
-  var FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
-  var BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
-
-  function barHTML(){
-    var h = '<span class="elbl">字体</span>';
-    FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
-    h += '<span class="fsep"></span><span class="elbl">高亮</span>';
-    BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
-    h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
-    h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
-    return h;
-  }
-
-  function makeEditable(){
-    document.querySelectorAll('.article').forEach(function(art){
-      if(art.dataset.editInjected) return;
-      art.dataset.editInjected = '1';
-      var textEl = art.querySelector('.art-text');
-      if(textEl){
-        textEl.classList.add('editable');
-        textEl.setAttribute('contenteditable','true');
-        textEl.setAttribute('data-art', art.id || '');
-      }
-      var bar = document.createElement('div');
-      bar.className = 'art-editbar';
-      bar.setAttribute('data-bar', art.id || '');
-      bar.innerHTML = barHTML();
-      if(textEl && textEl.parentNode){ textEl.parentNode.insertBefore(bar, textEl); }
-    });
-  }
-
-  // 防止点击工具条导致法条失焦、选区丢失
-  document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
-
-  function applyColor(artId, c, hl){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 局部选区
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 整条
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-  function clearColor(artId){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand('removeFormat', false, null);
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand('removeFormat', false, null);
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-
-  document.addEventListener('click', function(e){
-    if(!editMode) return;
-    var bar = e.target.closest('.art-editbar');
-    if(!bar) return;
-    var artId = bar.getAttribute('data-bar') || '';
-    var clearBtn = e.target.closest('[data-clear]');
-    if(clearBtn){ clearColor(artId); return; }
-    var btn = e.target.closest('[data-c]');
-    if(!btn) return;
-    applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
-  });
-
-  function saveArt(id){
-    var el = document.querySelector('.art-text[data-art="'+id+'"]');
-    if(!el) return;
-    try{ var s = localStorage.getItem(KEY); var store = s ? JSON.parse(s) : {}; if(!store.artEdit) store.artEdit = {}; store.artEdit[id] = el.innerHTML; localStorage.setItem(KEY, JSON.stringify(store)); }catch(err){}
-  }
-  function restoreEdits(){
-    try{ var s = localStorage.getItem(KEY); if(!s) return; var store = JSON.parse(s); if(!store.artEdit) return;
-      Object.keys(store.artEdit).forEach(function(id){ var el = document.querySelector('.art-text[data-art="'+id+'"]'); if(el && store.artEdit[id]) el.innerHTML = store.artEdit[id]; });
-    }catch(e){}
-  }
-
-  var _ro = new MutationObserver(function(){
-    var content = document.getElementById('content');
-    if(content && content.children.length > 0){ makeEditable(); restoreEdits(); }
-  });
-  var mainEl = document.getElementById('content');
-  if(mainEl) _ro.observe(mainEl, {childList:true});
-  setTimeout(function(){ makeEditable(); restoreEdits(); }, 500);
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
 })();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        (m.revised ? '<span class="mk">修正时间</span><span class="mv">'+escapeHtml(m.revised)+'</span>' : '') +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+  // 法条原文（可编辑）
+  'barHTML(id) + <div class="art-text editable" contenteditable="true" data-art="' + id + '">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);  restoreArtEdits();
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
 
 
+/* ===== 编辑模式切换（浮动工具条） ===== */
+let editMode = false;
+const btnEdit = document.getElementById('btnEdit');
+btnEdit.addEventListener('click', function(){
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  this.classList.toggle('active', editMode);
+  this.textContent = editMode ? '✓ 退出编辑' : '✎ 编辑条文';
+  if(editMode){ this.style.background='#27ae60'; this.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; }
+  else { this.style.background=''; this.style.boxShadow=''; }
+  showStatus(editMode ? '编辑模式：每条法条上方有颜色工具条，选中改局部或整条改色' : '已退出编辑');
+});
+
+/* 常驻工具条：每条法条上方由 render 注入 .art-editbar，点击即改色 */
+const FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
+const BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
+function barHTML(id){
+  let h = '<span class="elbl">字体</span>';
+  FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
+  h += '<span class="fsep"></span><span class="elbl">高亮</span>';
+  BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
+  h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
+  h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
+  return '<div class="art-editbar" data-bar="'+id+'">' + h + '</div>';
+}
+
+// 防止点击工具条导致法条失焦、选区丢失
+document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
+
+function applyColor(artId, c, hl){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+  } else {
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+    sel.removeAllRanges();
+  }
+  saveArtText(artId, el.innerHTML);
+}
+function clearColor(artId){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand('removeFormat', false, null);
+  } else {
+    const artData = getArtData(artId);
+    el.innerHTML = artData ? escapeHtml(artData.t) : el.textContent;
+  }
+  saveArtText(artId, el.innerHTML);
+}
+
+document.addEventListener('click', function(e){
+  if(!editMode) return;
+  const bar = e.target.closest('.art-editbar');
+  if(!bar) return;
+  const artId = bar.getAttribute('data-bar') || '';
+  const clearBtn = e.target.closest('[data-clear]');
+  if(clearBtn){ clearColor(artId); showStatus('已清除格式'); return; }
+  const btn = e.target.closest('[data-c]');
+  if(!btn) return;
+  applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
+  showStatus(btn.dataset.hl === '1' ? '已高亮标注' : '已改字体色');
+});
+
+/* 保存法条编辑后的HTML */
+function saveArtText(id, html){
+  if(!store.artEdit) store.artEdit = {};
+  store.artEdit[id] = html;
+  save();
+}
+
+/* 恢复已保存的法条编辑 */
+function restoreArtEdits(){
+  if(!store.artEdit) return;
+  Object.keys(store.artEdit).forEach(function(id){
+    const el = document.querySelector('.art-text[data-art="'+id+'"]');
+    if(el && store.artEdit[id]){
+      el.innerHTML = store.artEdit[id];
+    }
+  });
+}
+
+/* 获取法条原始数据（用于重置） */
+function getArtData(id){
+  for(let ci=0;ci<DATA.length;ci++){
+    for(let ai=0;ai<DATA[ci].items.length;ai++){
+      if('a'+ci+'_'+ai === id) return DATA[ci].items[ai];
+    }
+  }
+  return null;
+}
+
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
 </body>
 </html>
