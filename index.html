@@ -25,19 +25,36 @@ header{position:sticky; top:0; z-index:50; background:var(--primary); color:#fff
 .hint{font-size:12px; opacity:.82; margin-left:auto;}
 
 .layout{max-width:1200px; margin:22px auto; padding:0 20px; display:flex; gap:24px; align-items:flex-start;}
-aside{position:sticky; top:84px; width:190px; flex:none; background:var(--card); border:1px solid var(--border);
-  border-radius:12px; padding:14px; box-shadow:var(--shadow);}
+aside{position:sticky; top:84px; width:212px; flex:none; background:var(--card); border:1px solid var(--border);
+  border-radius:12px; padding:14px; box-shadow:var(--shadow); max-height:calc(100vh - 100px); overflow-y:auto;}
 aside .sb-title{font-size:12px; color:var(--muted); margin:0 0 8px; letter-spacing:1px;}
-aside a{display:flex; justify-content:space-between; align-items:center; padding:7px 10px; border-radius:8px;
-  color:var(--ink); text-decoration:none; font-size:13.5px; margin-bottom:2px;}
+aside a{display:flex; justify-content:space-between; align-items:center; gap:6px; padding:6px 8px; border-radius:8px;
+  color:var(--ink); text-decoration:none; font-size:13px; margin-bottom:2px; line-height:1.35;}
 aside a:hover{background:var(--primary-soft);}
-aside a .cnt{font-size:11px; color:var(--muted); background:var(--bg); border-radius:10px; padding:1px 8px;}
-/* 侧栏二级子领域 */
-aside .sb-field{font-weight:600; color:var(--primary); font-size:14px; margin-top:10px;
-  padding:6px 0 4px; letter-spacing:.3px;}
-aside .sb-sub{padding-left:14px;}
-aside .sb-sub a{font-size:12.8px; padding:5px 8px;}
-aside .sb-sub a .cnt{font-size:10.5px;}
+aside a .cnt{font-size:10.5px; color:var(--muted); background:var(--bg); border-radius:10px; padding:1px 7px; flex:none;}
+/* 一级：法律部门 */
+aside .sb-field{display:flex; align-items:center; gap:4px; font-weight:600; color:var(--primary); font-size:13.5px;
+  margin-top:10px; padding:6px 6px 4px; letter-spacing:.3px; cursor:pointer; border-radius:6px;}
+aside .sb-field:hover{background:var(--primary-soft);}
+aside .sb-field .tw{font-size:10px; width:10px; flex:none;}
+aside .sb-field .cnt{margin-left:auto;}
+/* 二级：子领域 */
+aside .sb-sub{padding-left:10px;}
+aside .sb-sub-h{display:flex; align-items:center; gap:4px; font-size:12.8px; padding:5px 8px; cursor:pointer; border-radius:7px; font-weight:500; color:var(--ink);}
+aside .sb-sub-h:hover{background:var(--primary-soft);}
+aside .sb-sub-h .tw{font-size:9px; width:9px; flex:none; color:var(--muted);}
+aside .sb-sub-h .cnt{margin-left:auto; font-size:10.5px; color:var(--muted); background:var(--bg); border-radius:10px; padding:1px 7px;}
+/* 三级：法律级别 */
+aside .sb-lvl{padding-left:22px;}
+aside .sb-lvl a{font-size:12px; padding:4px 8px;}
+aside .sb-lvl a .cnt{font-size:10px;}
+/* 四级：法规名称（带序号） */
+aside .sb-note{padding-left:34px;}
+aside .sb-note a{font-size:11.5px; padding:3px 8px; color:var(--muted); gap:5px;}
+aside .sb-note a .idx{color:var(--primary); font-weight:600; flex:none; width:15px; font-size:11px; text-align:right;}
+aside .sb-note a .nm{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+aside .sb-note a:hover{background:var(--primary-soft);}
+aside .sb-note a:hover .nm{color:var(--primary);}
 main{flex:1 1 auto; min-width:0;}
 
 .chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;}
@@ -58,6 +75,14 @@ main{flex:1 1 auto; min-width:0;}
 .sub-head{display:flex; align-items:center; gap:8px; font-size:14.5px; font-weight:600; color:var(--ink);
   margin:0 0 12px; padding-left:10px; border-left:4px solid var(--accent);}
 .sub-head .snum{font-size:11px; color:var(--muted); font-weight:400;}
+/* 三级：法律级别分组 */
+.lvl-group{margin:6px 0 18px; padding-left:14px; border-left:2px solid var(--border);}
+.lvl-head{display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:var(--accent);
+  background:var(--primary-soft); border-radius:14px; padding:3px 12px; margin:4px 0 12px;}
+.lvl-head .lnum{font-size:10.5px; color:var(--muted); font-weight:400;}
+.note-card .cidx{display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px;
+  background:var(--primary); color:#fff; border-radius:6px; font-size:11px; font-weight:700; margin-right:7px; vertical-align:middle;}
+
 /* 规划中 */
 .field-section.planned .field-head{border-color:var(--border);}
 .field-section.planned .field-head h2{color:var(--muted); font-size:16px;}
@@ -118,7 +143,7 @@ footer code{background:var(--bg); padding:1px 6px; border-radius:5px; font-size:
   <main>
     <section class="intro">
       <h2>关于本网站与配套技能</h2>
-      <p>本网站是一个面向法律人的法规学习笔记聚合空间：把 AI 生成的「单文件可编辑 HTML 法规笔记」按<strong>「法律部门 → 子领域」二级体系</strong>分类集中浏览（例如「劳动法与社会保障法」下再分劳动关系、劳动争议、工资报酬、社会保障、工作时间与休息休假、劳动保护、监察执法、和谐劳动关系创建等子领域），支持搜索、按法律部门筛选，手机和电脑都能直接打开。</p>
+      <p>本网站是一个面向法律人的法规学习笔记聚合空间：把 AI 生成的「单文件可编辑 HTML 法规笔记」按<strong>「法律部门 → 子领域 → 法律级别 → 具体法规」四级体系</strong>分类集中浏览（例如「劳动法与社会保障法 → 劳动关系」下，再按法律、行政法规、部门规章、地方性法规、地方政府规章、司法解释、其他规范性文件分级，逐级列出具体法规）。<strong>左侧目录可逐级展开</strong>，每部法规名称前带序号，支持搜索、按法律部门筛选，手机和电脑都能直接打开。</p>
       <p>配套技能 <span class="skill-name">statute-study-notebook</span>：只需说一句「做《XX法》学习笔记」，即可一键生成单文件笔记，包含逐条官方原文、AI 条文解读、分层批注（疑问 / 我的案例 / 要点总结 / 待办）、速查卡、关联真实案例、关联其他法规法条、自测模式，并支持自动保存与导出。生成后会自动登记进本网站。</p>
       <p><a class="dl" href="statute-study-notebook.zip" download>⬇ 下载技能（statute-study-notebook.zip）</a></p>
       <p class="author">作者：<b>@你好今天是周五</b></p>
@@ -134,8 +159,8 @@ footer code{background:var(--bg); padding:1px 6px; border-radius:5px; font-size:
     <summary>如何新增一篇笔记？</summary>
     <p>方式一（推荐）：用 <code>statute-study-notebook</code> 技能生成笔记时，会自动登记进本网站——无需手动复制。</p>
     <p>方式二（手动）：把生成的 <code>《法规名》学习笔记.html</code> 复制到本目录的 <code>notes/</code> 文件夹，然后在下面数据的 <code>SITE_NOTES</code> 数组里加一行（含 <code>cat</code> 领域）：</p>
-    <p><code>{title:"法规名", sub:"副标题", file:"notes/文件名.html", tags:["标签"], cat:"所属领域"}</code></p>
-    <p>领域建议取值（一级·法律部门）：宪法相关法 / 民商法 / 行政法 / 经济法 / 劳动与社会保障法 / 刑法 / 诉讼与非诉讼程序法 / 司法制度 / 其他。劳动与社会保障法下的二级子领域建议：劳动关系 / 劳动争议 / 工资报酬 / 社会保障 / 工作时间、休息休假 / 劳动保护 / 监察执法 / 和谐劳动关系创建。</p>
+    <p><code>{title:"法规名", sub:"副标题", file:"notes/文件名.html", tags:["标签"], cat:"所属领域", level:"法律级别(可省略，缺省按标题自动识别)"}</code></p>
+    <p>一级·法律部门：宪法相关法 / 民商法 / 行政法 / 经济法 / 劳动与社会保障法 / 刑法 / 诉讼与非诉讼程序法 / 司法制度 / 其他。二级·子领域（劳动法内）：劳动关系 / 劳动争议 / 工资报酬 / 社会保障 / 工作时间、休息休假 / 劳动保护 / 监察执法 / 和谐劳动关系创建。三级·法律级别（自动识别，无需手填）：法律 / 行政法规 / 部门规章 / 地方性法规 / 地方政府规章 / 司法解释 / 其他规范性文件。</p>
   </details>
 </footer>
 
@@ -276,6 +301,60 @@ const CAT_FIELD = {
 };
 function fieldOf(cat){ return CAT_FIELD[cat] || cat; }
 
+/* 三级分类：法律级别（展示顺序） */
+const LEVEL_ORDER = ["法律","行政法规","部门规章","地方性法规","地方政府规章","司法解释","其他规范性文件"];
+
+/* 根据标题推断法律级别（被引用的法规名在《》内不计入制定机关判断） */
+function outsideHas(t, kw){ return t.replace(/《[^》]*》/g,'').indexOf(kw) >= 0; }
+function docType(t){
+  if(/(印发|发布|颁发|下发)/.test(t)){
+    const m = t.match(/《([^》]+)》/);
+    if(m){ const mt=m[1].match(/(条例|暂行条例|特别规定|规定|办法|规则|实施细则|解释|指引|答复|纪要|方案|解答|通知|意见|函|批复|决定)/); if(mt) return mt[1]; }
+  }
+  const outside = t.replace(/《[^》]*》/g,'');
+  const all = outside.match(/(条例|暂行条例|特别规定|规定|办法|规则|实施细则|解释|指引|答复|纪要|方案|解答|通知|意见|函|批复|决定)/g);
+  if(all) return all[all.length-1];
+  const mb = t.match(/《([^》]+)》/);
+  if(mb){ const mt=mb[1].match(/(条例|暂行条例|特别规定|规定|办法|规则|实施细则)/); if(mt) return mt[1]; }
+  return '';
+}
+const LEVEL_OVERRIDE = {
+  "禁止使用童工规定":"行政法规",
+  "全国年节及纪念日放假办法":"行政法规"
+};
+function levelOf(t){
+  const dt = docType(t);
+  const hasSupreme = outsideHas(t,'最高人民法院') || outsideHas(t,'最高人民检察院');
+  if(hasSupreme && /解释|规定|批复|决定/.test(t) && !/意见/.test(t)) return '司法解释';
+  if(/^中华人民共和国.{1,20}法$/.test(t)) return '法律';
+  if(outsideHas(t,'国务院')){
+    if(/条例|规定|办法|规则|实施细则|暂行条例|特别规定/.test(dt)) return '行政法规';
+    return '其他规范性文件';
+  }
+  if(outsideHas(t,'省') || outsideHas(t,'自治区') || outsideHas(t,'直辖市')){
+    if(/人民代表大会|人大常委会/.test(t) || (/条例/.test(dt) && t.indexOf('人民政府')<0 && t.indexOf('政府')<0)) return '地方性法规';
+    if(/省人民政府|省政府|直辖市人民政府|自治区人民政府/.test(t)){
+      if(/规定|办法|规则|实施细则|暂行条例|特别规定/.test(dt)) return '地方政府规章';
+      return '其他规范性文件';
+    }
+    if(/(规定|办法|规则|实施细则|暂行条例|特别规定)/.test(dt) && !/(厅|委|局|部|人民代表大会)/.test(t)) return '地方政府规章';
+    return '其他规范性文件';
+  }
+  if(/(部|委员会|总局|总署|人民银行|银保监会|证监会|金融监管总局|审计署)/.test(t)){
+    if(/(规定|办法|规则|实施细则|暂行条例|特别规定)/.test(dt)) return '部门规章';
+    return '其他规范性文件';
+  }
+  if(/国家/.test(t)){
+    if(/(规定|办法|规则|实施细则|暂行条例|特别规定)/.test(dt)) return '部门规章';
+    return '其他规范性文件';
+  }
+  if(/(条例|暂行条例|特别规定)/.test(dt)) return '行政法规';
+  if(/(规定|办法|规则|实施细则)/.test(dt)) return '部门规章';
+  return '其他规范性文件';
+}
+function levelOfNote(n){ return LEVEL_OVERRIDE[n.title] || levelOf(n.title); }
+
+
 const sectionsEl = document.getElementById('sections');
 const chipsEl = document.getElementById('chips');
 const sbNav = document.getElementById('sbNav');
@@ -283,6 +362,11 @@ const emptyEl = document.getElementById('empty');
 const searchEl = document.getElementById('search');
 
 let activeField = '全部';
+/* 折叠状态：记录被收起的侧栏节点 key */
+const collapsed = new Set();
+/* id 生成器（保证侧栏锚点与主内容一致） */
+const _ids = {};
+function uid(key){ if(!_ids[key]) _ids[key] = 'n' + Object.keys(_ids).length; return _ids[key]; }
 
 /* 取得所有有笔记的法律部门（按 FIELD_ORDER 排序） */
 function getFields(){
@@ -307,6 +391,17 @@ function getSubs(field){
   return ordered.map(s => ({ name:s, notes:map[s] }));
 }
 
+
+/* 某子领域下，按法律级别再分组（三级分类） */
+function getLevels(notes){
+  const map = {};
+  notes.forEach(n => { const lv = levelOfNote(n); (map[lv] = map[lv] || []).push(n); });
+  const keys = Object.keys(map);
+  const ordered = LEVEL_ORDER.filter(l => keys.indexOf(l) >= 0);
+  keys.filter(l => LEVEL_ORDER.indexOf(l) < 0).forEach(l => ordered.push(l));
+  return ordered.map(l => ({ name:l, notes:map[l] }));
+}
+
 function matchNote(n, q){
   if(!q) return true;
   q = q.toLowerCase();
@@ -317,20 +412,38 @@ function render(){
   const fields = getFields();
   const q = searchEl.value.trim();
 
-  // 侧栏：法律部门 → 子领域 二级树
+  // ---- 侧栏：法律部门 → 子领域 → 法律级别 → 法规（四级树） ----
   let sb = '';
   fields.forEach(f => {
-    const subs = getSubs(f);
+    if(activeField !== '全部' && activeField !== f) return;
+    const subs = getSubs(f).map(s => ({ name:s.name, notes:s.notes.filter(n => matchNote(n, q)) })).filter(s => s.notes.length > 0);
     const fCnt = subs.reduce((a,s)=>a+s.notes.length,0);
-    sb += '<div class="sb-field">'+esc(f)+' <span class="cnt">'+fCnt+'</span></div>';
-    subs.forEach(s => {
-      sb += '<div class="sb-sub"><a href="#sub-'+esc(s.name)+'">'
-           + '<span>'+esc(s.name)+'</span><span class="cnt">'+s.notes.length+'</span></a></div>';
+    if(fCnt === 0) return;
+    const fKey = 'f__'+f;
+    const fOpen = !collapsed.has(fKey);
+    sb += '<div class="sb-field'+(fOpen?'':' sb-collapsed')+'" data-toggle="'+esc(fKey)+'">'
+        + '<span class="tw">'+ (fOpen?'▾':'▸') +'</span>'+esc(f)+' <span class="cnt">'+fCnt+'</span></div>';
+    if(fOpen) subs.forEach(s => {
+      const sKey = 's__'+f+'__'+s.name;
+      const sOpen = !collapsed.has(sKey);
+      const sId = uid('sub-'+f+'-'+s.name);
+      sb += '<div class="sb-sub"><div class="sb-sub-h'+(sOpen?'':' sb-collapsed')+'" data-toggle="'+esc(sKey)+'">'
+           + '<span class="tw">'+ (sOpen?'▾':'▸') +'</span><span>'+esc(s.name)+'</span><span class="cnt">'+s.notes.length+'</span></div></div>';
+      if(sOpen){
+        const levels = getLevels(s.notes);
+        levels.forEach(lv => {
+          const lvId = uid('lvl-'+f+'-'+s.name+'-'+lv.name);
+          sb += '<div class="sb-lvl"><a href="#'+lvId+'"><span>'+esc(lv.name)+'</span><span class="cnt">'+lv.notes.length+'</span></a></div>';
+          lv.notes.forEach((n,i) => {
+            sb += '<div class="sb-note"><a href="'+esc(n.file)+'" title="'+esc(n.title)+'"><span class="idx">'+(i+1)+'</span><span class="nm">'+esc(n.title)+'</span></a></div>';
+          });
+        });
+      }
     });
   });
   sbNav.innerHTML = sb;
 
-  // 筛选条：全部 + 法律部门
+  // ---- 筛选条：全部 + 法律部门 ----
   let chips = '<span class="chip'+(activeField==='全部'?' active':'')+'" data-field="全部">全部 <span class="cnt">'+SITE_NOTES.length+'</span></span>';
   chips += fields.map(f => {
     const cnt = SITE_NOTES.filter(n => fieldOf(n.cat) === f).length;
@@ -338,31 +451,41 @@ function render(){
   }).join('');
   chipsEl.innerHTML = chips;
 
-  // 分区
+  // ---- 主内容：法律部门 → 子领域 → 法律级别 → 法规卡片 ----
   let html = '';
   let totalShown = 0;
   fields.forEach(f => {
     if(activeField !== '全部' && activeField !== f) return;
-    const subs = getSubs(f).map(s => ({ name:s.name, notes:s.notes.filter(n => matchNote(n, q)) })).filter(s => s.notes.length > 0);
-    const fieldCount = subs.reduce((a,s)=>a+s.notes.length,0);
+    const subs = getSubs(f).map(s => {
+      const levels = getLevels(s.notes).map(lv => ({ name:lv.name, notes:lv.notes.filter(n => matchNote(n, q)) })).filter(lv => lv.notes.length > 0);
+      return { name:s.name, levels };
+    }).filter(s => s.levels.length > 0);
+    const fieldCount = subs.reduce((a,s)=>a+s.levels.reduce((b,lv)=>b+lv.notes.length,0),0);
     if(fieldCount === 0) return;
     totalShown += fieldCount;
     html += '<section class="field-section" id="field-'+esc(f)+'">'
          +  '<div class="field-head"><h2>'+esc(f)+'</h2><span class="fnum">'+fieldCount+' 篇</span></div>';
     subs.forEach(s => {
-      html += '<div class="sub-group" id="sub-'+esc(s.name)+'">'
-           +  '<div class="sub-head">'+esc(s.name)+'<span class="snum">'+s.notes.length+'</span></div>'
-           +  '<div class="grid">';
-      s.notes.forEach(n => {
-        const tags = (n.tags||[]).map(t => '<span class="tag">'+esc(t)+'</span>').join('');
-        html += '<a class="note-card" href="'+esc(n.file)+'">'
-             +  '<div class="ttl">《'+esc(n.title)+'》学习笔记</div>'
-             +  '<div class="sub">'+esc(n.sub||'')+'</div>'
-             +  '<div class="tags">'+tags+'</div>'
-             +  '<div class="open">打开笔记 →</div>'
-             +  '</a>';
+      const sId = uid('sub-'+f+'-'+s.name);
+      html += '<div class="sub-group" id="'+sId+'">'
+           +  '<div class="sub-head">'+esc(s.name)+'<span class="snum">'+s.levels.reduce((b,lv)=>b+lv.notes.length,0)+' 篇</span></div>';
+      s.levels.forEach(lv => {
+        const lvId = uid('lvl-'+f+'-'+s.name+'-'+lv.name);
+        html += '<div class="lvl-group" id="'+lvId+'">'
+             +  '<div class="lvl-head">'+esc(lv.name)+'<span class="lnum">'+lv.notes.length+' 篇</span></div>'
+             +  '<div class="grid">';
+        lv.notes.forEach((n,i) => {
+          const tags = (n.tags||[]).map(t => '<span class="tag">'+esc(t)+'</span>').join('');
+          html += '<a class="note-card" href="'+esc(n.file)+'">'
+               +  '<div class="ttl"><span class="cidx">'+(i+1)+'</span>《'+esc(n.title)+'》学习笔记</div>'
+               +  '<div class="sub">'+esc(n.sub||'')+'</div>'
+               +  '<div class="tags">'+tags+'</div>'
+               +  '<div class="open">打开笔记 →</div>'
+               +  '</a>';
+        });
+        html += '</div></div>';
       });
-      html += '</div></div>';
+      html += '</div>';
     });
     html += '</section>';
   });
@@ -387,6 +510,13 @@ chipsEl.addEventListener('click', function(e){
   activeField = el.dataset.field; render();
 });
 searchEl.addEventListener('input', render);
+/* 侧栏折叠 */
+sbNav.addEventListener('click', function(e){
+  const t = e.target.closest('[data-toggle]'); if(!t) return;
+  const key = t.dataset.toggle;
+  if(collapsed.has(key)) collapsed.delete(key); else collapsed.add(key);
+  render();
+});
 
 render();
 </script>
