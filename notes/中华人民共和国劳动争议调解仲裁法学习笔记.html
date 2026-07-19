@@ -194,7 +194,6 @@ footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--mute
   body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
 }
 
-/* ===== 法条编辑模式（浮动工具条） ===== */
 /* ===== 法条编辑模式（每条常驻工具条） ===== */
 .art-text.editable{outline:none; border-radius:5px; transition:box-shadow .15s;}
 body.edit-mode .art-text.editable{cursor:text;}
@@ -209,7 +208,6 @@ body.edit-mode .article .art-editbar{display:flex;}
 .art-editbar .fclear:hover{background:#eef1f4;}
 .art-editbar .ehint{font-size:11px;color:#9aa1a9;margin-left:auto;}
 body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modify:read-only;}
-
 </style>
 </head>
 <body>
@@ -219,6 +217,7 @@ body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modi
     <div class="toolbar">
       <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
       <span class="status" id="status">已就绪</span>
+      <button id="btnEdit" title="编辑模式：选中任意法条文字即可改字体色 / 高亮标注" style="padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);">✎ 编辑条文</button>
       <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
       <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
       <button id="btnPrint" title="打印 / 存为PDF">打印</button>
@@ -259,144 +258,383 @@ const CASES = {};
 const REL = {};
 
 /* 法条数据 */
-const DATA = [{"ch":"全文","items":[{"no":"","t":"中华人民共和国主席令第80号\n《中华人民共和国劳动争议调解仲裁法》已由中华人民共和国第十届全国人民代表大会 常务委员会第三十一次会议于2007年12月29日通过，现予公布，自2008年5月1日起施行。\n中华人民共和国主席  胡锦涛\n2007年12月29日","ex":""}]},{"ch":"第一章 总 则","items":[{"no":"第一条","t":"第一条 为了公正及时解决劳动争议，保护当事人合法权益，促进劳动关系和谐稳定， 制定本法。","ex":""},{"no":"第二条","t":"第二条 中华人民共和国境内的用人单位与劳动者发生的下列劳动争议，适用本法：\n（一）因确认劳动关系发生的争议；\n（二）因订立、履行、变更、解除和终止劳动合同发生的争议；\n（三）因除名、辞退和辞职、离职发生的争议；\n（四）因工作时间、休息休假、社会保险、福利、培训以及劳动保护发生的争议；\n（五）因劳动报酬、工伤医疗费、经济补偿或者赔偿金等发生的争议；\n（六）法律、法规规定的其他劳动争议。","ex":""},{"no":"第三条","t":"第三条 解决劳动争议，应当根据事实，遵循合法、公正、及时、着重调解的原则，依 法保护当事人的合法权益。","ex":""},{"no":"第四条","t":"第四条 发生劳动争议，劳动者可以与用人单位协商，也可以请工会或者第三方共同与用人单位协商，达成和解协议。","ex":""},{"no":"第五条","t":"第五条  发生劳动争议，当事人不愿协商、协商不成或者达成和解协议后不履行的，可以向调解组织申请调解；不愿调解、调解不成或者达成调解协议后不履行的，可以向劳动争 议仲裁委员会申请仲裁；对仲裁裁决不服的，除本法另有规定的外，可以向人民法院提起诉讼。","ex":""},{"no":"第六条","t":"第六条 发生劳动争议，当事人对自己提出的主张，有责任提供证据。与争议事项有关 的证据属于用人单位掌握管理的，用人单位应当提供；用人单位不提供的，应当承担不利后 果。","ex":""},{"no":"第七条","t":"第七条 发生劳动争议的劳动者一方在十人以上，并有共同请求的，可以推举代表参加 调解、仲裁或者诉讼活动。","ex":""},{"no":"第八条","t":"第八条 县级以上人民政府劳动行政部门会同工会和企业方面代表建立协调劳动关系三 方机制，共同研究解决劳动争议的重大问题。","ex":""},{"no":"第九条","t":"第九条 用人单位违反国家规定，拖欠或者未足额支付劳动报酬，或者拖欠工伤医疗 费、经济补偿或者赔偿金的，劳动者可以向劳动行政部门投诉，劳动行政部门应当依法处 理。","ex":""}]},{"ch":"第二章  调  解","items":[{"no":"第十条","t":"第十条  发生劳动争议，当事人可以到下列调解组织申请调解：\n（一）企业劳动争议调解委员会；\n（二）依法设立的基层人民调解组织；\n（三）在乡镇、街道设立的具有劳动争议调解职能的组织。\n企业劳动争议调解委员会由职工代表和企业代表组成。职工代表由工会成员担任或者由 全体职工推举产生，企业代表由企业负责人指定。企业劳动争议调解委员会主任由工会成员 或者双方推举的人员担任。","ex":""},{"no":"第十一条","t":"第十一条 劳动争议调解组织的调解员应当由公道正派、联系群众、热心调解工作，并 具有一定法律知识、政策水平和文化水平的成年公民担任。","ex":""},{"no":"第十二条","t":"第十二条  当事人申请劳动争议调解可以书面申请，也可以口头申请。口头申请的，调 解组织应当当场记录申请人基本情况、申请调解的争议事项、理由和时间。","ex":""},{"no":"第十三条","t":"第十三条  调解劳动争议，应当充分听取双方当事人对事实和理由的陈述，耐心疏导，帮 助其达成协议。","ex":""},{"no":"第十四条","t":"第十四条 经调解达成协议的，应当制作调解协议书。\n调解协议书由双方当事人签名或者盖章，经调解员签名并加盖调解组织印章后生效，对 双方当事人具有约束力，当事人应当履行。\n自劳动争议调解组织收到调解申请之日起十五日内未达成调解协议的，当事人可以依法 申请仲裁。","ex":""},{"no":"第十五条","t":"第十五条 达成调解协议后，一 方当事人在协议约定期限内不履行调解协议的，另一方 当事人可以依法申请仲裁。","ex":""},{"no":"第十六条","t":"第十六条  因支付拖欠劳动报酬、工伤医疗费、经济补偿或者赔偿金事项达成调解协 议，用人单位在协议约定期限内不履行的，劳动者可以持调解协议书依法向人民法院申请 支付令。人民法院应当依法发出支付令。","ex":""}]},{"ch":"第三章  仲 裁","items":[{"no":"","t":"第一 节一般规定","ex":""},{"no":"第十七条","t":"第十七条 劳动争议仲裁委员会按照统筹规划、合理布局和适应实际需要的原则设立。 省、自治区人民政府可以决定在市、县设立；直辖市人民政府可以决定在区、县设立。直辖 市、设区的市也可以设立一个或者若干个劳动争议仲裁委员会。劳动争议仲裁委员会不按行 政区划层层设立。","ex":""},{"no":"第十八条","t":"第十八条 国务院劳动行政部门依照本法有关规定制定仲裁规则。省、自治区、直辖市 人民政府劳动行政部门对本行政区域的劳动争议仲裁工作进行指导。","ex":""},{"no":"第十九条","t":"第十九条 劳动争议仲裁委员会由劳动行政部门代表、工会代表和企业方面代表组成。 劳动争议仲裁委员会组成人员应当是单数。\n劳动争议仲裁委员会依法履行下列职责：\n（一）聘任、解聘专职或者兼职仲裁员；\n（二）受理劳动争议案件；\n（三）讨论重大或者疑难的劳动争议案件；\n（四）对仲裁活动进行监督。\n劳动争议仲裁委员会下设办事机构，负责办理劳动争议仲裁委员会的日常工作。","ex":""},{"no":"第二十条","t":"第二十条 劳动争议仲裁委员会应当设仲裁员名册。\n仲裁员应当公道正派并符合下列条件之一：\n（一）曾任审判员的；\n（二）从事法律研究、教学工作并具有中级以上职称的；\n（三）具有法律知识、从事人力资源管理或者工会等专业工作满五年的；\n（四）律师执业满三年的。","ex":""},{"no":"第二十一条","t":"第二十一条 劳动争议仲裁委员会负责管辖本区域内发生的劳动争议。\n劳动争议由劳动合同履行地或者用人单位所在地的劳动争议仲裁委员会管辖。双方当事 人分别向劳动合同履行地和用人单位所在地的劳动争议仲裁委员会申请仲裁的，由劳动合同 履行地的劳动争议仲裁委员会管辖。","ex":""},{"no":"第二十二条","t":"第二十二条 发生劳动争议的劳动者和用人单位为劳动争议仲裁案件的双方当事人。\n劳务派遣单位或者用工单位与劳动者发生劳动争议的，劳务派遣单位和用工单位为共同 当事人。","ex":""},{"no":"第二十三条","t":"第二十三条 与劳动争议案件的处理结果有利害关系的第三人，可以申请参加仲裁活动 或者由劳动争议仲裁委员会通知其参加仲裁活动。","ex":""},{"no":"第二十四条","t":"第二十四条  当事人可以委托代理人参加仲裁活动。委托他人参加仲裁活动，应当向劳 动争议仲裁委员会提交有委托人签名或者盖章的委托书，委托书应当载明委托事项和权限。","ex":""},{"no":"第二十五条","t":"第二十五条  丧失或者部分丧失民事行为能力的劳动者，由其法定代理人代为参加仲裁 活动；无法定代理人的，由劳动争议仲裁委员会为其指定代理人。劳动者死亡的，由其近亲 属或者代理人参加仲裁活动。","ex":""},{"no":"第二十六条","t":"第二十六条 劳动争议仲裁公开进行，但当事人协议不公开进行或者涉及国家秘密、商 业秘密和个人隐私的除外。\n第二节  申请和受理","ex":""},{"no":"第二十七条","t":"第二十七条 劳动争议申请仲裁的时效期间为一年。仲裁时效期间从当事人知道或者应 当知道其权利被侵害之日起计算。\n前款规定的仲裁时效，因当事人一方向对方当事人主张权利，或者向有关部门请求权利 救济，或者对方当事人同意履行义务而中断。从中断时起，仲裁时效期间重新计算。\n因不可抗力或者有其他正当理由，当事人不能在本条第一款规定的仲裁时效期间申请仲 裁的，仲裁时效中止。从中止时效的原因消除之日起，仲裁时效期间继续计算。\n劳动关系存续期间因拖欠劳动报酬发生争议的，劳动者申请仲裁不受本条第一款规定的 仲裁时效期间的限制；但是，劳动关系终止的，应当自劳动关系终止之日起一年内提出。","ex":""},{"no":"第二十八条","t":"第二十八条 申请人申请仲裁应当提交书面仲裁申请，并按照被申请人人数提交副本。 仲裁申请书应当载明下列事项：\n（一）劳动者的姓名、性别、年龄、职业、工作单位和住所，用人单位的名称、住所和 法定代表人或者主要负责人的姓名、职务；\n（二）仲裁请求和所根据的事实、理由；\n（三）证据和证据来源、证人姓名和住所。\n书写仲裁申请确有困难的，可以口头申请，由劳动争议仲裁委员会记入笔录，并告知对 方当事人。","ex":""},{"no":"第二十九条","t":"第二十九条 劳动争议仲裁委员会收到仲裁申请之日起五日内，认为符合受理条件的， 应当受理，并通知申请人；认为不符合受理条件的，应当书面通知申请人不予受理，并说明 理由。对劳动争议仲裁委员会不予受理或者逾期未作出决定的，申请人可以就该劳动争议事 项向人民法院提起诉讼。","ex":""},{"no":"第三十条","t":"第三十条 劳动争议仲裁委员会受理仲裁申请后，应当在五日内将仲裁申请书副本送达 被申请人。\n被申请人收到仲裁申请书副本后，应当在十日内向劳动争议仲裁委员会提交答辩书。劳 动争议仲裁委员会收到答辩书后，应当在五日内将答辩书副本送达申请人。被申请人未提交 答辩书的，不影响仲裁程序的进行。\n第三节  开庭和裁决","ex":""},{"no":"第三十一条","t":"第三十一条 劳动争议仲裁委员会裁决劳动争议案件实行仲裁庭制。仲裁庭由三名仲裁 员组成，设首席仲裁员。简单劳动争议案件可以由一名仲裁员独任仲裁。","ex":""},{"no":"第三十二条","t":"第三十二条 劳动争议仲裁委员会应当在受理仲裁申请之日起五日内将仲裁庭的组成情 况书面通知当事人。","ex":""},{"no":"第三十三条","t":"第三十三条 仲裁员有下列情形之一，应当回避，当事人也有权以口头或者书面方式提 出回避申请：\n（一）是本案当事人或者当事人、代理人的近亲属的；\n（二）与本案有利害关系的；\n（三）与本案当事人、代理人有其他关系，可能影响公正裁决的；\n（四）私自会见当事人、代理人，或者接受当事人、代理人的请客送礼的。\n劳动争议仲裁委员会对回避申请应当及时作出决定，并以口头或者书面方式通知当事 人。","ex":""},{"no":"第三十四条","t":"第三十四条  仲裁员有本法第三十三条第四项规定情形，或者有索贿受贿、徇私舞弊、 枉法裁决行为的，应当依法承担法律责任。劳动争议仲裁委员会应当将其解聘。","ex":""},{"no":"第三十五条","t":"第三十五条 仲裁庭应当在开庭五日前，将开庭日期、地点书面通知双方当事人。当事  人有正当理由的，可以在开庭三日前请求延期开庭。是否延期，由劳动争议仲裁委员会决定。","ex":""},{"no":"第三十六条","t":"第三十六条 申请人收到书面通知，无正当理由拒不到庭或者未经仲裁庭同意中途退庭 的，可以视为撤回仲裁申请。\n被申请人收到书面通知，无正当理由拒不到庭或者未经仲裁庭同意中途退庭的，可以缺 席裁决。","ex":""},{"no":"第三十七条","t":"第三十七条 仲裁庭对专门性问题认为需要鉴定的，可以交由当事人约定的鉴定机构鉴 定；当事人没有约定或者无法达成约定的，由仲裁庭指定的鉴定机构鉴定。\n根据当事人的请求或者仲裁庭的要求，鉴定机构应当派鉴定人参加开庭。当事人经仲裁 庭许可，可以向鉴定人提问。","ex":""},{"no":"第三十八条","t":"第三十八条  当事人在仲裁过程中有权进行质证和辩论。质证和辩论终结时，首席仲裁 员或者独任仲裁员应当征询当事人的最后意见。","ex":""},{"no":"第三十九条","t":"第三十九条  当事人提供的证据经查证属实的，仲裁庭应当将其作为认定事实的根据。 劳动者无法提供由用人单位掌握管理的与仲裁请求有关的证据，仲裁庭可以要求用人单位在指定期限内提供。用人单位在指定期限内不提供的，应当承担不利后果。","ex":""},{"no":"第四十条","t":"第四十条 仲裁庭应当将开庭情况记入笔录。当事人和其他仲裁参加人认为对自己陈述 的记录有遗漏或者差错的，有权申请补正。如果不予补正，应当记录该申请。\n笔录由仲裁员、记录人员、当事人和其他仲裁参加人签名或者盖章。","ex":""},{"no":"第四十一条","t":"第四十一条  当事人申请劳动争议仲裁后，可以自行和解。达成和解协议的，可以撤回 仲裁申请。","ex":""},{"no":"第四十二条","t":"第四十二条  仲裁庭在作出裁决前，应当先行调解。\n调解达成协议的，仲裁庭应当制作调解书。\n调解书应当写明仲裁请求和当事人协议的结果。调解书由仲裁员签名，加盖劳动争议仲 裁委员会印章，送达双方当事人。调解书经双方当事人签收后，发生法律效力。\n调解不成或者调解书送达前，一方当事人反悔的，仲裁庭应当及时作出裁决。","ex":""},{"no":"第四十三条","t":"第四十三条 仲裁庭裁决劳动争议案件，应当自劳动争议仲裁委员会受理仲裁申请之日 起四十五日内结束。案情复杂需要延期的，经劳动争议仲裁委员会主任批准，可以延期并书 面通知当事人，但是延长期限不得超过十五日。逾期未作出仲裁裁决的，当事人可以就该劳 动争议事项向人民法院提起诉讼。\n仲裁庭裁决劳动争议案件时，其中一部分事实已经清楚，可以就该部分先行裁决。","ex":""},{"no":"第四十四条","t":"第四十四条 仲裁庭对追索劳动报酬、工伤医疗费、经济补偿或者赔偿金的案件，根据 当事人的申请，可以裁决先予执行，移送人民法院执行。\n仲裁庭裁决先予执行的，应当符合下列条件：\n（一）当事人之间权利义务关系明确；\n（二）不先予执行将严重影响申请人的生活。\n劳动者申请先予执行的，可以不提供担保。","ex":""},{"no":"第四十五条","t":"第四十五条  裁决应当按照多数仲裁员的意见作出，少数仲裁员的不同意见应当记入笔录。仲裁庭不能形成多数意见时，裁决应当按照首席仲裁员的意见作出。","ex":""},{"no":"第四十六条","t":"第四十六条 裁决书应当载明仲裁请求、争议事实、裁决理由、裁决结果和裁决日期。 裁决书由仲裁员签名，加盖劳动争议仲裁委员会印章。对裁决持不同意见的仲裁员，可以签名，也可以不签名。","ex":""},{"no":"第四十七条","t":"第四十七条 下列劳动争议，除本法另有规定的外，仲裁裁决为终局裁决，裁决书自作出之日起发生法律效力：\n（一）追索劳动报酬、工伤医疗费、经济补偿或者赔偿金，不超过当地月最低工资标准十二个月金额的争议；\n（二）因执行国家的劳动标准在工作时间、休息休假、社会保险等方面发生的争议。","ex":""},{"no":"第四十八条","t":"第四十八条 劳动者对本法第四十七条规定的仲裁裁决不服的，可以自收到仲裁裁决书之日起十五日内向人民法院提起诉讼。","ex":""},{"no":"第四十九条","t":"第四十九条 用人单位有证据证明本法第四十七条规定的仲裁裁决有下列情形之一，可以自收到仲裁裁决书之日起三十日内向劳动争议仲裁委员会所在地的中级人民法院申请撤销裁决：\n（一）适用法律、法规确有错误的；\n（二）劳动争议仲裁委员会无管辖权的；\n（三）违反法定程序的；\n（四）裁决所根据的证据是伪造的；\n（五）对方当事人隐瞒了足以影响公正裁决的证据的；\n（六）仲裁员在仲裁该案时有索贿受贿、徇私舞弊、枉法裁决行为的。\n人民法院经组成合议庭审查核实裁决有前款规定情形之一的，应当裁定撤销。\n仲裁裁决被人民法院裁定撤销的，当事人可以自收到裁定书之日起十五日内就该劳动争议事项向人民法院提起诉讼。","ex":""},{"no":"第五十条","t":"第五十条 当事人对本法第四十七条规定以外的其他劳动争议案件的仲裁裁决不服的， 可以自收到仲裁裁决书之日起十五日内向人民法院提起诉讼；期满不起诉的，裁决书发生法律效力。","ex":""},{"no":"第五十一条","t":"第五十一条 当事人对发生法律效力的调解书、裁决书，应当依照规定的期限履行。一 方当事人逾期不履行的，另一方当事人可以依照民事诉讼法的有关规定向人民法院申请执行。受理申请的人民法院应当依法执行。","ex":""}]},{"ch":"第四章  附  则","items":[{"no":"第五十二条","t":"第五十二条 事业单位实行聘用制的工作人员与本单位发生劳动争议的，依照本法执 行；法律、行政法规或者国务院另有规定的，依照其规定。","ex":""},{"no":"第五十三条","t":"第五十三条 劳动争议仲裁不收费。劳动争议仲裁委员会的经费由财政予以保障。","ex":""},{"no":"第五十四条","t":"第五十四条  本法自2008年5月1日起施行。","ex":""}]}];
+const DATA = [{"ch":"全文","items":[{"no":"","t":"中华人民共和国主席令第80号\n《中华人民共和国劳动争议调解仲裁法》已由中华人民共和国第十届全国人民代表大会 常务委员会第三十一次会议于2007年12月29日通过，现予公布，自2008年5月1日起施行。\n中华人民共和国主席  胡锦涛\n2007年12月29日","ex":""}]},{"ch":"第一章 总 则","items":[{"no":"第一条","t":"第一条 为了公正及时解决劳动争议，保护当事人合法权益，促进劳动关系和谐稳定， 制定本法。","ex":""},{"no":"第二条","t":"第二条 中华人民共和国境内的用人单位与劳动者发生的下列劳动争议，适用本法：\n（一）因确认劳动关系发生的争议；\n（二）因订立、履行、变更、解除和终止劳动合同发生的争议；\n（三）因除名、辞退和辞职、离职发生的争议；\n（四）因工作时间、休息休假、社会保险、福利、培训以及劳动保护发生的争议；\n（五）因劳动报酬、工伤医疗费、经济补偿或者赔偿金等发生的争议；\n（六）法律、法规规定的其他劳动争议。","ex":""},{"no":"第三条","t":"第三条 解决劳动争议，应当根据事实，遵循合法、公正、及时、着重调解的原则，依 法保护当事人的合法权益。","ex":""},{"no":"第四条","t":"第四条 发生劳动争议，劳动者可以与用人单位协商，也可以请工会或者第三方共同与用人单位协商，达成和解协议。","ex":""},{"no":"第五条","t":"第五条  发生劳动争议，当事人不愿协商、协商不成或者达成和解协议后不履行的，可以向调解组织申请调解；不愿调解、调解不成或者达成调解协议后不履行的，可以向劳动争 议仲裁委员会申请仲裁；对仲裁裁决不服的，除本法另有规定的外，可以向人民法院提起诉讼。","ex":""},{"no":"第六条","t":"第六条 发生劳动争议，当事人对自己提出的主张，有责任提供证据。与争议事项有关 的证据属于用人单位掌握管理的，用人单位应当提供；用人单位不提供的，应当承担不利后 果。","ex":""},{"no":"第七条","t":"第七条 发生劳动争议的劳动者一方在十人以上，并有共同请求的，可以推举代表参加 调解、仲裁或者诉讼活动。","ex":""},{"no":"第八条","t":"第八条 县级以上人民政府劳动行政部门会同工会和企业方面代表建立协调劳动关系三 方机制，共同研究解决劳动争议的重大问题。","ex":""},{"no":"第九条","t":"第九条 用人单位违反国家规定，拖欠或者未足额支付劳动报酬，或者拖欠工伤医疗 费、经济补偿或者赔偿金的，劳动者可以向劳动行政部门投诉，劳动行政部门应当依法处 理。","ex":""}]},{"ch":"第二章  调  解","items":[{"no":"第十条","t":"第十条  发生劳动争议，当事人可以到下列调解组织申请调解：\n（一）企业劳动争议调解委员会；\n（二）依法设立的基层人民调解组织；\n（三）在乡镇、街道设立的具有劳动争议调解职能的组织。\n企业劳动争议调解委员会由职工代表和企业代表组成。职工代表由工会成员担任或者由 全体职工推举产生，企业代表由企业负责人指定。企业劳动争议调解委员会主任由工会成员 或者双方推举的人员担任。","ex":""},{"no":"第十一条","t":"第十一条 劳动争议调解组织的调解员应当由公道正派、联系群众、热心调解工作，并 具有一定法律知识、政策水平和文化水平的成年公民担任。","ex":""},{"no":"第十二条","t":"第十二条  当事人申请劳动争议调解可以书面申请，也可以口头申请。口头申请的，调 解组织应当当场记录申请人基本情况、申请调解的争议事项、理由和时间。","ex":""},{"no":"第十三条","t":"第十三条  调解劳动争议，应当充分听取双方当事人对事实和理由的陈述，耐心疏导，帮 助其达成协议。","ex":""},{"no":"第十四条","t":"第十四条 经调解达成协议的，应当制作调解协议书。\n调解协议书由双方当事人签名或者盖章，经调解员签名并加盖调解组织印章后生效，对 双方当事人具有约束力，当事人应当履行。\n自劳动争议调解组织收到调解申请之日起十五日内未达成调解协议的，当事人可以依法 申请仲裁。","ex":""},{"no":"第十五条","t":"第十五条 达成调解协议后，一 方当事人在协议约定期限内不履行调解协议的，另一方 当事人可以依法申请仲裁。","ex":""},{"no":"第十六条","t":"第十六条  因支付拖欠劳动报酬、工伤医疗费、经济补偿或者赔偿金事项达成调解协 议，用人单位在协议约定期限内不履行的，劳动者可以持调解协议书依法向人民法院申请 支付令。人民法院应当依法发出支付令。","ex":""}]},{"ch":"第三章  仲 裁","items":[{"no":"","t":"第一 节一般规定","ex":""},{"no":"第十七条","t":"第十七条 劳动争议仲裁委员会按照统筹规划、合理布局和适应实际需要的原则设立。 省、自治区人民政府可以决定在市、县设立；直辖市人民政府可以决定在区、县设立。直辖 市、设区的市也可以设立一个或者若干个劳动争议仲裁委员会。劳动争议仲裁委员会不按行 政区划层层设立。","ex":""},{"no":"第十八条","t":"第十八条 国务院劳动行政部门依照本法有关规定制定仲裁规则。省、自治区、直辖市 人民政府劳动行政部门对本行政区域的劳动争议仲裁工作进行指导。","ex":""},{"no":"第十九条","t":"第十九条 劳动争议仲裁委员会由劳动行政部门代表、工会代表和企业方面代表组成。 劳动争议仲裁委员会组成人员应当是单数。\n劳动争议仲裁委员会依法履行下列职责：\n（一）聘任、解聘专职或者兼职仲裁员；\n（二）受理劳动争议案件；\n（三）讨论重大或者疑难的劳动争议案件；\n（四）对仲裁活动进行监督。\n劳动争议仲裁委员会下设办事机构，负责办理劳动争议仲裁委员会的日常工作。","ex":""},{"no":"第二十条","t":"第二十条 劳动争议仲裁委员会应当设仲裁员名册。\n仲裁员应当公道正派并符合下列条件之一：\n（一）曾任审判员的；\n（二）从事法律研究、教学工作并具有中级以上职称的；\n（三）具有法律知识、从事人力资源管理或者工会等专业工作满五年的；\n（四）律师执业满三年的。","ex":""},{"no":"第二十一条","t":"第二十一条 劳动争议仲裁委员会负责管辖本区域内发生的劳动争议。\n劳动争议由劳动合同履行地或者用人单位所在地的劳动争议仲裁委员会管辖。双方当事 人分别向劳动合同履行地和用人单位所在地的劳动争议仲裁委员会申请仲裁的，由劳动合同 履行地的劳动争议仲裁委员会管辖。","ex":""},{"no":"第二十二条","t":"第二十二条 发生劳动争议的劳动者和用人单位为劳动争议仲裁案件的双方当事人。\n劳务派遣单位或者用工单位与劳动者发生劳动争议的，劳务派遣单位和用工单位为共同 当事人。","ex":""},{"no":"第二十三条","t":"第二十三条 与劳动争议案件的处理结果有利害关系的第三人，可以申请参加仲裁活动 或者由劳动争议仲裁委员会通知其参加仲裁活动。","ex":""},{"no":"第二十四条","t":"第二十四条  当事人可以委托代理人参加仲裁活动。委托他人参加仲裁活动，应当向劳 动争议仲裁委员会提交有委托人签名或者盖章的委托书，委托书应当载明委托事项和权限。","ex":""},{"no":"第二十五条","t":"第二十五条  丧失或者部分丧失民事行为能力的劳动者，由其法定代理人代为参加仲裁 活动；无法定代理人的，由劳动争议仲裁委员会为其指定代理人。劳动者死亡的，由其近亲 属或者代理人参加仲裁活动。","ex":""},{"no":"第二十六条","t":"第二十六条 劳动争议仲裁公开进行，但当事人协议不公开进行或者涉及国家秘密、商 业秘密和个人隐私的除外。\n第二节  申请和受理","ex":""},{"no":"第二十七条","t":"第二十七条 劳动争议申请仲裁的时效期间为一年。仲裁时效期间从当事人知道或者应 当知道其权利被侵害之日起计算。\n前款规定的仲裁时效，因当事人一方向对方当事人主张权利，或者向有关部门请求权利 救济，或者对方当事人同意履行义务而中断。从中断时起，仲裁时效期间重新计算。\n因不可抗力或者有其他正当理由，当事人不能在本条第一款规定的仲裁时效期间申请仲 裁的，仲裁时效中止。从中止时效的原因消除之日起，仲裁时效期间继续计算。\n劳动关系存续期间因拖欠劳动报酬发生争议的，劳动者申请仲裁不受本条第一款规定的 仲裁时效期间的限制；但是，劳动关系终止的，应当自劳动关系终止之日起一年内提出。","ex":""},{"no":"第二十八条","t":"第二十八条 申请人申请仲裁应当提交书面仲裁申请，并按照被申请人人数提交副本。 仲裁申请书应当载明下列事项：\n（一）劳动者的姓名、性别、年龄、职业、工作单位和住所，用人单位的名称、住所和 法定代表人或者主要负责人的姓名、职务；\n（二）仲裁请求和所根据的事实、理由；\n（三）证据和证据来源、证人姓名和住所。\n书写仲裁申请确有困难的，可以口头申请，由劳动争议仲裁委员会记入笔录，并告知对 方当事人。","ex":""},{"no":"第二十九条","t":"第二十九条 劳动争议仲裁委员会收到仲裁申请之日起五日内，认为符合受理条件的， 应当受理，并通知申请人；认为不符合受理条件的，应当书面通知申请人不予受理，并说明 理由。对劳动争议仲裁委员会不予受理或者逾期未作出决定的，申请人可以就该劳动争议事 项向人民法院提起诉讼。","ex":""},{"no":"第三十条","t":"第三十条 劳动争议仲裁委员会受理仲裁申请后，应当在五日内将仲裁申请书副本送达 被申请人。\n被申请人收到仲裁申请书副本后，应当在十日内向劳动争议仲裁委员会提交答辩书。劳 动争议仲裁委员会收到答辩书后，应当在五日内将答辩书副本送达申请人。被申请人未提交 答辩书的，不影响仲裁程序的进行。\n第三节  开庭和裁决","ex":""},{"no":"第三十一条","t":"第三十一条 劳动争议仲裁委员会裁决劳动争议案件实行仲裁庭制。仲裁庭由三名仲裁 员组成，设首席仲裁员。简单劳动争议案件可以由一名仲裁员独任仲裁。","ex":""},{"no":"第三十二条","t":"第三十二条 劳动争议仲裁委员会应当在受理仲裁申请之日起五日内将仲裁庭的组成情 况书面通知当事人。","ex":""},{"no":"第三十三条","t":"第三十三条 仲裁员有下列情形之一，应当回避，当事人也有权以口头或者书面方式提 出回避申请：\n（一）是本案当事人或者当事人、代理人的近亲属的；\n（二）与本案有利害关系的；\n（三）与本案当事人、代理人有其他关系，可能影响公正裁决的；\n（四）私自会见当事人、代理人，或者接受当事人、代理人的请客送礼的。\n劳动争议仲裁委员会对回避申请应当及时作出决定，并以口头或者书面方式通知当事 人。","ex":""},{"no":"第三十四条","t":"第三十四条  仲裁员有本法第三十三条第四项规定情形，或者有索贿受贿、徇私舞弊、 枉法裁决行为的，应当依法承担法律责任。劳动争议仲裁委员会应当将其解聘。","ex":""},{"no":"第三十五条","t":"第三十五条 仲裁庭应当在开庭五日前，将开庭日期、地点书面通知双方当事人。当事  人有正当理由的，可以在开庭三日前请求延期开庭。是否延期，由劳动争议仲裁委员会决定。","ex":""},{"no":"第三十六条","t":"第三十六条 申请人收到书面通知，无正当理由拒不到庭或者未经仲裁庭同意中途退庭 的，可以视为撤回仲裁申请。\n被申请人收到书面通知，无正当理由拒不到庭或者未经仲裁庭同意中途退庭的，可以缺 席裁决。","ex":""},{"no":"第三十七条","t":"第三十七条 仲裁庭对专门性问题认为需要鉴定的，可以交由当事人约定的鉴定机构鉴 定；当事人没有约定或者无法达成约定的，由仲裁庭指定的鉴定机构鉴定。\n根据当事人的请求或者仲裁庭的要求，鉴定机构应当派鉴定人参加开庭。当事人经仲裁 庭许可，可以向鉴定人提问。","ex":""},{"no":"第三十八条","t":"第三十八条  当事人在仲裁过程中有权进行质证和辩论。质证和辩论终结时，首席仲裁 员或者独任仲裁员应当征询当事人的最后意见。","ex":""},{"no":"第三十九条","t":"第三十九条  当事人提供的证据经查证属实的，仲裁庭应当将其作为认定事实的根据。 劳动者无法提供由用人单位掌握管理的与仲裁请求有关的证据，仲裁庭可以要求用人单位在指定期限内提供。用人单位在指定期限内不提供的，应当承担不利后果。","ex":""},{"no":"第四十条","t":"第四十条 仲裁庭应当将开庭情况记入笔录。当事人和其他仲裁参加人认为对自己陈述 的记录有遗漏或者差错的，有权申请补正。如果不予补正，应当记录该申请。\n笔录由仲裁员、记录人员、当事人和其他仲裁参加人签名或者盖章。","ex":""},{"no":"第四十一条","t":"第四十一条  当事人申请劳动争议仲裁后，可以自行和解。达成和解协议的，可以撤回 仲裁申请。","ex":""},{"no":"第四十二条","t":"第四十二条  仲裁庭在作出裁决前，应当先行调解。\n调解达成协议的，仲裁庭应当制作调解书。\n调解书应当写明仲裁请求和当事人协议的结果。调解书由仲裁员签名，加盖劳动争议仲 裁委员会印章，送达双方当事人。调解书经双方当事人签收后，发生法律效力。\n调解不成或者调解书送达前，一方当事人反悔的，仲裁庭应当及时作出裁决。","ex":""},{"no":"第四十三条","t":"第四十三条 仲裁庭裁决劳动争议案件，应当自劳动争议仲裁委员会受理仲裁申请之日 起四十五日内结束。案情复杂需要延期的，经劳动争议仲裁委员会主任批准，可以延期并书 面通知当事人，但是延长期限不得超过十五日。逾期未作出仲裁裁决的，当事人可以就该劳 动争议事项向人民法院提起诉讼。\n仲裁庭裁决劳动争议案件时，其中一部分事实已经清楚，可以就该部分先行裁决。","ex":""},{"no":"第四十四条","t":"第四十四条 仲裁庭对追索劳动报酬、工伤医疗费、经济补偿或者赔偿金的案件，根据 当事人的申请，可以裁决先予执行，移送人民法院执行。\n仲裁庭裁决先予执行的，应当符合下列条件：\n（一）当事人之间权利义务关系明确；\n（二）不先予执行将严重影响申请人的生活。\n劳动者申请先予执行的，可以不提供担保。","ex":""},{"no":"第四十五条","t":"第四十五条  裁决应当按照多数仲裁员的意见作出，少数仲裁员的不同意见应当记入笔录。仲裁庭不能形成多数意见时，裁决应当按照首席仲裁员的意见作出。","ex":""},{"no":"第四十六条","t":"第四十六条 裁决书应当载明仲裁请求、争议事实、裁决理由、裁决结果和裁决日期。 裁决书由仲裁员签名，加盖劳动争议仲裁委员会印章。对裁决持不同意见的仲裁员，可以签名，也可以不签名。","ex":""},{"no":"第四十七条","t":"第四十七条 下列劳动争议，除本法另有规定的外，仲裁裁决为终局裁决，裁决书自作出之日起发生法律效力：\n（一）追索劳动报酬、工伤医疗费、经济补偿或者赔偿金，不超过当地月最低工资标准十二个月金额的争议；\n（二）因执行国家的劳动标准在工作时间、休息休假、社会保险等方面发生的争议。","ex":""},{"no":"第四十八条","t":"第四十八条 劳动者对本法第四十七条规定的仲裁裁决不服的，可以自收到仲裁裁决书之日起十五日内向人民法院提起诉讼。","ex":""},{"no":"第四十九条","t":"第四十九条 用人单位有证据证明本法第四十七条规定的仲裁裁决有下列情形之一，可以自收到仲裁裁决书之日起三十日内向劳动争议仲裁委员会所在地的中级人民法院申请撤销裁决：\n（一）适用法律、法规确有错误的；\n（二）劳动争议仲裁委员会无管辖权的；\n（三）违反法定程序的；\n（四）裁决所根据的证据是伪造的；\n（五）对方当事人隐瞒了足以影响公正裁决的证据的；\n（六）仲裁员在仲裁该案时有索贿受贿、徇私舞弊、枉法裁决行为的。\n人民法院经组成合议庭审查核实裁决有前款规定情形之一的，应当裁定撤销。\n仲裁裁决被人民法院裁定撤销的，当事人可以自收到裁定书之日起十五日内就该劳动争议事项向人民法院提起诉讼。","ex":""},{"no":"第五十条","t":"第五十条 当事人对本法第四十七条规定以外的其他劳动争议案件的仲裁裁决不服的， 可以自收到仲裁裁决书之日起十五日内向人民法院提起诉讼；期满不起诉的，裁决书发生法律效力。","ex":""},{"no":"第五十一条","t":"第五十一条 当事人对发生法律效力的调解书、裁决书，应当依照规定的期限履行。一 方当事人逾期不履行的，另一方当事人可以依照民事诉讼法的有关规定向人民法院申请执行。受理申请的人民法院应当依法执行。","ex":""}]},{"ch":"第四章  附  则","items":[{"no":"第五十二条","t":"第五十二条 事业单位实行聘用制的工作人员与本单位发生劳动争议的，依照本法执 行；法律、行政法规或者国务院另有规定的，依照其规定。","ex":""},{"no":"第五十三条","t":"第五十三条 劳动争议仲裁不收费。劳动争议仲裁委员会的经费由财政予以保障。","ex":""},{"no":"第五十四条","t":"第五十四条  本法自2008年5月1日起施行。","ex":""}]}]
+;
 /* =================================================== */
-
 
 /* ===== 存储（自动保存 + 导出烘焙）===== */
 const KEY = 'statute_note_' + LAW_KEY;
-let store = 
-(function(){
-  var editMode = false;
-
-  // 醒目入口按钮
-  var btnEdit = document.createElement('button');
-  btnEdit.id = 'btnEdit';
-  btnEdit.title = '编辑模式：每条法条上方出现颜色工具条，可选中局部或直接改整条';
-  btnEdit.innerHTML = '\u270E 编辑条文';
-  btnEdit.style.cssText = 'padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);';
-  var tip = document.createElement('span');
-  tip.className = 'edit-tip';
-  tip.textContent = '已开启：每条法条上方有颜色工具条（选中文字改局部，直接点改整条）';
-  tip.style.display = 'none';
-  var btnTest = document.getElementById('btnTest');
-  if(btnTest){ btnTest.parentNode.insertBefore(btnEdit, btnTest); btnEdit.insertAdjacentElement('afterend', tip); }
-  btnEdit.addEventListener('click', function(){
-    editMode = !editMode;
-    document.body.classList.toggle('edit-mode', editMode);
-    btnEdit.classList.toggle('active', editMode);
-    btnEdit.innerHTML = editMode ? '\u2713 退出编辑' : '\u270E 编辑条文';
-    if(editMode){ btnEdit.style.background='#27ae60'; btnEdit.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; tip.style.display='inline-block'; }
-    else { btnEdit.style.background='#e6a23c'; btnEdit.style.boxShadow='0 2px 6px rgba(230,162,60,.4)'; tip.style.display='none'; }
-    try{ showStatus(editMode ? '编辑模式已开启：点法条上方的颜色按钮即可改色 / 高亮' : '已退出编辑'); }catch(e){}
-  });
-
-  // 存储键（复用笔记已有 KEY）
-  var KEY = '';
-  try { document.querySelectorAll('script').forEach(function(s){ var m = s.textContent.match(/const KEY\s*=\s*'([^']+)'/); if(m) KEY = m[1]; }); }catch(e){}
-  if(!KEY) KEY = 'statute_note_edit';
-
-  var FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
-  var BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
-
-  function barHTML(){
-    var h = '<span class="elbl">字体</span>';
-    FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
-    h += '<span class="fsep"></span><span class="elbl">高亮</span>';
-    BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
-    h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
-    h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
-    return h;
-  }
-
-  function makeEditable(){
-    document.querySelectorAll('.article').forEach(function(art){
-      if(art.dataset.editInjected) return;
-      art.dataset.editInjected = '1';
-      var textEl = art.querySelector('.art-text');
-      if(textEl){
-        textEl.classList.add('editable');
-        textEl.setAttribute('contenteditable','true');
-        textEl.setAttribute('data-art', art.id || '');
-      }
-      var bar = document.createElement('div');
-      bar.className = 'art-editbar';
-      bar.setAttribute('data-bar', art.id || '');
-      bar.innerHTML = barHTML();
-      if(textEl && textEl.parentNode){ textEl.parentNode.insertBefore(bar, textEl); }
-    });
-  }
-
-  // 防止点击工具条导致法条失焦、选区丢失
-  document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
-
-  function applyColor(artId, c, hl){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 局部选区
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 整条
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-  function clearColor(artId){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand('removeFormat', false, null);
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand('removeFormat', false, null);
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-
-  document.addEventListener('click', function(e){
-    if(!editMode) return;
-    var bar = e.target.closest('.art-editbar');
-    if(!bar) return;
-    var artId = bar.getAttribute('data-bar') || '';
-    var clearBtn = e.target.closest('[data-clear]');
-    if(clearBtn){ clearColor(artId); return; }
-    var btn = e.target.closest('[data-c]');
-    if(!btn) return;
-    applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
-  });
-
-  function saveArt(id){
-    var el = document.querySelector('.art-text[data-art="'+id+'"]');
-    if(!el) return;
-    try{ var s = localStorage.getItem(KEY); var store = s ? JSON.parse(s) : {}; if(!store.artEdit) store.artEdit = {}; store.artEdit[id] = el.innerHTML; localStorage.setItem(KEY, JSON.stringify(store)); }catch(err){}
-  }
-  function restoreEdits(){
-    try{ var s = localStorage.getItem(KEY); if(!s) return; var store = JSON.parse(s); if(!store.artEdit) return;
-      Object.keys(store.artEdit).forEach(function(id){ var el = document.querySelector('.art-text[data-art="'+id+'"]'); if(el && store.artEdit[id]) el.innerHTML = store.artEdit[id]; });
-    }catch(e){}
-  }
-
-  var _ro = new MutationObserver(function(){
-    var content = document.getElementById('content');
-    if(content && content.children.length > 0){ makeEditable(); restoreEdits(); }
-  });
-  var mainEl = document.getElementById('content');
-  if(mainEl) _ro.observe(mainEl, {childList:true});
-  setTimeout(function(){ makeEditable(); restoreEdits(); }, 500);
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
 })();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        (m.revised ? '<span class="mk">修正时间</span><span class="mv">'+escapeHtml(m.revised)+'</span>' : '') +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+  // 法条原文（可编辑）
+  'barHTML(id) + <div class="art-text editable" contenteditable="true" data-art="' + id + '">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);  restoreArtEdits();
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
 
 
+/* ===== 编辑模式切换（浮动工具条） ===== */
+let editMode = false;
+const btnEdit = document.getElementById('btnEdit');
+btnEdit.addEventListener('click', function(){
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  this.classList.toggle('active', editMode);
+  this.textContent = editMode ? '✓ 退出编辑' : '✎ 编辑条文';
+  if(editMode){ this.style.background='#27ae60'; this.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; }
+  else { this.style.background=''; this.style.boxShadow=''; }
+  showStatus(editMode ? '编辑模式：每条法条上方有颜色工具条，选中改局部或整条改色' : '已退出编辑');
+});
+
+/* 常驻工具条：每条法条上方由 render 注入 .art-editbar，点击即改色 */
+const FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
+const BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
+function barHTML(id){
+  let h = '<span class="elbl">字体</span>';
+  FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
+  h += '<span class="fsep"></span><span class="elbl">高亮</span>';
+  BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
+  h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
+  h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
+  return '<div class="art-editbar" data-bar="'+id+'">' + h + '</div>';
+}
+
+// 防止点击工具条导致法条失焦、选区丢失
+document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
+
+function applyColor(artId, c, hl){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+  } else {
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+    sel.removeAllRanges();
+  }
+  saveArtText(artId, el.innerHTML);
+}
+function clearColor(artId){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand('removeFormat', false, null);
+  } else {
+    const artData = getArtData(artId);
+    el.innerHTML = artData ? escapeHtml(artData.t) : el.textContent;
+  }
+  saveArtText(artId, el.innerHTML);
+}
+
+document.addEventListener('click', function(e){
+  if(!editMode) return;
+  const bar = e.target.closest('.art-editbar');
+  if(!bar) return;
+  const artId = bar.getAttribute('data-bar') || '';
+  const clearBtn = e.target.closest('[data-clear]');
+  if(clearBtn){ clearColor(artId); showStatus('已清除格式'); return; }
+  const btn = e.target.closest('[data-c]');
+  if(!btn) return;
+  applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
+  showStatus(btn.dataset.hl === '1' ? '已高亮标注' : '已改字体色');
+});
+
+/* 保存法条编辑后的HTML */
+function saveArtText(id, html){
+  if(!store.artEdit) store.artEdit = {};
+  store.artEdit[id] = html;
+  save();
+}
+
+/* 恢复已保存的法条编辑 */
+function restoreArtEdits(){
+  if(!store.artEdit) return;
+  Object.keys(store.artEdit).forEach(function(id){
+    const el = document.querySelector('.art-text[data-art="'+id+'"]');
+    if(el && store.artEdit[id]){
+      el.innerHTML = store.artEdit[id];
+    }
+  });
+}
+
+/* 获取法条原始数据（用于重置） */
+function getArtData(id){
+  for(let ci=0;ci<DATA.length;ci++){
+    for(let ai=0;ai<DATA[ci].items.length;ai++){
+      if('a'+ci+'_'+ai === id) return DATA[ci].items[ai];
+    }
+  }
+  return null;
+}
+
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
 </body>
 </html>
