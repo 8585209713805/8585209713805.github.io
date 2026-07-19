@@ -194,7 +194,6 @@ footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--mute
   body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
 }
 
-/* ===== 法条编辑模式（浮动工具条） ===== */
 /* ===== 法条编辑模式（每条常驻工具条） ===== */
 .art-text.editable{outline:none; border-radius:5px; transition:box-shadow .15s;}
 body.edit-mode .art-text.editable{cursor:text;}
@@ -209,7 +208,6 @@ body.edit-mode .article .art-editbar{display:flex;}
 .art-editbar .fclear:hover{background:#eef1f4;}
 .art-editbar .ehint{font-size:11px;color:#9aa1a9;margin-left:auto;}
 body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modify:read-only;}
-
 </style>
 </head>
 <body>
@@ -219,6 +217,7 @@ body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modi
     <div class="toolbar">
       <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
       <span class="status" id="status">已就绪</span>
+      <button id="btnEdit" title="编辑模式：选中任意法条文字即可改字体色 / 高亮标注" style="padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);">✎ 编辑条文</button>
       <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
       <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
       <button id="btnPrint" title="打印 / 存为PDF">打印</button>
@@ -259,144 +258,383 @@ const CASES = {};
 const REL = {};
 
 /* 法条数据 */
-const DATA = [{"ch":"全文","items":[{"no":"","t":"江西省人民政府令第159号\n（2007年5月11日省政府令第159号发布2017年12月4日省政府令第227号第一次修改 2019年9月29日省政府令第241号第二次修改）\n第 一 章  总 则\n第 一 条 为规范工资支付行为，维护劳动者依法获得劳动报酬的权利，促进劳动关系 和谐稳定，根据《中华人民共和国劳动法》和其他有关法律、法规，结合本省实际，制定 本规定。","ex":""},{"no":"第二条","t":"第二条 本省行政区域内的企业、民办非企业单位、个体经济组织（以下统称用人单 位）向与之形成劳动关系的劳动者支付工资，有关部门对用人单位的工资支付行为进行监 督管理，适用本规定。\n国家机关、事业单位、社会团体向与之建立劳动合同关系的劳动者支付工资，依照本 规定执行。","ex":""},{"no":"第三条","t":"第三条 本规定所称工资，是指用人单位依据国家有关规定或者劳动合同的约定，以 货币形式直接支付给劳动者的劳动报酬，包括：计时工资、计件工资、奖金、津贴和补贴、 年薪、延长工作时间的工资报酬以及其他特殊情况下支付的工资报酬等。","ex":""},{"no":"第四条","t":"第四条 省人民政府根据本省实际情况，定期发布最低工资标准和工资指导线。","ex":""},{"no":"第五条","t":"第五条 工资分配应当遵循按劳分配原则，实行同工同酬；工资支付应当遵循诚实信 用原则，按时足额支付。","ex":""},{"no":"第六条","t":"第六条 县级以上人民政府人力资源和社会保障行政部门负责本行政区域内用人单位 工资支付的监督管理工作；住房和城乡建设、市场监督管理、公安、税务等有关部门在各 自职责范围内，协助人力资源和社会保障行政部门做好用人单位工资支付的监督管理工作。\n各级工会组织对用人单位工资支付情况实施监督，依法维护劳动者获得劳动报酬的权 利。","ex":""}]},{"ch":"第二章  工资支付 一 般规定","items":[{"no":"第七条","t":"第七条 用人单位应当按照国家工资分配的宏观调控政策，结合工资指导线、劳动力 市场价位、行业人工成本信息和本单位经济效益，通过平等协商的方式，合理确定劳动者 的工资水平。\n用人单位应当根据本单位的经济效益增长情况，建立正常的工资增长机制，逐步增加 劳动者的工资。","ex":""},{"no":"第八条","t":"第八条 实行计件工资制的，用人单位确定、调整劳动定额或者计件单价应当遵循科 学合理的原则；确定、调整劳动定额应当以本单位同岗位百分之七十以上劳动者在法定工 作时间内能够完成为标准。\n用人单位不得以实行计件工资为由拒绝执行最低工资标准，不得利用提高劳动定额或 者降低计件单价变相降低工资水平。","ex":""},{"no":"第九条","t":"第九条 用人单位应当根据本规定，通过与职工大会、职工代表大会或者其他形式协 商制定内部工资支付制度，并在本单位内公示。\n劳动者有权向用人单位查询有关工资支付制度的内容。","ex":""},{"no":"第十条","t":"第十条 工资支付制度应当包括下列事项：\n（一）工资支付的形式、项目、标准；\n（二）工资支付的周期和日期；\n（三）延长工作时间和特殊情况下的工资支付办法；\n（四）工资的代扣、代缴及扣除事项；\n（五）有关工资支付的其他事项。\n第十 一 条 用人单位与劳动者签订的劳动合同，应当明确约定工资支付的形式、标\n准、周期、日期等主要内容。工资支付内容不得违反本单位工资支付制度，其中工资标准 不得低于省人民政府发布的当地最低工资标准；用人单位依法与工会或者职工方代表签订 了工资集体协议的，工资标准还不得低于工资集体协议规定的最低标准。","ex":""},{"no":"第十二条","t":"第十二条 劳动者在法定工作时间或者劳动合同约定的工作时间内提供正常劳动的， 用人单位应当按照劳动合同约定的工资标准支付工资。","ex":""},{"no":"第十三条","t":"第十三条 用人单位应当每月至少向劳动者支付一次工资。\n用人单位确定工资支付周期应当符合下列规定：\n（一）实行月、周、日、小时工资制的，应当按照双方约定的周期支付工资。\n（二）实行年薪制或者按照考核周期支付工资的，应当每月预付部分工资，年终或者 考核周期届满时结算并付清。\n（三）实行计件工资制或者以完成一定任务计发工资的，工资支付周期可以按照计件 或者任务完成的情况约定，但支付周期超过一个月的，应当每月预付部分工资；结算周期 超过一年的，应当每半年至少结算一次并付清。\n前款规定的用人单位预付的部分工资不得低于当地最低工资标准。","ex":""},{"no":"第十四条","t":"第十四条 用人单位应当按照约定的日期支付劳动者工资；没有约定工资支付日期 的，按照用人单位规定的日期支付工资。\n工资支付日期遇法定休假日或者休息日的，应当提前在前一个工作日支付。","ex":""},{"no":"第十五条","t":"第十五条 用人单位应当以货币形式支付工资，不得以实物、有价证券等非货币形式 支付。\n用人单位应当将工资直接支付给劳动者本人。劳动者本人因故不能领取工资时，可以 委托他人代领。\n用人单位委托银行代发工资的，应当在约定的工资支付日期将工资足额存入劳动者本 人的账户。","ex":""},{"no":"第十六条","t":"第十六条 用人单位应当自与劳动者建立劳动关系之日起计发劳动者工资； 双方另有 约定的，从其约定。\n用人单位与劳动者依法终止或者解除劳动合同的，工资计发到劳动合同终止或者解除 之日，并自终止或者解除劳动合同之日起5个工作日内一次性结算并付清；双方另有约定的，从其约定。","ex":""},{"no":"第十七条","t":"第十七条 用人单位支付工资应当按照工资支付周期编制工资支付表。工资支付表应 当载明支付单位名称、支付时间、支付对象姓名、工作时间、应发和扣减的项目及数额， 劳动者（代领人）签名或者银行代发工资凭证等事项，并至少保存两年备查。\n用人单位支付工资时，应当向劳动者提供其本人的工资清单。工资清单项目及数额应 当与工资支付表相一致。劳动者有权查询和核对本人工资清单。","ex":""}]},{"ch":"第三章  工资支付特殊规定","items":[{"no":"第十八条","t":"第十八条 用人单位依法安排劳动者在法定工作时间以外工作的，应当按照下列标准 向劳动者支付加班工资：\n（一）在工作日延长工作时间的，按照不低于劳动者本人小时工资的百分之一百五十 支付；\n（二）在休息日工作，又不能在一个工资支付周期之内安排补休的，按照不低于劳动 者本人日或者小时工资的百分之二百支付；\n（三）在法定休假日工作的，按照不低于劳动者本人日或者小时工资的百分之三百支 付 。\n法定工作时间、延长工作时间及延长工作时间不受限制的情形，按照《中华人民共和 国劳动法》有关规定执行。","ex":""},{"no":"第十九条","t":"第十九条 实行计件工资制的，劳动者在完成计件定额任务后，用人单位安排其在法 定工作时间以外工作的，应当根据前条规定，分别按照不低于其本人法定工作时间计件单 价的百分之一百五十、百分之二百、百分之三百支付加班工资。","ex":""},{"no":"第二十条","t":"第二十条 经劳动保障行政部门批准实行综合计算工时工作制的，劳动者综合计算工 作时间超过法定工作时间的部分，视为延长工作时间，用人单位应当按照本规定第十八条 第一款第一项的规定支付加班工资。安排劳动者在法定休假日工作的，用人单位应当按照 本规定第十八条第一款第三项的规定支付加班工资。\n实行轮班工作制的，劳动者在法定休假日遇轮班的，用人单位应当按照本规定第十八 条第一款第三项的规定支付加班工资。\n实行不定时工作制的，用人单位可以不执行本规定第十八条第一款的规定。","ex":""},{"no":"第二十一条","t":"第二十一条 非因劳动者原因造成停工、停产、歇业，未超过一个工资支付周期的，  用人单位应当按照劳动合同约定的工资标准支付工资。超过一个工资支付周期，用人单位 安排劳动者工作的，按照双方新约定的工资标准支付工资，但不得低于当地最低工资标准； 未安排劳动者工作的，按照国家有关规定办理。","ex":""},{"no":"第二十二条","t":"第二十二条 用人单位破产、 终止或者解散的，清算后的财产应当依照法定的清偿程 序，优先支付所欠的劳动者工资。","ex":""},{"no":"第二十三条","t":"第二十三条 劳动者在法定工作时间内参加下列社会活动，用人单位应当视同其提供 正常劳动并支付工资：\n（一）依法行使选举权或者被选举权；\n（二）人大代表、政协委员依法履行职责；\n（三）当选代表出席政府、党派以及工会、共青团、妇联等组织召开的会议；\n（四）作为人民陪审员参加审判活动或者作为证人参加诉讼、仲裁活动；\n（五）出席劳动模范、先进工作者大会；\n（六）不脱产工会基层委员会委员依法参加工会活动；\n（七）担任集体协商代表期间，参加集体协商、签订集体合同；\n（八）依法应当参加的其他社会活动。","ex":""},{"no":"第二十四条","t":"第二十四条 劳动者在依法享受年休假、探亲假、婚丧假等期间，用人单位应当按照 其本人工资标准支付工资。\n劳动者在依法享受生育或者计划生育休假期间，工资待遇按照国家和本省有关规定执 行 。\n劳动者在事假期间，用人单位可以不支付工资，但不得扣减事假以外其他期间的工资。","ex":""},{"no":"第二十五条","t":"第二十五条 劳动者因工负伤或者患职业病需要暂停工作接受医疗的，在医疗期内的 工资待遇按照国家和本省有关规定执行。\n劳动者因病或者非因工负伤停止工作在医疗期内的，用人单位应当按照劳动合同、集 体合同的约定支付病伤假工资。用人单位支付给劳动者病伤假工资，在扣除其本人按照规 定应当缴纳的社会保险费和其他费用之后，不得低于当地最低工资标准的百分之八十。","ex":""},{"no":"第二十六条","t":"第二十六条 对依法被采取传染病防治措施隔离的疑似病人或者其密切接触者，在其 隔离期间，用人单位应当视同劳动者提供正常劳动并支付工资。","ex":""},{"no":"第二十七条","t":"第二十七条 劳动者因涉嫌违法犯罪被司法机关依法限制人身自由期间，未提供劳动 的，用人单位可以不支付工资。\n劳动者依法被判处管制或者拘役适用缓刑、有期徒刑适用缓刑，或者被假释、监外执 行、取保候审期间，劳动合同未解除且提供了正常劳动，未变换工作岗位的，用人单位应 当按照劳动合同的约定支付工资；变换工作岗位的，按照双方新约定的工资标准支付工\n资，但不得低于当地最低工资标准。","ex":""},{"no":"第二十八条","t":"第二十八条 因劳动者本人原因造成用人单位经济损失，依法应当承担赔偿责任的， 用人单位可以从其工资中扣除赔偿金，但应当提前书面告知扣除原因及数额；未书面告知 的不得扣除。用人单位每月扣除部分不得超过劳动者当月工资的百分之二十，扣除后的工 资余额不得低于当地最低工资标准。","ex":""},{"no":"第二十九条","t":"第二十九条 用人单位因不可抗力原因，导致延期支付劳动者工资的，应当在不可抗 力原因消除后5个工作日内支付劳动者工资。\n用人单位因生产经营困难，无法按期支付工资的，经与本单位工会或者职工代表大会 （职工大会）协商一致后，可以延期支付工资，但最长不得超过30日。","ex":""},{"no":"第三十条","t":"第三十条 用人单位可以从劳动者工资中代扣代缴下列费用：\n（一）劳动者应当缴纳的个人所得税；\n（二）劳动者个人应当缴纳的社会保险费和住房公积金；\n（三）人民法院判决、裁定中由劳动者负担的抚养费、赡养费；\n（四）双方约定或者依法可以代扣代缴的其他费用。","ex":""}]},{"ch":"第四章 监督管理","items":[{"no":"第三十一条","t":"第三十一条 劳动保障行政部门应当建立健全对用人单位工资支付行为的监督检查制 度，规范监督检查程序，依法对用人单位工资支付情况进行监察，对违法行为进行处理。\n用人单位在接受检查时，应当如实报告情况，提供相关的资料和证明，不得拒绝或者 阻挠。","ex":""},{"no":"第三十二条","t":"第三十二条 劳动保障行政部门应当建立健全用人单位工资支付信息管理系统和用人 单位工资支付信用制度，对用人单位工资支付情况实施有效监控。\n劳动保障行政部门对克扣、无故拖欠工资2个月以上或者累计达3个月以上，以及低于 当地最低工资标准支付工资等违法行为严重的用人单位，应当定期向社会公布，并列为重 点监察对象；住房和城乡建设、市场监督管理、税务等有关部门应当将用人单位违法行为 记入其信用档案，作为评定信用等级的重要参考。","ex":""},{"no":"第三十三条","t":"第三十三条 劳动保障行政部门应当建立健全举报制度，公布举报电话、信箱或者电 子邮件地址，及时受理对工资支付违法行为的举报，并为举报人保密。","ex":""},{"no":"第三十四条","t":"第三十四条 任何单位和个人发现用人单位有下列情形之一的，有权向劳动保障行政 部门举报：\n（一）未按照约定支付工资的；\n（二）支付工资低于当地最低工资标准的；\n（三）克扣或者无故拖欠工资的；\n（四）拒不支付或者不按规定支付加班工资的；\n（五）拖欠工资且有可能转移财产或者其负责人有可能逃匿的；\n（六）违反工资支付规定的其他情形。\n劳动保障行政部门接到举报后，应当在5个工作日内决定是否立案，并告知举报人；立 案后应当及时处理，并自立案之日起60个工作日内结案，同时将处理情况告知举报人；情  况复杂需要延长的，经劳动保障行政部门负责人批准，可以延长30个工作日。","ex":""},{"no":"第三十五条","t":"第三十五条 劳动保障行政部门在调查用人单位克扣或者无故拖欠劳动者工资等案件 过程中，发现用人单位有可能转移财产或者其负责人有可能逃匿的，可以依据《江西省劳 动保障监察条例》的规定，扣押其价值相当的财物。","ex":""},{"no":"第三十六条","t":"第三十六条 各级工会组织在对用人单位工资支付情况实施监督时，发现用人单位有 本规定第三十四条所列情形的，有权要求其改正；用人单位拒不改正的，工会可以向劳动 保障行政部门提出处理建议；劳动保障行政部门在接到工会的建议后，应当依法作出处理。","ex":""},{"no":"第三十七条","t":"第三十七条 建立工资支付保证金制度。\n对建筑施工企业和列为工资支付重点监察对象的用人单位实行工资支付保证金制度。 工资支付保证金实行专户储存，专款专用，专项用于保障该用人单位劳动者的工资支付。 具体办法由省劳动保障行政部门会同省财政部门等有关部门制定，报省人民政府批准后施 行。","ex":""},{"no":"第三十八条","t":"第三十八条 劳动者与用人单位因工资支付发生争议的，按照国家和本省劳动争议处 理的有关规定处理。","ex":""}]},{"ch":"第五章 法律责任","items":[{"no":"第三十九条","t":"第三十九条  用人单位制定的工资支付制度违反法律、法规、规章规定的，由劳动保 障行政部门给予警告，并责令限期改正；给劳动者造成损害的，应当承担赔偿责任。","ex":""},{"no":"第四十条","t":"第四十条 用人单位有下列行为之一的，由劳动保障行政部门责令限期改正；逾期未 改正的，处以2000元以上2万元以下的罚款：\n（一）未以货币形式支付劳动者工资的；\n（二）与劳动者终止或者解除劳动关系，未按照规定一次性结算工资并付清的。","ex":""},{"no":"第四十一条","t":"第四十一条  用人单位未按照规定编制、保存工资支付表或者未向劳动者本人提供工 资清单的，由劳动保障行政部门责令限期改正；逾期未改正的，处以200元以上1000元以 下的罚款。","ex":""},{"no":"第四十二条","t":"第四十二条 用人单位有下列行为之一的，由 劳动保障行政部门责令其限期向劳动者 支付所欠工资；逾期不支付的，责令用人单位按照所欠工资数额50%以上1倍以下的标准向 劳动者加付赔偿金：\n（一）克扣或者无故拖欠工资的；\n（二）拒不支付或者不按规定支付加班工资的；\n（三）低于当地最低工资标准支付工资的。","ex":""},{"no":"第四十三条","t":"第四十三条 用人单位有下列行为之一的，由劳动保障行政部门责令改正，并处2000元 以上2万元以下的罚款；构成违反治安管理行为的，由公安机关依法给予治安管理处罚； 构成犯罪的，依法追究刑事责任：\n（一）拒绝、阻挠劳动保障行政部门依法进行工资支付监督检查的；\n（二）拒绝向劳动保障行政部门提供工资支付相关资料、证明的；\n（三）隐瞒事实真相，出具虚假的或者隐匿、销毁工资支付相关资料、证明的。","ex":""},{"no":"第四十四条","t":"第四十四条 劳动者或者用人单位对劳动保障行政部门作出的行政处理决定或者行政 处罚决定不服的，可以依法申请行政复议或者提起行政诉讼。用人单位逾期既不申请行政 复议，也不提起行政诉讼，又不履行处理决定或者处罚决定的，由劳动保障行政部门依法 向人民法院申请强制执行。","ex":""},{"no":"第四十五条","t":"第四十五条  劳动保障行政部门以及其他有关行政部门工作人员对符合受案条件的举 报不予受理或者发现工资支付违法行为不予查处以及有其他玩忽职守、滥用职权、徇私舞 弊行为的，对负有责任的主管人员和其他直接责任人员依法给予处分；构成犯罪的，依法 追究刑事责任。","ex":""}]},{"ch":"第六章 附 则","items":[{"no":"第四十六条","t":"第四十六条 本规定自2007年7月1日起施行。","ex":""}]}];
+const DATA = [{"ch":"全文","items":[{"no":"","t":"江西省人民政府令第159号\n（2007年5月11日省政府令第159号发布2017年12月4日省政府令第227号第一次修改 2019年9月29日省政府令第241号第二次修改）\n第 一 章  总 则\n第 一 条 为规范工资支付行为，维护劳动者依法获得劳动报酬的权利，促进劳动关系 和谐稳定，根据《中华人民共和国劳动法》和其他有关法律、法规，结合本省实际，制定 本规定。","ex":""},{"no":"第二条","t":"第二条 本省行政区域内的企业、民办非企业单位、个体经济组织（以下统称用人单 位）向与之形成劳动关系的劳动者支付工资，有关部门对用人单位的工资支付行为进行监 督管理，适用本规定。\n国家机关、事业单位、社会团体向与之建立劳动合同关系的劳动者支付工资，依照本 规定执行。","ex":""},{"no":"第三条","t":"第三条 本规定所称工资，是指用人单位依据国家有关规定或者劳动合同的约定，以 货币形式直接支付给劳动者的劳动报酬，包括：计时工资、计件工资、奖金、津贴和补贴、 年薪、延长工作时间的工资报酬以及其他特殊情况下支付的工资报酬等。","ex":""},{"no":"第四条","t":"第四条 省人民政府根据本省实际情况，定期发布最低工资标准和工资指导线。","ex":""},{"no":"第五条","t":"第五条 工资分配应当遵循按劳分配原则，实行同工同酬；工资支付应当遵循诚实信 用原则，按时足额支付。","ex":""},{"no":"第六条","t":"第六条 县级以上人民政府人力资源和社会保障行政部门负责本行政区域内用人单位 工资支付的监督管理工作；住房和城乡建设、市场监督管理、公安、税务等有关部门在各 自职责范围内，协助人力资源和社会保障行政部门做好用人单位工资支付的监督管理工作。\n各级工会组织对用人单位工资支付情况实施监督，依法维护劳动者获得劳动报酬的权 利。","ex":""}]},{"ch":"第二章  工资支付 一 般规定","items":[{"no":"第七条","t":"第七条 用人单位应当按照国家工资分配的宏观调控政策，结合工资指导线、劳动力 市场价位、行业人工成本信息和本单位经济效益，通过平等协商的方式，合理确定劳动者 的工资水平。\n用人单位应当根据本单位的经济效益增长情况，建立正常的工资增长机制，逐步增加 劳动者的工资。","ex":""},{"no":"第八条","t":"第八条 实行计件工资制的，用人单位确定、调整劳动定额或者计件单价应当遵循科 学合理的原则；确定、调整劳动定额应当以本单位同岗位百分之七十以上劳动者在法定工 作时间内能够完成为标准。\n用人单位不得以实行计件工资为由拒绝执行最低工资标准，不得利用提高劳动定额或 者降低计件单价变相降低工资水平。","ex":""},{"no":"第九条","t":"第九条 用人单位应当根据本规定，通过与职工大会、职工代表大会或者其他形式协 商制定内部工资支付制度，并在本单位内公示。\n劳动者有权向用人单位查询有关工资支付制度的内容。","ex":""},{"no":"第十条","t":"第十条 工资支付制度应当包括下列事项：\n（一）工资支付的形式、项目、标准；\n（二）工资支付的周期和日期；\n（三）延长工作时间和特殊情况下的工资支付办法；\n（四）工资的代扣、代缴及扣除事项；\n（五）有关工资支付的其他事项。\n第十 一 条 用人单位与劳动者签订的劳动合同，应当明确约定工资支付的形式、标\n准、周期、日期等主要内容。工资支付内容不得违反本单位工资支付制度，其中工资标准 不得低于省人民政府发布的当地最低工资标准；用人单位依法与工会或者职工方代表签订 了工资集体协议的，工资标准还不得低于工资集体协议规定的最低标准。","ex":""},{"no":"第十二条","t":"第十二条 劳动者在法定工作时间或者劳动合同约定的工作时间内提供正常劳动的， 用人单位应当按照劳动合同约定的工资标准支付工资。","ex":""},{"no":"第十三条","t":"第十三条 用人单位应当每月至少向劳动者支付一次工资。\n用人单位确定工资支付周期应当符合下列规定：\n（一）实行月、周、日、小时工资制的，应当按照双方约定的周期支付工资。\n（二）实行年薪制或者按照考核周期支付工资的，应当每月预付部分工资，年终或者 考核周期届满时结算并付清。\n（三）实行计件工资制或者以完成一定任务计发工资的，工资支付周期可以按照计件 或者任务完成的情况约定，但支付周期超过一个月的，应当每月预付部分工资；结算周期 超过一年的，应当每半年至少结算一次并付清。\n前款规定的用人单位预付的部分工资不得低于当地最低工资标准。","ex":""},{"no":"第十四条","t":"第十四条 用人单位应当按照约定的日期支付劳动者工资；没有约定工资支付日期 的，按照用人单位规定的日期支付工资。\n工资支付日期遇法定休假日或者休息日的，应当提前在前一个工作日支付。","ex":""},{"no":"第十五条","t":"第十五条 用人单位应当以货币形式支付工资，不得以实物、有价证券等非货币形式 支付。\n用人单位应当将工资直接支付给劳动者本人。劳动者本人因故不能领取工资时，可以 委托他人代领。\n用人单位委托银行代发工资的，应当在约定的工资支付日期将工资足额存入劳动者本 人的账户。","ex":""},{"no":"第十六条","t":"第十六条 用人单位应当自与劳动者建立劳动关系之日起计发劳动者工资； 双方另有 约定的，从其约定。\n用人单位与劳动者依法终止或者解除劳动合同的，工资计发到劳动合同终止或者解除 之日，并自终止或者解除劳动合同之日起5个工作日内一次性结算并付清；双方另有约定的，从其约定。","ex":""},{"no":"第十七条","t":"第十七条 用人单位支付工资应当按照工资支付周期编制工资支付表。工资支付表应 当载明支付单位名称、支付时间、支付对象姓名、工作时间、应发和扣减的项目及数额， 劳动者（代领人）签名或者银行代发工资凭证等事项，并至少保存两年备查。\n用人单位支付工资时，应当向劳动者提供其本人的工资清单。工资清单项目及数额应 当与工资支付表相一致。劳动者有权查询和核对本人工资清单。","ex":""}]},{"ch":"第三章  工资支付特殊规定","items":[{"no":"第十八条","t":"第十八条 用人单位依法安排劳动者在法定工作时间以外工作的，应当按照下列标准 向劳动者支付加班工资：\n（一）在工作日延长工作时间的，按照不低于劳动者本人小时工资的百分之一百五十 支付；\n（二）在休息日工作，又不能在一个工资支付周期之内安排补休的，按照不低于劳动 者本人日或者小时工资的百分之二百支付；\n（三）在法定休假日工作的，按照不低于劳动者本人日或者小时工资的百分之三百支 付 。\n法定工作时间、延长工作时间及延长工作时间不受限制的情形，按照《中华人民共和 国劳动法》有关规定执行。","ex":""},{"no":"第十九条","t":"第十九条 实行计件工资制的，劳动者在完成计件定额任务后，用人单位安排其在法 定工作时间以外工作的，应当根据前条规定，分别按照不低于其本人法定工作时间计件单 价的百分之一百五十、百分之二百、百分之三百支付加班工资。","ex":""},{"no":"第二十条","t":"第二十条 经劳动保障行政部门批准实行综合计算工时工作制的，劳动者综合计算工 作时间超过法定工作时间的部分，视为延长工作时间，用人单位应当按照本规定第十八条 第一款第一项的规定支付加班工资。安排劳动者在法定休假日工作的，用人单位应当按照 本规定第十八条第一款第三项的规定支付加班工资。\n实行轮班工作制的，劳动者在法定休假日遇轮班的，用人单位应当按照本规定第十八 条第一款第三项的规定支付加班工资。\n实行不定时工作制的，用人单位可以不执行本规定第十八条第一款的规定。","ex":""},{"no":"第二十一条","t":"第二十一条 非因劳动者原因造成停工、停产、歇业，未超过一个工资支付周期的，  用人单位应当按照劳动合同约定的工资标准支付工资。超过一个工资支付周期，用人单位 安排劳动者工作的，按照双方新约定的工资标准支付工资，但不得低于当地最低工资标准； 未安排劳动者工作的，按照国家有关规定办理。","ex":""},{"no":"第二十二条","t":"第二十二条 用人单位破产、 终止或者解散的，清算后的财产应当依照法定的清偿程 序，优先支付所欠的劳动者工资。","ex":""},{"no":"第二十三条","t":"第二十三条 劳动者在法定工作时间内参加下列社会活动，用人单位应当视同其提供 正常劳动并支付工资：\n（一）依法行使选举权或者被选举权；\n（二）人大代表、政协委员依法履行职责；\n（三）当选代表出席政府、党派以及工会、共青团、妇联等组织召开的会议；\n（四）作为人民陪审员参加审判活动或者作为证人参加诉讼、仲裁活动；\n（五）出席劳动模范、先进工作者大会；\n（六）不脱产工会基层委员会委员依法参加工会活动；\n（七）担任集体协商代表期间，参加集体协商、签订集体合同；\n（八）依法应当参加的其他社会活动。","ex":""},{"no":"第二十四条","t":"第二十四条 劳动者在依法享受年休假、探亲假、婚丧假等期间，用人单位应当按照 其本人工资标准支付工资。\n劳动者在依法享受生育或者计划生育休假期间，工资待遇按照国家和本省有关规定执 行 。\n劳动者在事假期间，用人单位可以不支付工资，但不得扣减事假以外其他期间的工资。","ex":""},{"no":"第二十五条","t":"第二十五条 劳动者因工负伤或者患职业病需要暂停工作接受医疗的，在医疗期内的 工资待遇按照国家和本省有关规定执行。\n劳动者因病或者非因工负伤停止工作在医疗期内的，用人单位应当按照劳动合同、集 体合同的约定支付病伤假工资。用人单位支付给劳动者病伤假工资，在扣除其本人按照规 定应当缴纳的社会保险费和其他费用之后，不得低于当地最低工资标准的百分之八十。","ex":""},{"no":"第二十六条","t":"第二十六条 对依法被采取传染病防治措施隔离的疑似病人或者其密切接触者，在其 隔离期间，用人单位应当视同劳动者提供正常劳动并支付工资。","ex":""},{"no":"第二十七条","t":"第二十七条 劳动者因涉嫌违法犯罪被司法机关依法限制人身自由期间，未提供劳动 的，用人单位可以不支付工资。\n劳动者依法被判处管制或者拘役适用缓刑、有期徒刑适用缓刑，或者被假释、监外执 行、取保候审期间，劳动合同未解除且提供了正常劳动，未变换工作岗位的，用人单位应 当按照劳动合同的约定支付工资；变换工作岗位的，按照双方新约定的工资标准支付工\n资，但不得低于当地最低工资标准。","ex":""},{"no":"第二十八条","t":"第二十八条 因劳动者本人原因造成用人单位经济损失，依法应当承担赔偿责任的， 用人单位可以从其工资中扣除赔偿金，但应当提前书面告知扣除原因及数额；未书面告知 的不得扣除。用人单位每月扣除部分不得超过劳动者当月工资的百分之二十，扣除后的工 资余额不得低于当地最低工资标准。","ex":""},{"no":"第二十九条","t":"第二十九条 用人单位因不可抗力原因，导致延期支付劳动者工资的，应当在不可抗 力原因消除后5个工作日内支付劳动者工资。\n用人单位因生产经营困难，无法按期支付工资的，经与本单位工会或者职工代表大会 （职工大会）协商一致后，可以延期支付工资，但最长不得超过30日。","ex":""},{"no":"第三十条","t":"第三十条 用人单位可以从劳动者工资中代扣代缴下列费用：\n（一）劳动者应当缴纳的个人所得税；\n（二）劳动者个人应当缴纳的社会保险费和住房公积金；\n（三）人民法院判决、裁定中由劳动者负担的抚养费、赡养费；\n（四）双方约定或者依法可以代扣代缴的其他费用。","ex":""}]},{"ch":"第四章 监督管理","items":[{"no":"第三十一条","t":"第三十一条 劳动保障行政部门应当建立健全对用人单位工资支付行为的监督检查制 度，规范监督检查程序，依法对用人单位工资支付情况进行监察，对违法行为进行处理。\n用人单位在接受检查时，应当如实报告情况，提供相关的资料和证明，不得拒绝或者 阻挠。","ex":""},{"no":"第三十二条","t":"第三十二条 劳动保障行政部门应当建立健全用人单位工资支付信息管理系统和用人 单位工资支付信用制度，对用人单位工资支付情况实施有效监控。\n劳动保障行政部门对克扣、无故拖欠工资2个月以上或者累计达3个月以上，以及低于 当地最低工资标准支付工资等违法行为严重的用人单位，应当定期向社会公布，并列为重 点监察对象；住房和城乡建设、市场监督管理、税务等有关部门应当将用人单位违法行为 记入其信用档案，作为评定信用等级的重要参考。","ex":""},{"no":"第三十三条","t":"第三十三条 劳动保障行政部门应当建立健全举报制度，公布举报电话、信箱或者电 子邮件地址，及时受理对工资支付违法行为的举报，并为举报人保密。","ex":""},{"no":"第三十四条","t":"第三十四条 任何单位和个人发现用人单位有下列情形之一的，有权向劳动保障行政 部门举报：\n（一）未按照约定支付工资的；\n（二）支付工资低于当地最低工资标准的；\n（三）克扣或者无故拖欠工资的；\n（四）拒不支付或者不按规定支付加班工资的；\n（五）拖欠工资且有可能转移财产或者其负责人有可能逃匿的；\n（六）违反工资支付规定的其他情形。\n劳动保障行政部门接到举报后，应当在5个工作日内决定是否立案，并告知举报人；立 案后应当及时处理，并自立案之日起60个工作日内结案，同时将处理情况告知举报人；情  况复杂需要延长的，经劳动保障行政部门负责人批准，可以延长30个工作日。","ex":""},{"no":"第三十五条","t":"第三十五条 劳动保障行政部门在调查用人单位克扣或者无故拖欠劳动者工资等案件 过程中，发现用人单位有可能转移财产或者其负责人有可能逃匿的，可以依据《江西省劳 动保障监察条例》的规定，扣押其价值相当的财物。","ex":""},{"no":"第三十六条","t":"第三十六条 各级工会组织在对用人单位工资支付情况实施监督时，发现用人单位有 本规定第三十四条所列情形的，有权要求其改正；用人单位拒不改正的，工会可以向劳动 保障行政部门提出处理建议；劳动保障行政部门在接到工会的建议后，应当依法作出处理。","ex":""},{"no":"第三十七条","t":"第三十七条 建立工资支付保证金制度。\n对建筑施工企业和列为工资支付重点监察对象的用人单位实行工资支付保证金制度。 工资支付保证金实行专户储存，专款专用，专项用于保障该用人单位劳动者的工资支付。 具体办法由省劳动保障行政部门会同省财政部门等有关部门制定，报省人民政府批准后施 行。","ex":""},{"no":"第三十八条","t":"第三十八条 劳动者与用人单位因工资支付发生争议的，按照国家和本省劳动争议处 理的有关规定处理。","ex":""}]},{"ch":"第五章 法律责任","items":[{"no":"第三十九条","t":"第三十九条  用人单位制定的工资支付制度违反法律、法规、规章规定的，由劳动保 障行政部门给予警告，并责令限期改正；给劳动者造成损害的，应当承担赔偿责任。","ex":""},{"no":"第四十条","t":"第四十条 用人单位有下列行为之一的，由劳动保障行政部门责令限期改正；逾期未 改正的，处以2000元以上2万元以下的罚款：\n（一）未以货币形式支付劳动者工资的；\n（二）与劳动者终止或者解除劳动关系，未按照规定一次性结算工资并付清的。","ex":""},{"no":"第四十一条","t":"第四十一条  用人单位未按照规定编制、保存工资支付表或者未向劳动者本人提供工 资清单的，由劳动保障行政部门责令限期改正；逾期未改正的，处以200元以上1000元以 下的罚款。","ex":""},{"no":"第四十二条","t":"第四十二条 用人单位有下列行为之一的，由 劳动保障行政部门责令其限期向劳动者 支付所欠工资；逾期不支付的，责令用人单位按照所欠工资数额50%以上1倍以下的标准向 劳动者加付赔偿金：\n（一）克扣或者无故拖欠工资的；\n（二）拒不支付或者不按规定支付加班工资的；\n（三）低于当地最低工资标准支付工资的。","ex":""},{"no":"第四十三条","t":"第四十三条 用人单位有下列行为之一的，由劳动保障行政部门责令改正，并处2000元 以上2万元以下的罚款；构成违反治安管理行为的，由公安机关依法给予治安管理处罚； 构成犯罪的，依法追究刑事责任：\n（一）拒绝、阻挠劳动保障行政部门依法进行工资支付监督检查的；\n（二）拒绝向劳动保障行政部门提供工资支付相关资料、证明的；\n（三）隐瞒事实真相，出具虚假的或者隐匿、销毁工资支付相关资料、证明的。","ex":""},{"no":"第四十四条","t":"第四十四条 劳动者或者用人单位对劳动保障行政部门作出的行政处理决定或者行政 处罚决定不服的，可以依法申请行政复议或者提起行政诉讼。用人单位逾期既不申请行政 复议，也不提起行政诉讼，又不履行处理决定或者处罚决定的，由劳动保障行政部门依法 向人民法院申请强制执行。","ex":""},{"no":"第四十五条","t":"第四十五条  劳动保障行政部门以及其他有关行政部门工作人员对符合受案条件的举 报不予受理或者发现工资支付违法行为不予查处以及有其他玩忽职守、滥用职权、徇私舞 弊行为的，对负有责任的主管人员和其他直接责任人员依法给予处分；构成犯罪的，依法 追究刑事责任。","ex":""}]},{"ch":"第六章 附 则","items":[{"no":"第四十六条","t":"第四十六条 本规定自2007年7月1日起施行。","ex":""}]}]
+;
 /* =================================================== */
-
 
 /* ===== 存储（自动保存 + 导出烘焙）===== */
 const KEY = 'statute_note_' + LAW_KEY;
-let store = 
-(function(){
-  var editMode = false;
-
-  // 醒目入口按钮
-  var btnEdit = document.createElement('button');
-  btnEdit.id = 'btnEdit';
-  btnEdit.title = '编辑模式：每条法条上方出现颜色工具条，可选中局部或直接改整条';
-  btnEdit.innerHTML = '\u270E 编辑条文';
-  btnEdit.style.cssText = 'padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);';
-  var tip = document.createElement('span');
-  tip.className = 'edit-tip';
-  tip.textContent = '已开启：每条法条上方有颜色工具条（选中文字改局部，直接点改整条）';
-  tip.style.display = 'none';
-  var btnTest = document.getElementById('btnTest');
-  if(btnTest){ btnTest.parentNode.insertBefore(btnEdit, btnTest); btnEdit.insertAdjacentElement('afterend', tip); }
-  btnEdit.addEventListener('click', function(){
-    editMode = !editMode;
-    document.body.classList.toggle('edit-mode', editMode);
-    btnEdit.classList.toggle('active', editMode);
-    btnEdit.innerHTML = editMode ? '\u2713 退出编辑' : '\u270E 编辑条文';
-    if(editMode){ btnEdit.style.background='#27ae60'; btnEdit.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; tip.style.display='inline-block'; }
-    else { btnEdit.style.background='#e6a23c'; btnEdit.style.boxShadow='0 2px 6px rgba(230,162,60,.4)'; tip.style.display='none'; }
-    try{ showStatus(editMode ? '编辑模式已开启：点法条上方的颜色按钮即可改色 / 高亮' : '已退出编辑'); }catch(e){}
-  });
-
-  // 存储键（复用笔记已有 KEY）
-  var KEY = '';
-  try { document.querySelectorAll('script').forEach(function(s){ var m = s.textContent.match(/const KEY\s*=\s*'([^']+)'/); if(m) KEY = m[1]; }); }catch(e){}
-  if(!KEY) KEY = 'statute_note_edit';
-
-  var FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
-  var BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
-
-  function barHTML(){
-    var h = '<span class="elbl">字体</span>';
-    FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
-    h += '<span class="fsep"></span><span class="elbl">高亮</span>';
-    BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
-    h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
-    h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
-    return h;
-  }
-
-  function makeEditable(){
-    document.querySelectorAll('.article').forEach(function(art){
-      if(art.dataset.editInjected) return;
-      art.dataset.editInjected = '1';
-      var textEl = art.querySelector('.art-text');
-      if(textEl){
-        textEl.classList.add('editable');
-        textEl.setAttribute('contenteditable','true');
-        textEl.setAttribute('data-art', art.id || '');
-      }
-      var bar = document.createElement('div');
-      bar.className = 'art-editbar';
-      bar.setAttribute('data-bar', art.id || '');
-      bar.innerHTML = barHTML();
-      if(textEl && textEl.parentNode){ textEl.parentNode.insertBefore(bar, textEl); }
-    });
-  }
-
-  // 防止点击工具条导致法条失焦、选区丢失
-  document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
-
-  function applyColor(artId, c, hl){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 局部选区
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 整条
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-  function clearColor(artId){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand('removeFormat', false, null);
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand('removeFormat', false, null);
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-
-  document.addEventListener('click', function(e){
-    if(!editMode) return;
-    var bar = e.target.closest('.art-editbar');
-    if(!bar) return;
-    var artId = bar.getAttribute('data-bar') || '';
-    var clearBtn = e.target.closest('[data-clear]');
-    if(clearBtn){ clearColor(artId); return; }
-    var btn = e.target.closest('[data-c]');
-    if(!btn) return;
-    applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
-  });
-
-  function saveArt(id){
-    var el = document.querySelector('.art-text[data-art="'+id+'"]');
-    if(!el) return;
-    try{ var s = localStorage.getItem(KEY); var store = s ? JSON.parse(s) : {}; if(!store.artEdit) store.artEdit = {}; store.artEdit[id] = el.innerHTML; localStorage.setItem(KEY, JSON.stringify(store)); }catch(err){}
-  }
-  function restoreEdits(){
-    try{ var s = localStorage.getItem(KEY); if(!s) return; var store = JSON.parse(s); if(!store.artEdit) return;
-      Object.keys(store.artEdit).forEach(function(id){ var el = document.querySelector('.art-text[data-art="'+id+'"]'); if(el && store.artEdit[id]) el.innerHTML = store.artEdit[id]; });
-    }catch(e){}
-  }
-
-  var _ro = new MutationObserver(function(){
-    var content = document.getElementById('content');
-    if(content && content.children.length > 0){ makeEditable(); restoreEdits(); }
-  });
-  var mainEl = document.getElementById('content');
-  if(mainEl) _ro.observe(mainEl, {childList:true});
-  setTimeout(function(){ makeEditable(); restoreEdits(); }, 500);
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
 })();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        (m.revised ? '<span class="mk">修正时间</span><span class="mv">'+escapeHtml(m.revised)+'</span>' : '') +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+  // 法条原文（可编辑）
+  'barHTML(id) + <div class="art-text editable" contenteditable="true" data-art="' + id + '">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);  restoreArtEdits();
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
 
 
+/* ===== 编辑模式切换（浮动工具条） ===== */
+let editMode = false;
+const btnEdit = document.getElementById('btnEdit');
+btnEdit.addEventListener('click', function(){
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  this.classList.toggle('active', editMode);
+  this.textContent = editMode ? '✓ 退出编辑' : '✎ 编辑条文';
+  if(editMode){ this.style.background='#27ae60'; this.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; }
+  else { this.style.background=''; this.style.boxShadow=''; }
+  showStatus(editMode ? '编辑模式：每条法条上方有颜色工具条，选中改局部或整条改色' : '已退出编辑');
+});
+
+/* 常驻工具条：每条法条上方由 render 注入 .art-editbar，点击即改色 */
+const FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
+const BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
+function barHTML(id){
+  let h = '<span class="elbl">字体</span>';
+  FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
+  h += '<span class="fsep"></span><span class="elbl">高亮</span>';
+  BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
+  h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
+  h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
+  return '<div class="art-editbar" data-bar="'+id+'">' + h + '</div>';
+}
+
+// 防止点击工具条导致法条失焦、选区丢失
+document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
+
+function applyColor(artId, c, hl){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+  } else {
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+    sel.removeAllRanges();
+  }
+  saveArtText(artId, el.innerHTML);
+}
+function clearColor(artId){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand('removeFormat', false, null);
+  } else {
+    const artData = getArtData(artId);
+    el.innerHTML = artData ? escapeHtml(artData.t) : el.textContent;
+  }
+  saveArtText(artId, el.innerHTML);
+}
+
+document.addEventListener('click', function(e){
+  if(!editMode) return;
+  const bar = e.target.closest('.art-editbar');
+  if(!bar) return;
+  const artId = bar.getAttribute('data-bar') || '';
+  const clearBtn = e.target.closest('[data-clear]');
+  if(clearBtn){ clearColor(artId); showStatus('已清除格式'); return; }
+  const btn = e.target.closest('[data-c]');
+  if(!btn) return;
+  applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
+  showStatus(btn.dataset.hl === '1' ? '已高亮标注' : '已改字体色');
+});
+
+/* 保存法条编辑后的HTML */
+function saveArtText(id, html){
+  if(!store.artEdit) store.artEdit = {};
+  store.artEdit[id] = html;
+  save();
+}
+
+/* 恢复已保存的法条编辑 */
+function restoreArtEdits(){
+  if(!store.artEdit) return;
+  Object.keys(store.artEdit).forEach(function(id){
+    const el = document.querySelector('.art-text[data-art="'+id+'"]');
+    if(el && store.artEdit[id]){
+      el.innerHTML = store.artEdit[id];
+    }
+  });
+}
+
+/* 获取法条原始数据（用于重置） */
+function getArtData(id){
+  for(let ci=0;ci<DATA.length;ci++){
+    for(let ai=0;ai<DATA[ci].items.length;ai++){
+      if('a'+ci+'_'+ai === id) return DATA[ci].items[ai];
+    }
+  }
+  return null;
+}
+
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
 </body>
 </html>
