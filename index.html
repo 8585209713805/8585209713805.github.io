@@ -147,6 +147,11 @@ footer code{background:var(--bg); padding:1px 6px; border-radius:5px; font-size:
   0%{box-shadow:0 0 0 0 rgba(231,76,60,.35),0 0 20px rgba(231,76,60,.25);}
   100%{box-shadow:0 0 0 4px rgba(231,76,60,.18),0 8px 24px rgba(31,78,121,.16);}
 }
+/* 悬浮控件：回到顶部 */
+.float-ctrl{position:fixed; right:18px; bottom:18px; z-index:60;}
+.fc-btn{display:none; align-items:center; justify-content:center; width:48px; height:48px; border-radius:50%; background:#2f6fed; color:#fff; text-decoration:none; font-size:12px; font-weight:600; border:none; cursor:pointer; box-shadow:0 4px 14px rgba(47,111,237,.35); line-height:1.15; text-align:center;}
+.fc-btn.show{display:flex;}
+.fc-btn:hover{background:#1f5bd6;}
 </style>
 </head>
 <body>
@@ -565,6 +570,18 @@ sbNav.addEventListener('click', function(e){
 });
 
 render();
+
+// 悬浮控件：回到顶部
+(function(){
+  var top = document.getElementById('btnTop');
+  function onScroll(){ if(window.scrollY > 300){ top.classList.add('show'); } else { top.classList.remove('show'); } }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  top.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+  onScroll();
+})();
 </script>
+<div class="float-ctrl">
+  <button class="fc-btn" id="btnTop" title="回到顶部">↑<br>顶部</button>
+</div>
 </body>
 </html>
