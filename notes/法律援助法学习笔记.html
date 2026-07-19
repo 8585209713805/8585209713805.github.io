@@ -238,6 +238,7 @@ body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modi
 </footer>
 
 <script>
+
 /* ============ 用户定制区（调用技能时替换为目标法规） ============ */
 const LAW_TITLE = "中华人民共和国法律援助法";
 const LAW_SUB   = "2021.8.20 通过 · 2022.1.1 施行 · 共7章71条 · 速查/解读/分层笔记/案例/互链/自测";
@@ -443,9 +444,11 @@ function quickHtml(){
   let q = '<div class="quick" id="quick">' +
     '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
     '<div class="quick-body" id="quickBody">';
-  QUICK.forEach(function(item){
-    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
-  });
+  if (typeof QUICK !== 'undefined' && Array.isArray(QUICK)) {
+    QUICK.forEach(function(item){
+      q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+    });
+  }
   q += '</div></div>';
   return linkLaws(q);
 }
@@ -500,7 +503,7 @@ function render(){
       if(art.cases){
         casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
         art.cases.forEach(function(cidKey){
-          const c = CASES[cidKey]; if(!c) return;
+          const c = (typeof CASES !== 'undefined') ? CASES[cidKey] : null; if(!c) return;
           casesHtml += '<div class="case">' +
             '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
             '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
@@ -526,7 +529,7 @@ function render(){
                   '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
                 '</div>' +
   // 法条原文（可编辑）
-  'barHTML(id) + <div class="art-text editable" contenteditable="true" data-art="' + id + '">' + escapeHtml(art.t) + '</div>' +
+  barHTML(id) + '<div class="art-text editable" contenteditable="true" data-art="' + id + '">' + escapeHtml(art.t) + '</div>' +
                 '<div class="explain-label">💡 条文解读（可补充）</div>' +
                 '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
                 casesHtml +
