@@ -194,7 +194,6 @@ footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--mute
   body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
 }
 
-/* ===== 法条编辑模式（浮动工具条） ===== */
 /* ===== 法条编辑模式（每条常驻工具条） ===== */
 .art-text.editable{outline:none; border-radius:5px; transition:box-shadow .15s;}
 body.edit-mode .art-text.editable{cursor:text;}
@@ -209,7 +208,6 @@ body.edit-mode .article .art-editbar{display:flex;}
 .art-editbar .fclear:hover{background:#eef1f4;}
 .art-editbar .ehint{font-size:11px;color:#9aa1a9;margin-left:auto;}
 body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modify:read-only;}
-
 </style>
 </head>
 <body>
@@ -219,6 +217,7 @@ body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modi
     <div class="toolbar">
       <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
       <span class="status" id="status">已就绪</span>
+      <button id="btnEdit" title="编辑模式：选中任意法条文字即可改字体色 / 高亮标注" style="padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);">✎ 编辑条文</button>
       <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
       <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
       <button id="btnPrint" title="打印 / 存为PDF">打印</button>
@@ -259,144 +258,383 @@ const CASES = {};
 const REL = {};
 
 /* 法条数据 */
-const DATA = [{"ch":"全文","items":[{"no":"","t":"中华人民共和国主席令第70号\n《中华人民共和国就业促进法》已由中华人民共和国第十届全国人民代表大会常务委 员会第二十九次会议于2007年8月30日通过，现予公布，自2008年1月1日起施行。\n中华人民共和国主席 胡锦涛\n2007年8月30日\n（2007年8月30日第十届全国人民代表大会常务委员会第二十九次会议通过 2015年 4月24日第十二届全国人民代表大会常务委员会第十四次会议修订）\n目    录","ex":""}]},{"ch":"第一章  总  则","items":[{"no":"第一条","t":"第一条  为了促进就业，促进经济发展与扩大就业相协调，促进社会和谐稳定，制定 本法。","ex":""},{"no":"第二条","t":"第二条  国家把扩大就业放在经济社会发展的突出位置，实施积极的就业政策，坚持 劳动者自主择业、市场调节就业、政府促进就业的方针，多渠道扩大就业。","ex":""},{"no":"第三条","t":"第三条  劳动者依法享有平等就业和自主择业的权利。\n劳动者就业，不因民族、种族、性别、宗教信仰等不同而受歧视。","ex":""},{"no":"第四条","t":"第四条  县级以上人民政府把扩大就业作为经济和社会发展的重要目标，纳入国民经 济和社会发展规划，并制定促进就业的中长期规划和年度工作计划。","ex":""},{"no":"第五条","t":"第五条  县级以上人民政府通过发展经济和调整产业结构、规范人力资源市场、完善 就业服务、加强职业教育和培训、提供就业援助等措施，创造就业条件，扩大就业。","ex":""},{"no":"第六条","t":"第六条  国务院建立全国促进就业工作协调机制，研究就业工作中的重大问题，协调 推动全国的促进就业工作。国务院劳动行政部门具体负责全国的促进就业工作。\n省、自治区、直辖市人民政府根据促进就业工作的需要，建立促进就业工作协调机制， 协调解决本行政区域就业工作中的重大问题。\n县级以上人民政府有关部门按照各自的职责分工，共同做好促进就业工作。","ex":""},{"no":"第七条","t":"第七条  国家倡导劳动者树立正确的择业观念，提高就业能力和创业能力；鼓励劳动 者自主创业、自谋职业。\n各级人民政府和有关部门应当简化程序，提高效率，为劳动者自主创业、自谋职业提 供便利。","ex":""},{"no":"第八条","t":"第八条  用人单位依法享有自主用人的权利。\n用人单位应当依照本法以及其他法律、法规的规定，保障劳动者的合法权益。","ex":""},{"no":"第九条","t":"第九条  工会、共产主义青年团、妇女联合会、残疾人联合会以及其他社会组织，协 助人民政府开展促进就业工作，依法维护劳动者的劳动权利。","ex":""},{"no":"第十条","t":"第十条  各级人民政府和有关部门对在促进就业工作中作出显著成绩的单位和个人， 给予表彰和奖励。","ex":""}]},{"ch":"第二章  政策支持","items":[{"no":"第十一条","t":"第十一条  县级以上人民政府应当把扩大就业作为重要职责，统筹协调产业政策与就 业政策。","ex":""},{"no":"第十二条","t":"第十二条 国家鼓励各类企业在法律、法规规定的范围内，通过兴办产业或者拓展经 营，增加就业岗位。\n国家鼓励发展劳动密集型产业、服务业，扶持中小企业，多渠道、多方式增加就业岗 位。\n国家鼓励、支持、引导非公有制经济发展，扩大就业，增加就业岗位。","ex":""},{"no":"第十三条","t":"第十三条  国家发展国内外贸易和国际经济合作，拓宽就业渠道。","ex":""},{"no":"第十四条","t":"第十四条  县级以上人民政府在安排政府投资和确定重大建设项目时，应当发挥投资 和重大建设项目带动就业的作用，增加就业岗位。","ex":""},{"no":"第十五条","t":"第十五条  国家实行有利于促进就业的财政政策，加大资金投入，改善就业环境，扩 大就业。\n县级以上人民政府应当根据就业状况和就业工作目标，在财政预算中安排就业专项资 金用于促进就业工作。\n就业专项资金用于职业介绍、职业培训、公益性岗位、职业技能鉴定、特定就业政策 和社会保险等的补贴，小额贷款担保基金和微利项目的小额担保贷款贴息，以及扶持公共 就业服务等。就业专项资金的使用管理办法由国务院财政部门和劳动行政部门规定。","ex":""},{"no":"第十六条","t":"第十六条  国家建立健全失业保险制度，依法确保失业人员的基本生活，并促进其实 现就业。","ex":""},{"no":"第十七条","t":"第十七条  国家鼓励企业增加就业岗位，扶持失业人员和残疾人就业，对下列企业、 人员依法给予税收优惠：\n（一）吸纳符合国家规定条件的失业人员达到规定要求的企业；\n（二）失业人员创办的中小企业；\n（三）安置残疾人员达到规定比例或者集中使用残疾人的企业；\n（四）从事个体经营的符合国家规定条件的失业人员；\n（五）从事个体经营的残疾人；\n（六）国务院规定给予税收优惠的其他企业、人员。","ex":""},{"no":"第十八条","t":"第十八条  对本法第十七条第四项、第五项规定的人员，有关部门应当在经营场地等 方面给予照顾，免除行政事业性收费。","ex":""},{"no":"第十九条","t":"第十九条  国家实行有利于促进就业的金融政策，增加中小企业的融资渠道；鼓励金 融机构改进金融服务，加大对中小企业的信贷支持，并对自主创业人员在一定期限内给予 小额信贷等扶持。","ex":""},{"no":"第二十条","t":"第二十条  国家实行城乡统筹的就业政策，建立健全城乡劳动者平等就业的制度，引 导农业富余劳动力有序转移就业。\n县级以上地方人民政府推进小城镇建设和加快县域经济发展，引导农业富余劳动力就 地就近转移就业；在制定小城镇规划时，将本地区农业富余劳动力转移就业作为重要内\n容。\n县级以上地方人民政府引导农业富余劳动力有序向城市异地转移就业；劳动力输出地 和输入地人民政府应当互相配合，改善农村劳动者进城就业的环境和条件。","ex":""},{"no":"第二十一条","t":"第二十一条  国家支持区域经济发展，鼓励区域协作，统筹协调不同地区就业的均 衡增长。\n国家支持民族地区发展经济，扩大就业。","ex":""},{"no":"第二十二条","t":"第二十二条  各级人民政府统筹做好城镇新增劳动力就业、农业富余劳动力转移就 业和失业人员就业工作。","ex":""},{"no":"第二十三条","t":"第二十三条  各级人民政府采取措施，逐步完善和实施与非全日制用工等灵活就业 相适应的劳动和社会保险政策，为灵活就业人员提供帮助和服务。","ex":""},{"no":"第二十四条","t":"第二十四条  地方各级人民政府和有关部门应当加强对失业人员从事个体经营的指 导，提供政策咨询、就业培训和开业指导等服务。","ex":""}]},{"ch":"第三章  公平就业","items":[{"no":"第二十五条","t":"第二十五条  各级人民政府创造公平就业的环境，消除就业歧视，制定政策并采取 措施对就业困难人员给予扶持和援助。","ex":""},{"no":"第二十六条","t":"第二十六条  用人单位招用人员、职业中介机构从事职业中介活动，应当向劳动者 提供平等的就业机会和公平的就业条件，不得实施就业歧视。","ex":""},{"no":"第二十七条","t":"第二十七条  国家保障妇女享有与男子平等的劳动权利。\n用人单位招用人员，除国家规定的不适合妇女的工种或者岗位外，不得以性别为由拒 绝录用妇女或者提高对妇女的录用标准。\n用人单位录用女职工，不得在劳动合同中规定限制女职工结婚、生育的内容。","ex":""},{"no":"第二十八条","t":"第二十八条  各民族劳动者享有平等的劳动权利。\n用人单位招用人员，应当依法对少数民族劳动者给予适当照顾。","ex":""},{"no":"第二十九条","t":"第二十九条  国家保障残疾人的劳动权利。\n各级人民政府应当对残疾人就业统筹规划，为残疾人创造就业条件。\n用人单位招用人员，不得歧视残疾人。","ex":""},{"no":"第三十条","t":"第三十条  用人单位招用人员，不得以是传染病病原携带者为由拒绝录用。但是， 经医学鉴定传染病病原携带者在治愈前或者排除传染嫌疑前，不得从事法律、行政法规和 国务院卫生行政部门规定禁止从事的易使传染病扩散的工作。","ex":""},{"no":"第三十一条","t":"第三十一条  农村劳动者进城就业享有与城镇劳动者平等的劳动权利，不得对农村劳 动者进城就业设置歧视性限制。","ex":""}]},{"ch":"第四章  就业服务和管理","items":[{"no":"第三十二条","t":"第三十二条 县级以上人民政府培育和完善统一开放、竞争有序的人力资源市场，为 劳动者就业提供服务。","ex":""},{"no":"第三十三条","t":"第三十三条  县级以上人民政府鼓励社会各方面依法开展就业服务活动，加强对公 共就业服务和职业中介服务的指导和监督，逐步完善覆盖城乡的就业服务体系。","ex":""},{"no":"第三十四条","t":"第三十四条  县级以上人民政府加强人力资源市场信息网络及相关设施建设，建立健 全人力资源市场信息服务体系，完善市场信息发布制度。","ex":""},{"no":"第三十五条","t":"第三十五条 县级以上人民政府建立健全公共就业服务体系，设立公共就业服务机 构，为劳动者免费提供下列服务：\n（一）就业政策法规咨询；\n（二）职业供求信息、市场工资指导价位信息和职业培训信息发布；\n（三）职业指导和职业介绍；\n（四）对就业困难人员实施就业援助；\n（五）办理就业登记、失业登记等事务；\n（六）其他公共就业服务。\n公共就业服务机构应当不断提高服务的质量和效率，不得从事经营性活动。\n公共就业服务经费纳入同级财政预算。","ex":""},{"no":"第三十六条","t":"第三十六条  县级以上地方人民政府对职业中介机构提供公益性就业服务的，按照 规定给予补贴。\n国家鼓励社会各界为公益性就业服务提供捐赠、资助。","ex":""},{"no":"第三十七条","t":"第三十七条  地方各级人民政府和有关部门不得举办或者与他人联合举办经营性的 职业中介机构。\n地方各级人民政府和有关部门、公共就业服务机构举办的招聘会，不得向劳动者收取 费用。","ex":""},{"no":"第三十八条","t":"第三十八条  县级以上人民政府和有关部门加强对职业中介机构的管理，鼓励其提 高服务质量，发挥其在促进就业中的作用。","ex":""},{"no":"第三十九条","t":"第三十九条  从事职业中介活动，应当遵循合法、诚实信用、公平、公开的原则。  用人单位通过职业中介机构招用人员，应当如实向职业中介机构提供岗位需求信息。\n禁止任何组织或者个人利用职业中介活动侵害劳动者的合法权益。","ex":""},{"no":"第四十条","t":"第四十条  设立职业中介机构应当具备下列条件：\n（一）有明确的章程和管理制度；\n（二）有开展业务必备的固定场所、办公设施和一定数额的开办资金；\n（三）有一定数量具备相应职业资格的专职工作人员；\n（四）法律、法规规定的其他条件。\n设立职业中介机构应当在工商行政管理部门办理登记后，向劳动行政部门申请行政许 可。\n未经依法许可和登记的机构，不得从事职业中介活动。\n国家对外商投资职业中介机构和向劳动者提供境外就业服务的职业中介机构另有规定 的，依照其规定。","ex":""},{"no":"第四十一条","t":"第四十一条  职业中介机构不得有下列行为：\n（一）提供虚假就业信息；\n（二）为无合法证照的用人单位提供职业中介服务；\n（三）伪造、涂改、转让职业中介许可证；\n（四）扣押劳动者的居民身份证和其他证件，或者向劳动者收取押金；\n（五）其他违反法律、法规规定的行为。","ex":""},{"no":"第四十二条","t":"第四十二条  县级以上人民政府建立失业预警制度，对可能出现的较大规模的失业， 实施预防、调节和控制。","ex":""},{"no":"第四十三条","t":"第四十三条  国家建立劳动力调查统计制度和就业登记、失业登记制度，开展劳动力 资源和就业、失业状况调查统计，并公布调查统计结果。\n统计部门和劳动行政部门进行劳动力调查统计和就业、失业登记时，用人单位和个人 应当如实提供调查统计和登记所需要的情况。","ex":""}]},{"ch":"第五章  职业教育和培训","items":[{"no":"第四十四条","t":"第四十四条  国家依法发展职业教育，鼓励开展职业培训，促进劳动者提高职业技能， 增强就业能力和创业能力。","ex":""},{"no":"第四十五条","t":"第四十五条  县级以上人民政府根据经济社会发展和市场需求，制定并实施职业能力 开发计划。","ex":""},{"no":"第四十六条","t":"第四十六条  县级以上人民政府加强统筹协调，鼓励和支持各类职业院校、职业技能 培训机构和用人单位依法开展就业前培训、在职培训、再就业培训和创业培训；鼓励劳动  者参加各种形式的培训。","ex":""},{"no":"第四十七条","t":"第四十七条  县级以上地方人民政府和有关部门根据市场需求和产业发展方向，鼓励、 指导企业加强职业教育和培训。\n职业院校、职业技能培训机构与企业应当密切联系，实行产教结合，为经济建设服务， 培养实用人才和熟练劳动者。\n企业应当按照国家有关规定提取职工教育经费，对劳动者进行职业技能培训和继续教 育培训。","ex":""},{"no":"第四十八条","t":"第四十八条  国家采取措施建立健全劳动预备制度，县级以上地方人民政府对有就业 要求的初高中毕业生实行一定期限的职业教育和培训，使其取得相应的职业资格或者掌握 一定的职业技能。","ex":""},{"no":"第四十九条","t":"第四十九条  地方各级人民政府鼓励和支持开展就业培训，帮助失业人员提高职业技 能，增强其就业能力和创业能力。失业人员参加就业培训的，按照有关规定享受政府培训补 贴。","ex":""},{"no":"第五十条","t":"第五十条  地方各级人民政府采取有效措施，组织和引导进城就业的农村劳动者参加 技能培训，鼓励各类培训机构为进城就业的农村劳动者提供技能培训，增强其就业能力和创 业能力。","ex":""},{"no":"第五十一条","t":"第五十一条  国家对从事涉及公共安全、人身健康、生命财产安全等特殊工种的劳动 者，实行职业资格证书制度，具体办法由国务院规定。","ex":""}]},{"ch":"第六章  就业援助","items":[{"no":"第五十二条","t":"第五十二条  各级人民政府建立健全就业援助制度，采取税费减免、贷款贴息、社会 保险补贴、岗位补贴等办法，通过公益性岗位安置等途径，对就业困难人员实行优先扶持和 重点帮助。\n就业困难人员是指因身体状况、技能水平、家庭因素、失去土地等原因难以实现就业， 以及连续失业一定时间仍未能实现就业的人员。就业困难人员的具体范围，由省、自治区、 直辖市人民政府根据本行政区域的实际情况规定。","ex":""},{"no":"第五十三条","t":"第五十三条  政府投资开发的公益性岗位，应当优先安排符合岗位要求的就业困难人 员。被安排在公益性岗位工作的，按照国家规定给予岗位补贴。","ex":""},{"no":"第五十四条","t":"第五十四条  地方各级人民政府加强基层就业援助服务工作，对就业困难人员实施重 点帮助，提供有针对性的就业服务和公益性岗位援助。\n地方各级人民政府鼓励和支持社会各方面为就业困难人员提供技能培训、岗位信息等 服务。","ex":""},{"no":"第五十五条","t":"第五十五条  各级人民政府采取特别扶助措施，促进残疾人就业。\n用人单位应当按照国家规定安排残疾人就业，具体办法由国务院规定。","ex":""},{"no":"第五十六条","t":"第五十六条  县级以上地方人民政府采取多种就业形式，拓宽公益性岗位范围，开发 就业岗位，确保城市有就业需求的家庭至少有一人实现就业。\n法定劳动年龄内的家庭人员均处于失业状况的城市居民家庭，可以向住所地街道、社 区公共就业服务机构申请就业援助。街道、社区公共就业服务机构经确认属实的，应当为 该家庭中至少一人提供适当的就业岗位。","ex":""},{"no":"第五十七条","t":"第五十七条  国家鼓励资源开采型城市和独立工矿区发展与市场需求相适应的产业， 引导劳动者转移就业。\n对因资源枯竭或者经济结构调整等原因造成就业困难人员集中的地区，上级人民政府 应当给予必要的扶持和帮助。","ex":""}]},{"ch":"第七章  监督检查","items":[{"no":"第五十八条","t":"第五十八条  各级人民政府和有关部门应当建立促进就业的目标责任制度。县级以上\n人民政府按照促进就业目标责任制的要求，对所属的有关部门和下一级人民政府进行考核 和监督。","ex":""},{"no":"第五十九条","t":"第五十九条  审计机关、财政部门应当依法对就业专项资金的管理和使用情况进行监 督检查。","ex":""},{"no":"第六十条","t":"第六十条  劳动行政部门应当对本法实施情况进行监督检查，建立举报制度，受理对 违反本法行为的举报，并及时予以核实处理。","ex":""}]},{"ch":"第八章  法律责任","items":[{"no":"第六十一条","t":"第六十一条  违反本法规定，劳动行政等有关部门及其工作人员滥用职权、玩忽职守、 徇私舞弊的，对直接负责的主管人员和其他直接责任人员依法给予处分。","ex":""},{"no":"第六十二条","t":"第六十二条  违反本法规定，实施就业歧视的，劳动者可以向人民法院提起诉讼。","ex":""},{"no":"第六十三条","t":"第六十三条  违反本法规定，地方各级人民政府和有关部门、公共就业服务机构举办 经营性的职业中介机构，从事经营性职业中介活动，向劳动者收取费用的，由上级主管机 关责令限期改正，将违法收取的费用退还劳动者，并对直接负责的主管人员和其他直接责 任人员依法给予处分。","ex":""},{"no":"第六十四条","t":"第六十四条  违反本法规定，未经许可和登记，擅自从事职业中介活动的，由劳动行 政部门或者其他主管部门依法予以关闭；有违法所得的，没收违法所得，并处一万元以上五 万元以下的罚款。","ex":""},{"no":"第六十五条","t":"第六十五条  违反本法规定，职业中介机构提供虚假就业信息，为无合法证照的用人 单位提供职业中介服务，伪造、涂改、转让职业中介许可证的，由劳动行政部门或者其他  主管部门责令改正；有违法所得的，没收违法所得，并处一万元以上五万元以下的罚款；情  节严重的，吊销职业中介许可证。","ex":""},{"no":"第六十六条","t":"第六十六条  违反本法规定，职业中介机构扣押劳动者居民身份证等证件的，由劳动 行政部门责令限期退还劳动者，并依照有关法律规定给予处罚。\n违反本法规定，职业中介机构向劳动者收取押金的，由劳动行政部门责令限期退还劳 动者，并以每人五百元以上二千元以下的标准处以罚款。","ex":""},{"no":"第六十七条","t":"第六十七条  违反本法规定，企业未按照国家规定提取职工教育经费，或者挪用职工 教育经费的，由劳动行政部门责令改正，并依法给予处罚。","ex":""},{"no":"第六十八条","t":"第六十八条  违反本法规定，侵害劳动者合法权益，造成财产损失或者其他损害的，依 法承担民事责任；构成犯罪的，依法追究刑事责任。","ex":""}]},{"ch":"第九章  附  则","items":[{"no":"第六十九条","t":"第六十九条  本法自2008年1月1日起施行。","ex":""}]}];
+const DATA = [{"ch":"全文","items":[{"no":"","t":"中华人民共和国主席令第70号\n《中华人民共和国就业促进法》已由中华人民共和国第十届全国人民代表大会常务委 员会第二十九次会议于2007年8月30日通过，现予公布，自2008年1月1日起施行。\n中华人民共和国主席 胡锦涛\n2007年8月30日\n（2007年8月30日第十届全国人民代表大会常务委员会第二十九次会议通过 2015年 4月24日第十二届全国人民代表大会常务委员会第十四次会议修订）\n目    录","ex":""}]},{"ch":"第一章  总  则","items":[{"no":"第一条","t":"第一条  为了促进就业，促进经济发展与扩大就业相协调，促进社会和谐稳定，制定 本法。","ex":""},{"no":"第二条","t":"第二条  国家把扩大就业放在经济社会发展的突出位置，实施积极的就业政策，坚持 劳动者自主择业、市场调节就业、政府促进就业的方针，多渠道扩大就业。","ex":""},{"no":"第三条","t":"第三条  劳动者依法享有平等就业和自主择业的权利。\n劳动者就业，不因民族、种族、性别、宗教信仰等不同而受歧视。","ex":""},{"no":"第四条","t":"第四条  县级以上人民政府把扩大就业作为经济和社会发展的重要目标，纳入国民经 济和社会发展规划，并制定促进就业的中长期规划和年度工作计划。","ex":""},{"no":"第五条","t":"第五条  县级以上人民政府通过发展经济和调整产业结构、规范人力资源市场、完善 就业服务、加强职业教育和培训、提供就业援助等措施，创造就业条件，扩大就业。","ex":""},{"no":"第六条","t":"第六条  国务院建立全国促进就业工作协调机制，研究就业工作中的重大问题，协调 推动全国的促进就业工作。国务院劳动行政部门具体负责全国的促进就业工作。\n省、自治区、直辖市人民政府根据促进就业工作的需要，建立促进就业工作协调机制， 协调解决本行政区域就业工作中的重大问题。\n县级以上人民政府有关部门按照各自的职责分工，共同做好促进就业工作。","ex":""},{"no":"第七条","t":"第七条  国家倡导劳动者树立正确的择业观念，提高就业能力和创业能力；鼓励劳动 者自主创业、自谋职业。\n各级人民政府和有关部门应当简化程序，提高效率，为劳动者自主创业、自谋职业提 供便利。","ex":""},{"no":"第八条","t":"第八条  用人单位依法享有自主用人的权利。\n用人单位应当依照本法以及其他法律、法规的规定，保障劳动者的合法权益。","ex":""},{"no":"第九条","t":"第九条  工会、共产主义青年团、妇女联合会、残疾人联合会以及其他社会组织，协 助人民政府开展促进就业工作，依法维护劳动者的劳动权利。","ex":""},{"no":"第十条","t":"第十条  各级人民政府和有关部门对在促进就业工作中作出显著成绩的单位和个人， 给予表彰和奖励。","ex":""}]},{"ch":"第二章  政策支持","items":[{"no":"第十一条","t":"第十一条  县级以上人民政府应当把扩大就业作为重要职责，统筹协调产业政策与就 业政策。","ex":""},{"no":"第十二条","t":"第十二条 国家鼓励各类企业在法律、法规规定的范围内，通过兴办产业或者拓展经 营，增加就业岗位。\n国家鼓励发展劳动密集型产业、服务业，扶持中小企业，多渠道、多方式增加就业岗 位。\n国家鼓励、支持、引导非公有制经济发展，扩大就业，增加就业岗位。","ex":""},{"no":"第十三条","t":"第十三条  国家发展国内外贸易和国际经济合作，拓宽就业渠道。","ex":""},{"no":"第十四条","t":"第十四条  县级以上人民政府在安排政府投资和确定重大建设项目时，应当发挥投资 和重大建设项目带动就业的作用，增加就业岗位。","ex":""},{"no":"第十五条","t":"第十五条  国家实行有利于促进就业的财政政策，加大资金投入，改善就业环境，扩 大就业。\n县级以上人民政府应当根据就业状况和就业工作目标，在财政预算中安排就业专项资 金用于促进就业工作。\n就业专项资金用于职业介绍、职业培训、公益性岗位、职业技能鉴定、特定就业政策 和社会保险等的补贴，小额贷款担保基金和微利项目的小额担保贷款贴息，以及扶持公共 就业服务等。就业专项资金的使用管理办法由国务院财政部门和劳动行政部门规定。","ex":""},{"no":"第十六条","t":"第十六条  国家建立健全失业保险制度，依法确保失业人员的基本生活，并促进其实 现就业。","ex":""},{"no":"第十七条","t":"第十七条  国家鼓励企业增加就业岗位，扶持失业人员和残疾人就业，对下列企业、 人员依法给予税收优惠：\n（一）吸纳符合国家规定条件的失业人员达到规定要求的企业；\n（二）失业人员创办的中小企业；\n（三）安置残疾人员达到规定比例或者集中使用残疾人的企业；\n（四）从事个体经营的符合国家规定条件的失业人员；\n（五）从事个体经营的残疾人；\n（六）国务院规定给予税收优惠的其他企业、人员。","ex":""},{"no":"第十八条","t":"第十八条  对本法第十七条第四项、第五项规定的人员，有关部门应当在经营场地等 方面给予照顾，免除行政事业性收费。","ex":""},{"no":"第十九条","t":"第十九条  国家实行有利于促进就业的金融政策，增加中小企业的融资渠道；鼓励金 融机构改进金融服务，加大对中小企业的信贷支持，并对自主创业人员在一定期限内给予 小额信贷等扶持。","ex":""},{"no":"第二十条","t":"第二十条  国家实行城乡统筹的就业政策，建立健全城乡劳动者平等就业的制度，引 导农业富余劳动力有序转移就业。\n县级以上地方人民政府推进小城镇建设和加快县域经济发展，引导农业富余劳动力就 地就近转移就业；在制定小城镇规划时，将本地区农业富余劳动力转移就业作为重要内\n容。\n县级以上地方人民政府引导农业富余劳动力有序向城市异地转移就业；劳动力输出地 和输入地人民政府应当互相配合，改善农村劳动者进城就业的环境和条件。","ex":""},{"no":"第二十一条","t":"第二十一条  国家支持区域经济发展，鼓励区域协作，统筹协调不同地区就业的均 衡增长。\n国家支持民族地区发展经济，扩大就业。","ex":""},{"no":"第二十二条","t":"第二十二条  各级人民政府统筹做好城镇新增劳动力就业、农业富余劳动力转移就 业和失业人员就业工作。","ex":""},{"no":"第二十三条","t":"第二十三条  各级人民政府采取措施，逐步完善和实施与非全日制用工等灵活就业 相适应的劳动和社会保险政策，为灵活就业人员提供帮助和服务。","ex":""},{"no":"第二十四条","t":"第二十四条  地方各级人民政府和有关部门应当加强对失业人员从事个体经营的指 导，提供政策咨询、就业培训和开业指导等服务。","ex":""}]},{"ch":"第三章  公平就业","items":[{"no":"第二十五条","t":"第二十五条  各级人民政府创造公平就业的环境，消除就业歧视，制定政策并采取 措施对就业困难人员给予扶持和援助。","ex":""},{"no":"第二十六条","t":"第二十六条  用人单位招用人员、职业中介机构从事职业中介活动，应当向劳动者 提供平等的就业机会和公平的就业条件，不得实施就业歧视。","ex":""},{"no":"第二十七条","t":"第二十七条  国家保障妇女享有与男子平等的劳动权利。\n用人单位招用人员，除国家规定的不适合妇女的工种或者岗位外，不得以性别为由拒 绝录用妇女或者提高对妇女的录用标准。\n用人单位录用女职工，不得在劳动合同中规定限制女职工结婚、生育的内容。","ex":""},{"no":"第二十八条","t":"第二十八条  各民族劳动者享有平等的劳动权利。\n用人单位招用人员，应当依法对少数民族劳动者给予适当照顾。","ex":""},{"no":"第二十九条","t":"第二十九条  国家保障残疾人的劳动权利。\n各级人民政府应当对残疾人就业统筹规划，为残疾人创造就业条件。\n用人单位招用人员，不得歧视残疾人。","ex":""},{"no":"第三十条","t":"第三十条  用人单位招用人员，不得以是传染病病原携带者为由拒绝录用。但是， 经医学鉴定传染病病原携带者在治愈前或者排除传染嫌疑前，不得从事法律、行政法规和 国务院卫生行政部门规定禁止从事的易使传染病扩散的工作。","ex":""},{"no":"第三十一条","t":"第三十一条  农村劳动者进城就业享有与城镇劳动者平等的劳动权利，不得对农村劳 动者进城就业设置歧视性限制。","ex":""}]},{"ch":"第四章  就业服务和管理","items":[{"no":"第三十二条","t":"第三十二条 县级以上人民政府培育和完善统一开放、竞争有序的人力资源市场，为 劳动者就业提供服务。","ex":""},{"no":"第三十三条","t":"第三十三条  县级以上人民政府鼓励社会各方面依法开展就业服务活动，加强对公 共就业服务和职业中介服务的指导和监督，逐步完善覆盖城乡的就业服务体系。","ex":""},{"no":"第三十四条","t":"第三十四条  县级以上人民政府加强人力资源市场信息网络及相关设施建设，建立健 全人力资源市场信息服务体系，完善市场信息发布制度。","ex":""},{"no":"第三十五条","t":"第三十五条 县级以上人民政府建立健全公共就业服务体系，设立公共就业服务机 构，为劳动者免费提供下列服务：\n（一）就业政策法规咨询；\n（二）职业供求信息、市场工资指导价位信息和职业培训信息发布；\n（三）职业指导和职业介绍；\n（四）对就业困难人员实施就业援助；\n（五）办理就业登记、失业登记等事务；\n（六）其他公共就业服务。\n公共就业服务机构应当不断提高服务的质量和效率，不得从事经营性活动。\n公共就业服务经费纳入同级财政预算。","ex":""},{"no":"第三十六条","t":"第三十六条  县级以上地方人民政府对职业中介机构提供公益性就业服务的，按照 规定给予补贴。\n国家鼓励社会各界为公益性就业服务提供捐赠、资助。","ex":""},{"no":"第三十七条","t":"第三十七条  地方各级人民政府和有关部门不得举办或者与他人联合举办经营性的 职业中介机构。\n地方各级人民政府和有关部门、公共就业服务机构举办的招聘会，不得向劳动者收取 费用。","ex":""},{"no":"第三十八条","t":"第三十八条  县级以上人民政府和有关部门加强对职业中介机构的管理，鼓励其提 高服务质量，发挥其在促进就业中的作用。","ex":""},{"no":"第三十九条","t":"第三十九条  从事职业中介活动，应当遵循合法、诚实信用、公平、公开的原则。  用人单位通过职业中介机构招用人员，应当如实向职业中介机构提供岗位需求信息。\n禁止任何组织或者个人利用职业中介活动侵害劳动者的合法权益。","ex":""},{"no":"第四十条","t":"第四十条  设立职业中介机构应当具备下列条件：\n（一）有明确的章程和管理制度；\n（二）有开展业务必备的固定场所、办公设施和一定数额的开办资金；\n（三）有一定数量具备相应职业资格的专职工作人员；\n（四）法律、法规规定的其他条件。\n设立职业中介机构应当在工商行政管理部门办理登记后，向劳动行政部门申请行政许 可。\n未经依法许可和登记的机构，不得从事职业中介活动。\n国家对外商投资职业中介机构和向劳动者提供境外就业服务的职业中介机构另有规定 的，依照其规定。","ex":""},{"no":"第四十一条","t":"第四十一条  职业中介机构不得有下列行为：\n（一）提供虚假就业信息；\n（二）为无合法证照的用人单位提供职业中介服务；\n（三）伪造、涂改、转让职业中介许可证；\n（四）扣押劳动者的居民身份证和其他证件，或者向劳动者收取押金；\n（五）其他违反法律、法规规定的行为。","ex":""},{"no":"第四十二条","t":"第四十二条  县级以上人民政府建立失业预警制度，对可能出现的较大规模的失业， 实施预防、调节和控制。","ex":""},{"no":"第四十三条","t":"第四十三条  国家建立劳动力调查统计制度和就业登记、失业登记制度，开展劳动力 资源和就业、失业状况调查统计，并公布调查统计结果。\n统计部门和劳动行政部门进行劳动力调查统计和就业、失业登记时，用人单位和个人 应当如实提供调查统计和登记所需要的情况。","ex":""}]},{"ch":"第五章  职业教育和培训","items":[{"no":"第四十四条","t":"第四十四条  国家依法发展职业教育，鼓励开展职业培训，促进劳动者提高职业技能， 增强就业能力和创业能力。","ex":""},{"no":"第四十五条","t":"第四十五条  县级以上人民政府根据经济社会发展和市场需求，制定并实施职业能力 开发计划。","ex":""},{"no":"第四十六条","t":"第四十六条  县级以上人民政府加强统筹协调，鼓励和支持各类职业院校、职业技能 培训机构和用人单位依法开展就业前培训、在职培训、再就业培训和创业培训；鼓励劳动  者参加各种形式的培训。","ex":""},{"no":"第四十七条","t":"第四十七条  县级以上地方人民政府和有关部门根据市场需求和产业发展方向，鼓励、 指导企业加强职业教育和培训。\n职业院校、职业技能培训机构与企业应当密切联系，实行产教结合，为经济建设服务， 培养实用人才和熟练劳动者。\n企业应当按照国家有关规定提取职工教育经费，对劳动者进行职业技能培训和继续教 育培训。","ex":""},{"no":"第四十八条","t":"第四十八条  国家采取措施建立健全劳动预备制度，县级以上地方人民政府对有就业 要求的初高中毕业生实行一定期限的职业教育和培训，使其取得相应的职业资格或者掌握 一定的职业技能。","ex":""},{"no":"第四十九条","t":"第四十九条  地方各级人民政府鼓励和支持开展就业培训，帮助失业人员提高职业技 能，增强其就业能力和创业能力。失业人员参加就业培训的，按照有关规定享受政府培训补 贴。","ex":""},{"no":"第五十条","t":"第五十条  地方各级人民政府采取有效措施，组织和引导进城就业的农村劳动者参加 技能培训，鼓励各类培训机构为进城就业的农村劳动者提供技能培训，增强其就业能力和创 业能力。","ex":""},{"no":"第五十一条","t":"第五十一条  国家对从事涉及公共安全、人身健康、生命财产安全等特殊工种的劳动 者，实行职业资格证书制度，具体办法由国务院规定。","ex":""}]},{"ch":"第六章  就业援助","items":[{"no":"第五十二条","t":"第五十二条  各级人民政府建立健全就业援助制度，采取税费减免、贷款贴息、社会 保险补贴、岗位补贴等办法，通过公益性岗位安置等途径，对就业困难人员实行优先扶持和 重点帮助。\n就业困难人员是指因身体状况、技能水平、家庭因素、失去土地等原因难以实现就业， 以及连续失业一定时间仍未能实现就业的人员。就业困难人员的具体范围，由省、自治区、 直辖市人民政府根据本行政区域的实际情况规定。","ex":""},{"no":"第五十三条","t":"第五十三条  政府投资开发的公益性岗位，应当优先安排符合岗位要求的就业困难人 员。被安排在公益性岗位工作的，按照国家规定给予岗位补贴。","ex":""},{"no":"第五十四条","t":"第五十四条  地方各级人民政府加强基层就业援助服务工作，对就业困难人员实施重 点帮助，提供有针对性的就业服务和公益性岗位援助。\n地方各级人民政府鼓励和支持社会各方面为就业困难人员提供技能培训、岗位信息等 服务。","ex":""},{"no":"第五十五条","t":"第五十五条  各级人民政府采取特别扶助措施，促进残疾人就业。\n用人单位应当按照国家规定安排残疾人就业，具体办法由国务院规定。","ex":""},{"no":"第五十六条","t":"第五十六条  县级以上地方人民政府采取多种就业形式，拓宽公益性岗位范围，开发 就业岗位，确保城市有就业需求的家庭至少有一人实现就业。\n法定劳动年龄内的家庭人员均处于失业状况的城市居民家庭，可以向住所地街道、社 区公共就业服务机构申请就业援助。街道、社区公共就业服务机构经确认属实的，应当为 该家庭中至少一人提供适当的就业岗位。","ex":""},{"no":"第五十七条","t":"第五十七条  国家鼓励资源开采型城市和独立工矿区发展与市场需求相适应的产业， 引导劳动者转移就业。\n对因资源枯竭或者经济结构调整等原因造成就业困难人员集中的地区，上级人民政府 应当给予必要的扶持和帮助。","ex":""}]},{"ch":"第七章  监督检查","items":[{"no":"第五十八条","t":"第五十八条  各级人民政府和有关部门应当建立促进就业的目标责任制度。县级以上\n人民政府按照促进就业目标责任制的要求，对所属的有关部门和下一级人民政府进行考核 和监督。","ex":""},{"no":"第五十九条","t":"第五十九条  审计机关、财政部门应当依法对就业专项资金的管理和使用情况进行监 督检查。","ex":""},{"no":"第六十条","t":"第六十条  劳动行政部门应当对本法实施情况进行监督检查，建立举报制度，受理对 违反本法行为的举报，并及时予以核实处理。","ex":""}]},{"ch":"第八章  法律责任","items":[{"no":"第六十一条","t":"第六十一条  违反本法规定，劳动行政等有关部门及其工作人员滥用职权、玩忽职守、 徇私舞弊的，对直接负责的主管人员和其他直接责任人员依法给予处分。","ex":""},{"no":"第六十二条","t":"第六十二条  违反本法规定，实施就业歧视的，劳动者可以向人民法院提起诉讼。","ex":""},{"no":"第六十三条","t":"第六十三条  违反本法规定，地方各级人民政府和有关部门、公共就业服务机构举办 经营性的职业中介机构，从事经营性职业中介活动，向劳动者收取费用的，由上级主管机 关责令限期改正，将违法收取的费用退还劳动者，并对直接负责的主管人员和其他直接责 任人员依法给予处分。","ex":""},{"no":"第六十四条","t":"第六十四条  违反本法规定，未经许可和登记，擅自从事职业中介活动的，由劳动行 政部门或者其他主管部门依法予以关闭；有违法所得的，没收违法所得，并处一万元以上五 万元以下的罚款。","ex":""},{"no":"第六十五条","t":"第六十五条  违反本法规定，职业中介机构提供虚假就业信息，为无合法证照的用人 单位提供职业中介服务，伪造、涂改、转让职业中介许可证的，由劳动行政部门或者其他  主管部门责令改正；有违法所得的，没收违法所得，并处一万元以上五万元以下的罚款；情  节严重的，吊销职业中介许可证。","ex":""},{"no":"第六十六条","t":"第六十六条  违反本法规定，职业中介机构扣押劳动者居民身份证等证件的，由劳动 行政部门责令限期退还劳动者，并依照有关法律规定给予处罚。\n违反本法规定，职业中介机构向劳动者收取押金的，由劳动行政部门责令限期退还劳 动者，并以每人五百元以上二千元以下的标准处以罚款。","ex":""},{"no":"第六十七条","t":"第六十七条  违反本法规定，企业未按照国家规定提取职工教育经费，或者挪用职工 教育经费的，由劳动行政部门责令改正，并依法给予处罚。","ex":""},{"no":"第六十八条","t":"第六十八条  违反本法规定，侵害劳动者合法权益，造成财产损失或者其他损害的，依 法承担民事责任；构成犯罪的，依法追究刑事责任。","ex":""}]},{"ch":"第九章  附  则","items":[{"no":"第六十九条","t":"第六十九条  本法自2008年1月1日起施行。","ex":""}]}]
+;
 /* =================================================== */
-
 
 /* ===== 存储（自动保存 + 导出烘焙）===== */
 const KEY = 'statute_note_' + LAW_KEY;
-let store = 
-(function(){
-  var editMode = false;
-
-  // 醒目入口按钮
-  var btnEdit = document.createElement('button');
-  btnEdit.id = 'btnEdit';
-  btnEdit.title = '编辑模式：每条法条上方出现颜色工具条，可选中局部或直接改整条';
-  btnEdit.innerHTML = '\u270E 编辑条文';
-  btnEdit.style.cssText = 'padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);';
-  var tip = document.createElement('span');
-  tip.className = 'edit-tip';
-  tip.textContent = '已开启：每条法条上方有颜色工具条（选中文字改局部，直接点改整条）';
-  tip.style.display = 'none';
-  var btnTest = document.getElementById('btnTest');
-  if(btnTest){ btnTest.parentNode.insertBefore(btnEdit, btnTest); btnEdit.insertAdjacentElement('afterend', tip); }
-  btnEdit.addEventListener('click', function(){
-    editMode = !editMode;
-    document.body.classList.toggle('edit-mode', editMode);
-    btnEdit.classList.toggle('active', editMode);
-    btnEdit.innerHTML = editMode ? '\u2713 退出编辑' : '\u270E 编辑条文';
-    if(editMode){ btnEdit.style.background='#27ae60'; btnEdit.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; tip.style.display='inline-block'; }
-    else { btnEdit.style.background='#e6a23c'; btnEdit.style.boxShadow='0 2px 6px rgba(230,162,60,.4)'; tip.style.display='none'; }
-    try{ showStatus(editMode ? '编辑模式已开启：点法条上方的颜色按钮即可改色 / 高亮' : '已退出编辑'); }catch(e){}
-  });
-
-  // 存储键（复用笔记已有 KEY）
-  var KEY = '';
-  try { document.querySelectorAll('script').forEach(function(s){ var m = s.textContent.match(/const KEY\s*=\s*'([^']+)'/); if(m) KEY = m[1]; }); }catch(e){}
-  if(!KEY) KEY = 'statute_note_edit';
-
-  var FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
-  var BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
-
-  function barHTML(){
-    var h = '<span class="elbl">字体</span>';
-    FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
-    h += '<span class="fsep"></span><span class="elbl">高亮</span>';
-    BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
-    h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
-    h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
-    return h;
-  }
-
-  function makeEditable(){
-    document.querySelectorAll('.article').forEach(function(art){
-      if(art.dataset.editInjected) return;
-      art.dataset.editInjected = '1';
-      var textEl = art.querySelector('.art-text');
-      if(textEl){
-        textEl.classList.add('editable');
-        textEl.setAttribute('contenteditable','true');
-        textEl.setAttribute('data-art', art.id || '');
-      }
-      var bar = document.createElement('div');
-      bar.className = 'art-editbar';
-      bar.setAttribute('data-bar', art.id || '');
-      bar.innerHTML = barHTML();
-      if(textEl && textEl.parentNode){ textEl.parentNode.insertBefore(bar, textEl); }
-    });
-  }
-
-  // 防止点击工具条导致法条失焦、选区丢失
-  document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
-
-  function applyColor(artId, c, hl){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 局部选区
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 整条
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-  function clearColor(artId){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand('removeFormat', false, null);
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand('removeFormat', false, null);
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-
-  document.addEventListener('click', function(e){
-    if(!editMode) return;
-    var bar = e.target.closest('.art-editbar');
-    if(!bar) return;
-    var artId = bar.getAttribute('data-bar') || '';
-    var clearBtn = e.target.closest('[data-clear]');
-    if(clearBtn){ clearColor(artId); return; }
-    var btn = e.target.closest('[data-c]');
-    if(!btn) return;
-    applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
-  });
-
-  function saveArt(id){
-    var el = document.querySelector('.art-text[data-art="'+id+'"]');
-    if(!el) return;
-    try{ var s = localStorage.getItem(KEY); var store = s ? JSON.parse(s) : {}; if(!store.artEdit) store.artEdit = {}; store.artEdit[id] = el.innerHTML; localStorage.setItem(KEY, JSON.stringify(store)); }catch(err){}
-  }
-  function restoreEdits(){
-    try{ var s = localStorage.getItem(KEY); if(!s) return; var store = JSON.parse(s); if(!store.artEdit) return;
-      Object.keys(store.artEdit).forEach(function(id){ var el = document.querySelector('.art-text[data-art="'+id+'"]'); if(el && store.artEdit[id]) el.innerHTML = store.artEdit[id]; });
-    }catch(e){}
-  }
-
-  var _ro = new MutationObserver(function(){
-    var content = document.getElementById('content');
-    if(content && content.children.length > 0){ makeEditable(); restoreEdits(); }
-  });
-  var mainEl = document.getElementById('content');
-  if(mainEl) _ro.observe(mainEl, {childList:true});
-  setTimeout(function(){ makeEditable(); restoreEdits(); }, 500);
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
 })();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        (m.revised ? '<span class="mk">修正时间</span><span class="mv">'+escapeHtml(m.revised)+'</span>' : '') +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+  // 法条原文（可编辑）
+  'barHTML(id) + <div class="art-text editable" contenteditable="true" data-art="' + id + '">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);  restoreArtEdits();
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
 
 
+/* ===== 编辑模式切换（浮动工具条） ===== */
+let editMode = false;
+const btnEdit = document.getElementById('btnEdit');
+btnEdit.addEventListener('click', function(){
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  this.classList.toggle('active', editMode);
+  this.textContent = editMode ? '✓ 退出编辑' : '✎ 编辑条文';
+  if(editMode){ this.style.background='#27ae60'; this.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; }
+  else { this.style.background=''; this.style.boxShadow=''; }
+  showStatus(editMode ? '编辑模式：每条法条上方有颜色工具条，选中改局部或整条改色' : '已退出编辑');
+});
+
+/* 常驻工具条：每条法条上方由 render 注入 .art-editbar，点击即改色 */
+const FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
+const BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
+function barHTML(id){
+  let h = '<span class="elbl">字体</span>';
+  FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
+  h += '<span class="fsep"></span><span class="elbl">高亮</span>';
+  BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
+  h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
+  h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
+  return '<div class="art-editbar" data-bar="'+id+'">' + h + '</div>';
+}
+
+// 防止点击工具条导致法条失焦、选区丢失
+document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
+
+function applyColor(artId, c, hl){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+  } else {
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+    sel.removeAllRanges();
+  }
+  saveArtText(artId, el.innerHTML);
+}
+function clearColor(artId){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand('removeFormat', false, null);
+  } else {
+    const artData = getArtData(artId);
+    el.innerHTML = artData ? escapeHtml(artData.t) : el.textContent;
+  }
+  saveArtText(artId, el.innerHTML);
+}
+
+document.addEventListener('click', function(e){
+  if(!editMode) return;
+  const bar = e.target.closest('.art-editbar');
+  if(!bar) return;
+  const artId = bar.getAttribute('data-bar') || '';
+  const clearBtn = e.target.closest('[data-clear]');
+  if(clearBtn){ clearColor(artId); showStatus('已清除格式'); return; }
+  const btn = e.target.closest('[data-c]');
+  if(!btn) return;
+  applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
+  showStatus(btn.dataset.hl === '1' ? '已高亮标注' : '已改字体色');
+});
+
+/* 保存法条编辑后的HTML */
+function saveArtText(id, html){
+  if(!store.artEdit) store.artEdit = {};
+  store.artEdit[id] = html;
+  save();
+}
+
+/* 恢复已保存的法条编辑 */
+function restoreArtEdits(){
+  if(!store.artEdit) return;
+  Object.keys(store.artEdit).forEach(function(id){
+    const el = document.querySelector('.art-text[data-art="'+id+'"]');
+    if(el && store.artEdit[id]){
+      el.innerHTML = store.artEdit[id];
+    }
+  });
+}
+
+/* 获取法条原始数据（用于重置） */
+function getArtData(id){
+  for(let ci=0;ci<DATA.length;ci++){
+    for(let ai=0;ai<DATA[ci].items.length;ai++){
+      if('a'+ci+'_'+ai === id) return DATA[ci].items[ai];
+    }
+  }
+  return null;
+}
+
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
 </body>
 </html>
