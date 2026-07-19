@@ -20,9 +20,9 @@ def curl(method, url, data=None):
            '-o', '-', '-w', '\n%{http_code}',
            '-H', f'Authorization: Bearer {PAT}']
     if method == 'PUT':
-        cmd += ['-X', 'PUT', '-H', 'Content-Type: application/json', '--data', data]
+        cmd += ['-X', 'PUT', '-H', 'Content-Type: application/json', '--data-binary', '@-']
     cmd.append(url)
-    out = subprocess.run(cmd, capture_output=True, text=True)
+    out = subprocess.run(cmd, input=data, capture_output=True, text=True)
     body, _, code = out.stdout.rpartition('\n')
     return int(code.strip() or 0), body
 
