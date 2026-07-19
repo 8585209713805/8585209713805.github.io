@@ -194,7 +194,6 @@ footer{max-width:1180px; margin:0 auto 30px; padding:14px 18px; color:var(--mute
   body.self-test .tool-row, body.self-test .note-label, body.self-test .notes-wrap{display:block !important;}
 }
 
-/* ===== 法条编辑模式（浮动工具条） ===== */
 /* ===== 法条编辑模式（每条常驻工具条） ===== */
 .art-text.editable{outline:none; border-radius:5px; transition:box-shadow .15s;}
 body.edit-mode .art-text.editable{cursor:text;}
@@ -209,7 +208,6 @@ body.edit-mode .article .art-editbar{display:flex;}
 .art-editbar .fclear:hover{background:#eef1f4;}
 .art-editbar .ehint{font-size:11px;color:#9aa1a9;margin-left:auto;}
 body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modify:read-only;}
-
 </style>
 </head>
 <body>
@@ -219,6 +217,7 @@ body:not(.edit-mode) .art-text.editable{-webkit-user-modify:read-only; user-modi
     <div class="toolbar">
       <input type="search" id="search" placeholder="搜索条文…" aria-label="搜索">
       <span class="status" id="status">已就绪</span>
+      <button id="btnEdit" title="编辑模式：选中任意法条文字即可改字体色 / 高亮标注" style="padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);">✎ 编辑条文</button>
       <button id="btnTest" title="自测记忆模式：隐藏解读，点条文下方“显示解读”对照，用于抽背">自测模式</button>
       <button id="btnExport" title="导出为独立HTML文件（含所有笔记、解读与案例）。导出后告诉我“发布批注”即可同步到网站">导出</button>
       <button id="btnPrint" title="打印 / 存为PDF">打印</button>
@@ -259,144 +258,383 @@ const CASES = {};
 const REL = {};
 
 /* 法条数据 */
-const DATA = [{"ch":"全文","items":[{"no":"","t":"（2003年9月26日江西省第十届人民代表大会常务委员会第五次会议通过  2010年11月 26日江西省第十一届人民代表大会常务委员会第二十次会议第一次修正  2021年7月28日  江西省第十三届人民代表大会常务委员会第三十一次会议第二次修正）\n目    录\n第 一 章总则","ex":""}]},{"ch":"第二章监察职责与管辖","items":[{"no":"第八条","t":"第八条 人力资源和社会保障主管部门履行下列监察职责：\n（一）宣传劳动保障法律、法规、规章，督促用人单位、职业介绍机构和劳动者贯彻 执行；\n（二）监督检查用人单位和职业介绍机构遵守劳动保障法律、法规、规章的情况；\n（三）受理对违反劳动保障法律、法规、规章行为的检举和控告；\n（四）依法处理违反劳动保障法律、法规、规章的行为；\n（五）法律、法规、规章规定的其他监察职责。","ex":""},{"no":"第九条","t":"第九条 人力资源和社会保障主管部门应当加强对劳动保障监察人员的培训、管理和 监督。\n劳动保障监察人员应当熟悉劳动保障法律、法规、规章和劳动保障业务，经考核合格， 取得合法有效的执法证件后方可上岗。","ex":""},{"no":"第十条","t":"第十条 劳动保障监察人员依法实施劳动保障监察时，行使下列职权：\n（一）进入用人单位或者职业介绍机构了解其执行劳动保障法律、法规、规章的情 况，询问有关人员，并可以记录、录音；\n（二）查阅、复印有关资料；\n（三）对用人单位的劳动场所或者职业介绍机构的服务场所进行检查，必要时，可以 对有关场景进行录像、拍照；\n（四）要求被检查单位在规定的期限内，就劳动保障监察人员询问的有关问题据实作 出书面答复；\n（五）制止、纠正违反劳动保障法律、法规、规章的行为；\n（六）法律、法规、规章赋予的其他职权。\n第十 一 条 劳动保障监察人员依法履行职责时，不得有下列行为：\n（一）接受被检查单位的任何馈赠、报酬、福利待遇，在被检查单位报销费用；\n（二）参加被检查单位安排、组织或者支付费用的宴请、娱乐、旅游、出访等活动；\n（三）利用职务之便在被检查单位为自己、亲友或者他人谋取利益；\n（四）妨碍被检查单位正常的生产、经营活动；\n（五）泄露被检查单位的商业秘密。","ex":""},{"no":"第十二条","t":"第十二条 人力资源和社会保障主管部门按照下列管辖范围对用人单位实施劳动保障 监察：\n（一）设区的市人民政府人力资源和社会保障主管部门负责中央在省、省属及市属用  人单位和在省、设区的市人民政府市场监督管理部门注册登记的各类用人单位的劳动保障 监察工作；\n（二）县（市、区）人民政府人力资源和社会保障主管部门负责县（市、区）属用人 单位和在同级人民政府市场监督管理部门注册登记的各类用人单位的劳动保障监察工作。","ex":""},{"no":"第十三条","t":"第十三条 对职业介绍机构的劳动保障监察，由批准其设立的人力资源和社会保障主 管部门负责实施。","ex":""},{"no":"第十四条","t":"第十四条 对管辖有争议的，报请争议双方共同的上一级人力资源和社会保障主管部 门指定管辖。","ex":""},{"no":"第十五条","t":"第十五条  下级人力资源和社会保障主管部门对其管辖的劳动保障监察事项，认为需 要上一级人力资源和社会保障主管部门查处的，可以提请上一级人力资源和社会保障主管 部门查处；上级人力资源和社会保障主管部门认为必要时，可以直接查处下级人力资源和 社会保障主管部门管辖的劳动保障监察事项，也可以将自己管辖的劳动保障监察事项委托 下级人力资源和社会保障主管部门查处。","ex":""}]},{"ch":"第三章监察内容与方式","items":[{"no":"第十六条","t":"第十六条 对用人单位的下列违法行为，人力资源和社会保障主管部门应当依法进行 查处：\n（一）不依法建立或者执行单位劳动保障规章制度的；\n（二）非法招用未满十六周岁的未成年人的；\n（三）向劳动者收取押金、保证金等费用，或者扣押劳动者证件、实物的；\n（四）不依法签订劳动合同、集体合同或者违反规定解除劳动合同、集体合同的；\n（五）强迫劳动者延长工作时间的；\n（六）克扣或者无正当理由拖欠劳动者工资的；\n（七）拒不支付或者不按标准支付劳动者延长工作时间的工资报酬和节假日加班工资 报酬的；\n（八）低于当地最低工资标准支付工资的；\n（九）解除劳动合同后，不按劳动保障法律、法规、规章的规定给予劳动者经济补偿 的；\n（十）违反女职工、未成年工特殊劳动保护规定的；\n（十一）违反特殊工种劳动保护规定的；\n（十二）使用未取得国家职业资格证书的劳动者从事相应技术工种的；\n（十三）不依法参加社会保险或者不履行社会保险缴费义务的；\n（十四）违反劳动保障法律、法规、规章的其他行为。","ex":""},{"no":"第十七条","t":"第十七条 对职业介绍机构的下列违法行为，人力资源和社会保障主管部门应当依法 进行查处：\n（一）未经批准从事职业介绍活动的；\n（二）超出核准的业务范围经营的；\n（三）提供虚假招聘信息的；\n（四）介绍求职者从事法律、法规禁止从事的职业的；\n（五）为无合法证照的用人单位或者无合法身份证件的求职者进行职业介绍服务活动 的 ；\n（六）以暴力、胁迫、欺诈等方式进行职业介绍活动的；\n（七）伪造、涂改、出租、出借、转让职业介绍许可证的；\n（八）违反劳动保障法律、法规、规章的其他行为。","ex":""},{"no":"第十八条","t":"第十八条 除国家统一部署的专项检查，或者举报专查和年度检查外，人力资源和社 会保障主管部门对同一用人单位或者职业介绍机构的日常巡视检查每年不得超过一次。\n对有关组织、个人检举、控告的违反劳动保障法律、法规、规章的行为，人力资源和 社会保障主管部门应当在经初步审查后，依照本条例的规定立案查处。\n法律、法规、规章规定实行劳动保障年度检查的，人力资源和社会保障主管部门应当 将年检的时间、范围、内容、要求等事先告知被检查单位。","ex":""},{"no":"第十九条","t":"第十九条 人力资源和社会保障主管部门没有法律、 法规、规章依据或者超越职权对 用人单位或者职业介绍机构进行检查的，用人单位或者职业介绍机构有权拒绝。","ex":""},{"no":"第二十条","t":"第二十条 对两次以上或者严重违反劳动保障法律、法规、规章的用人单位和职业介 绍机构，人力资源和社会保障主管部门可以将其违法行为向社会公告。","ex":""},{"no":"第二十一条","t":"第二十一条 人力资源和社会保障主管部门依法实施劳动保障监察时，有关单位和个 人应当予以配合，如实、按期提供有关情况、资料，不得隐瞒事实真相，不得出具伪证或 者隐匿、毁灭、篡改证据，不得拒绝和阻挠检查，不得打击报复举报人员。","ex":""},{"no":"第二十二条","t":"第二十二条 任何单位和个人不得阻挠人力资源和社会保障主管部门到用人单位或者 职业介绍机构依法实施劳动保障监察。","ex":""}]},{"ch":"第四章监察程序","items":[{"no":"第二十三条","t":"第二十三条 人力资源和社会保障主管部门在实施劳动保障监察时，应当有两名以上 劳动保障监察人员共同进行，出示合法有效的执法证件，并告知用人单位或者职业介绍机 构劳动保障监察的内容、要求和方法。","ex":""},{"no":"第二十四条","t":"第二十四条 劳动保障监察实行回避制度。\n劳动保障监察人员本人或者其近亲属与承办的案件有利害关系，可能影响案件公正处 理的，应当自行申请回避。当事人有权要求其回避。\n劳动保障监察人员的回避，由劳动保障监察机构负责人决定；劳动保障监察机构负责 人的回避，由本级人力资源和社会保障主管部门负责人决定。","ex":""},{"no":"第二十五条","t":"第二十五条  劳动保障监察人员对事实清楚、证据确凿、情节简单的违法行为，依法 可以当场作出行政处罚决定的，应当出示执法证件，按照规定填写行政处罚决定书，并当 场交付当事人。当事人拒绝签收的，应当在行政处罚决定书上注明。\n劳动保障监察人员当场作出的行政处罚决定，应当在二十四小时内报所属人力资源和 社会保障主管部门备案。","ex":""},{"no":"第二十六条","t":"第二十六条 除本条例第二十五条规定可以当场作出的行政处罚外，人力资源和社会\n保障主管部门对受理的检举、控告或者在监督检查过程中发现的违反劳动保障法律、法 规、规章的行为，经初步审查，认为符合下列条件的，应当在七日内立案：\n（一）有明确的违反劳动保障法律、法规、规章的行为人；\n（二）有违反劳动保障法律、法规、规章的事实；\n（三）属于本部门管辖。\n属于劳动争议的，应当告知当事人依法申请调解或者仲裁。","ex":""},{"no":"第二十七条","t":"第二十七条 对已立案的案件，人力资源和社会保障主管部门应当及时组织调查取证。\n调查终结，人力资源和社会保障主管部门应当依法作出给予行政处罚或者不予行政处 罚的决定。\n人力资源和社会保障主管部门在作出行政处罚决定之前，应当告知当事人拟作出的行 政处罚内容及事实、理由、依据，并告知当事人依法享有的陈述、申辩、要求听证等权\n利。符合举行听证的条件，当事人要求听证的，应当在作出行政处罚决定之前依法组织听 证。","ex":""},{"no":"第二十八条","t":"第二十八条  人力资源和社会保障主管部门对违反劳动保障法律、法规、规章的行为 进行处罚，应当制作行政处罚决定书，并依法送达当事人。","ex":""},{"no":"第二十九条","t":"第二十九条 人力资源和社会保障主管部门对违反劳动保障法律、法规或者规章的行 为的调查，应当自立案之日起六十个工作日内完成；对情况复杂的，经人力资源和社会保 障主管部门负责人批准，可以延长三十个工作日。","ex":""},{"no":"第三十条","t":"第三十条  劳动保障监察案件的承办人员在案件处理完毕后，应当将案件查处过程中 形成的文件、资料编目立案归档。","ex":""},{"no":"第三十一条","t":"第三十一条  对重大案件和上级委托查处的案件，人力资源和社会保障主管部门应当 在结案后十五日内将处理决定报送本级人民政府和上一级人力资源和社会保障主管部门备 案。\n本级人民政府和上一级人力资源和社会保障主管部门经审查发现人力资源和社会保障 主管部门作出的行政处理决定违法或者不当的，应当责令其限期纠正；逾期不纠正的，有 权予以变更或者撤销。","ex":""}]},{"ch":"第五章法律责任","items":[{"no":"第三十二条","t":"第三十二条  用人单位具有本条例第十六条所列情形之一，法律、法规对其有处罚规 定的从其规定，没有处罚规定的，由人力资源和社会保障主管部门按照下列规定予以处理；\n（一）向劳动者收取押金、保证金等费用的，责令退还给当事人，并以每人五百元以 上二千元以下的标准处以罚款，对当事人造成损失的，依法承担赔偿责任。\n（二）扣押劳动者证件、实物的，责令改正，并可以处以五百元以上一千元以下罚款； 对当事人造成损失的，依法承担赔偿责任。\n（三）用人单位违反劳动保障法律、法规或者规章延长劳动者工作时间的，给予警告， 责令限期改正，并可以按照每人一百元以上五百元以下的标准处以罚款。\n（四）有第六项至第九项行为之一的，责令限期支付劳动者工资报酬、加班费或者经 济补偿；劳动报酬低于当地最低工资标准的，应当支付其差额部分；逾期不支付的，责令\n用人单位按照应付金额百分之五十以上百分之一百以下的标准向劳动者加付赔偿金。\n（五）未依法履行对女职工和未成年工的保护规定，侵害其合法权益的，责令改正， 并按照侵害人数每名处以用人单位一千元以上五千元以下罚款；对女职工或者未成年工造 成损害的，依法承担赔偿责任。\n（六）使用未取得国家职业资格证书的劳动者从事相应技术工种的，给予警告，责令 限期对有关人员进行培训，取得国家职业资格证书后再上岗；用人单位逾期不改正的，按 照每违规使用一名劳动者处以用人单位五百元以上一千元以下罚款。\n（七）使用未取得国家职业资格证书的劳动者从事特殊工种的，除按照前项规定处罚 外，对情节严重的，还可责令其停产停业整顿；造成严重后果，构成犯罪的，依法追究刑 事责任。","ex":""},{"no":"第三十三条","t":"第三十三条 职业介绍机构具有本条例第十七条第三项、第五项和第七项所列情形之 一的，由人力资源和社会保障主管部门或者其他主管部门责令改正；有违法所得的，没收 违法所得，并处一万元以上五万元以下的罚款；情节严重的，吊销职业中介许可证；对当 事人造成损害的，依法承担赔偿责任。","ex":""},{"no":"第三十四条","t":"第三十四条 用人单位、职业介绍机构有下列情形的，由人力资源和社会保障主管部 门责令改正，对有第一项、第二项或者第三项规定的行为的，处二千元以上二万元以下的 罚款：\n（一）未如实、按期提供有关情况、资料；\n（二）隐瞒事实真相，出具伪证或者隐匿、毁灭、篡改证据；\n（三）抗拒、阻挠人力资源和社会保障主管部门依法实施劳动保障监察；\n（四）打击报复举报人员。\n违反前款规定，构成违反治安管理行为的，由公安机关依法予以处罚；构成犯罪的， 依法追究刑事责任。","ex":""},{"no":"第三十五条","t":"第三十五条 当事人对人力资源和社会保障主管部门作出的责令支付劳动者工资报\n酬、经济补偿、赔偿金等决定，以及行政处罚决定不服的，可以依法申请行政复议或者提 起行政诉讼。当事人在法定期限内不申请行政复议、不提起行政诉讼，又不履行决定的， 人力资源和社会保障主管部门可以申请人民法院强制执行。","ex":""},{"no":"第三十六条","t":"第三十六条 劳动保障监察人员违反本条例第十一条规定的，依法给予处分；对用人 单位或者职业介绍机构造成经济损失的，依法承担赔偿责任；构成犯罪的，依法追究刑事 责任。\n第 六 章  附  则","ex":""},{"no":"第三十七条","t":"第三十七条 本条例自2003年11月1日起施行。","ex":""}]},{"ch":"第六章附则","items":[{"no":"","t":"第 一 章  总  则","ex":""},{"no":"第一条","t":"第一条  为规范和加强劳动保障监察工作，保护劳动者的合法权益，促进经济发展和 社会稳定，根据《中华人民共和国劳动法》和其他有关法律、行政法规的规定，结合本省 实际，制定本条例。","ex":""},{"no":"第二条","t":"第二条  在本省行政区域内，对企业、个体经济组织、民办非企业单位（以下统称用 人单位）以及职业介绍机构实施劳动保障监察，适用本条例。\n在本省行政区域内对与劳动者形成劳动关系的国家机关、事业组织、社会团体实施劳 动保障监察，由人力资源和社会保障主管部门依照本条例执行。\n劳动安全、卫生监察由有关行政部门按照各自职责，依照有关法律、法规的规定执行。","ex":""},{"no":"第三条","t":"第三条  劳动保障监察工作遵循教育与处罚相结合，专门监察与社会监督相结合的原 则。","ex":""},{"no":"第四条","t":"第四条  省人民政府人力资源和社会保障主管部门负责组织、指导和协调全省劳动保 障监察工作。\n县级以上人民政府人力资源和社会保障主管部门按照管辖权限主管本行政区域内的劳 动保障监察工作，其所属的劳动保障监察机构具体负责劳动保障监察工作。\n各级公安、市场监督管理、财政、税务、审计、卫生健康、住房和城乡建设等部门应 当在各自职责范围内，协同做好劳动保障监察工作。","ex":""},{"no":"第五条","t":"第五条  各级工会依法维护劳动者的合法权益，对用人单位遵守劳动保障法律、法规、 规章的情况进行监督。各级妇联应当依法参与监督。","ex":""},{"no":"第六条","t":"第六条 劳动保障监察工作所需经费，列入本级财政预算，由财政拨付，专款专用。\n人力资源和社会保障主管部门实施劳动保障监察，不得收取费用；收缴的罚款以及没 收的违法所得，全部上缴同级财政。","ex":""},{"no":"第七条","t":"第七条 任何组织和个人对违反劳动保障法律、法规、规章的行为，有权向人力资源 和社会保障主管部门检举和控告。\n各级人力资源和社会保障主管部门应当公布举报电话，设置举报箱，设立举报接待室。 人力资源和社会保障主管部门对检举、控告应当及时调查，依法处理，并为举报人保密。","ex":""}]}];
+const DATA = [{"ch":"全文","items":[{"no":"","t":"（2003年9月26日江西省第十届人民代表大会常务委员会第五次会议通过  2010年11月 26日江西省第十一届人民代表大会常务委员会第二十次会议第一次修正  2021年7月28日  江西省第十三届人民代表大会常务委员会第三十一次会议第二次修正）\n目    录\n第 一 章总则","ex":""}]},{"ch":"第二章监察职责与管辖","items":[{"no":"第八条","t":"第八条 人力资源和社会保障主管部门履行下列监察职责：\n（一）宣传劳动保障法律、法规、规章，督促用人单位、职业介绍机构和劳动者贯彻 执行；\n（二）监督检查用人单位和职业介绍机构遵守劳动保障法律、法规、规章的情况；\n（三）受理对违反劳动保障法律、法规、规章行为的检举和控告；\n（四）依法处理违反劳动保障法律、法规、规章的行为；\n（五）法律、法规、规章规定的其他监察职责。","ex":""},{"no":"第九条","t":"第九条 人力资源和社会保障主管部门应当加强对劳动保障监察人员的培训、管理和 监督。\n劳动保障监察人员应当熟悉劳动保障法律、法规、规章和劳动保障业务，经考核合格， 取得合法有效的执法证件后方可上岗。","ex":""},{"no":"第十条","t":"第十条 劳动保障监察人员依法实施劳动保障监察时，行使下列职权：\n（一）进入用人单位或者职业介绍机构了解其执行劳动保障法律、法规、规章的情 况，询问有关人员，并可以记录、录音；\n（二）查阅、复印有关资料；\n（三）对用人单位的劳动场所或者职业介绍机构的服务场所进行检查，必要时，可以 对有关场景进行录像、拍照；\n（四）要求被检查单位在规定的期限内，就劳动保障监察人员询问的有关问题据实作 出书面答复；\n（五）制止、纠正违反劳动保障法律、法规、规章的行为；\n（六）法律、法规、规章赋予的其他职权。\n第十 一 条 劳动保障监察人员依法履行职责时，不得有下列行为：\n（一）接受被检查单位的任何馈赠、报酬、福利待遇，在被检查单位报销费用；\n（二）参加被检查单位安排、组织或者支付费用的宴请、娱乐、旅游、出访等活动；\n（三）利用职务之便在被检查单位为自己、亲友或者他人谋取利益；\n（四）妨碍被检查单位正常的生产、经营活动；\n（五）泄露被检查单位的商业秘密。","ex":""},{"no":"第十二条","t":"第十二条 人力资源和社会保障主管部门按照下列管辖范围对用人单位实施劳动保障 监察：\n（一）设区的市人民政府人力资源和社会保障主管部门负责中央在省、省属及市属用  人单位和在省、设区的市人民政府市场监督管理部门注册登记的各类用人单位的劳动保障 监察工作；\n（二）县（市、区）人民政府人力资源和社会保障主管部门负责县（市、区）属用人 单位和在同级人民政府市场监督管理部门注册登记的各类用人单位的劳动保障监察工作。","ex":""},{"no":"第十三条","t":"第十三条 对职业介绍机构的劳动保障监察，由批准其设立的人力资源和社会保障主 管部门负责实施。","ex":""},{"no":"第十四条","t":"第十四条 对管辖有争议的，报请争议双方共同的上一级人力资源和社会保障主管部 门指定管辖。","ex":""},{"no":"第十五条","t":"第十五条  下级人力资源和社会保障主管部门对其管辖的劳动保障监察事项，认为需 要上一级人力资源和社会保障主管部门查处的，可以提请上一级人力资源和社会保障主管 部门查处；上级人力资源和社会保障主管部门认为必要时，可以直接查处下级人力资源和 社会保障主管部门管辖的劳动保障监察事项，也可以将自己管辖的劳动保障监察事项委托 下级人力资源和社会保障主管部门查处。","ex":""}]},{"ch":"第三章监察内容与方式","items":[{"no":"第十六条","t":"第十六条 对用人单位的下列违法行为，人力资源和社会保障主管部门应当依法进行 查处：\n（一）不依法建立或者执行单位劳动保障规章制度的；\n（二）非法招用未满十六周岁的未成年人的；\n（三）向劳动者收取押金、保证金等费用，或者扣押劳动者证件、实物的；\n（四）不依法签订劳动合同、集体合同或者违反规定解除劳动合同、集体合同的；\n（五）强迫劳动者延长工作时间的；\n（六）克扣或者无正当理由拖欠劳动者工资的；\n（七）拒不支付或者不按标准支付劳动者延长工作时间的工资报酬和节假日加班工资 报酬的；\n（八）低于当地最低工资标准支付工资的；\n（九）解除劳动合同后，不按劳动保障法律、法规、规章的规定给予劳动者经济补偿 的；\n（十）违反女职工、未成年工特殊劳动保护规定的；\n（十一）违反特殊工种劳动保护规定的；\n（十二）使用未取得国家职业资格证书的劳动者从事相应技术工种的；\n（十三）不依法参加社会保险或者不履行社会保险缴费义务的；\n（十四）违反劳动保障法律、法规、规章的其他行为。","ex":""},{"no":"第十七条","t":"第十七条 对职业介绍机构的下列违法行为，人力资源和社会保障主管部门应当依法 进行查处：\n（一）未经批准从事职业介绍活动的；\n（二）超出核准的业务范围经营的；\n（三）提供虚假招聘信息的；\n（四）介绍求职者从事法律、法规禁止从事的职业的；\n（五）为无合法证照的用人单位或者无合法身份证件的求职者进行职业介绍服务活动 的 ；\n（六）以暴力、胁迫、欺诈等方式进行职业介绍活动的；\n（七）伪造、涂改、出租、出借、转让职业介绍许可证的；\n（八）违反劳动保障法律、法规、规章的其他行为。","ex":""},{"no":"第十八条","t":"第十八条 除国家统一部署的专项检查，或者举报专查和年度检查外，人力资源和社 会保障主管部门对同一用人单位或者职业介绍机构的日常巡视检查每年不得超过一次。\n对有关组织、个人检举、控告的违反劳动保障法律、法规、规章的行为，人力资源和 社会保障主管部门应当在经初步审查后，依照本条例的规定立案查处。\n法律、法规、规章规定实行劳动保障年度检查的，人力资源和社会保障主管部门应当 将年检的时间、范围、内容、要求等事先告知被检查单位。","ex":""},{"no":"第十九条","t":"第十九条 人力资源和社会保障主管部门没有法律、 法规、规章依据或者超越职权对 用人单位或者职业介绍机构进行检查的，用人单位或者职业介绍机构有权拒绝。","ex":""},{"no":"第二十条","t":"第二十条 对两次以上或者严重违反劳动保障法律、法规、规章的用人单位和职业介 绍机构，人力资源和社会保障主管部门可以将其违法行为向社会公告。","ex":""},{"no":"第二十一条","t":"第二十一条 人力资源和社会保障主管部门依法实施劳动保障监察时，有关单位和个 人应当予以配合，如实、按期提供有关情况、资料，不得隐瞒事实真相，不得出具伪证或 者隐匿、毁灭、篡改证据，不得拒绝和阻挠检查，不得打击报复举报人员。","ex":""},{"no":"第二十二条","t":"第二十二条 任何单位和个人不得阻挠人力资源和社会保障主管部门到用人单位或者 职业介绍机构依法实施劳动保障监察。","ex":""}]},{"ch":"第四章监察程序","items":[{"no":"第二十三条","t":"第二十三条 人力资源和社会保障主管部门在实施劳动保障监察时，应当有两名以上 劳动保障监察人员共同进行，出示合法有效的执法证件，并告知用人单位或者职业介绍机 构劳动保障监察的内容、要求和方法。","ex":""},{"no":"第二十四条","t":"第二十四条 劳动保障监察实行回避制度。\n劳动保障监察人员本人或者其近亲属与承办的案件有利害关系，可能影响案件公正处 理的，应当自行申请回避。当事人有权要求其回避。\n劳动保障监察人员的回避，由劳动保障监察机构负责人决定；劳动保障监察机构负责 人的回避，由本级人力资源和社会保障主管部门负责人决定。","ex":""},{"no":"第二十五条","t":"第二十五条  劳动保障监察人员对事实清楚、证据确凿、情节简单的违法行为，依法 可以当场作出行政处罚决定的，应当出示执法证件，按照规定填写行政处罚决定书，并当 场交付当事人。当事人拒绝签收的，应当在行政处罚决定书上注明。\n劳动保障监察人员当场作出的行政处罚决定，应当在二十四小时内报所属人力资源和 社会保障主管部门备案。","ex":""},{"no":"第二十六条","t":"第二十六条 除本条例第二十五条规定可以当场作出的行政处罚外，人力资源和社会\n保障主管部门对受理的检举、控告或者在监督检查过程中发现的违反劳动保障法律、法 规、规章的行为，经初步审查，认为符合下列条件的，应当在七日内立案：\n（一）有明确的违反劳动保障法律、法规、规章的行为人；\n（二）有违反劳动保障法律、法规、规章的事实；\n（三）属于本部门管辖。\n属于劳动争议的，应当告知当事人依法申请调解或者仲裁。","ex":""},{"no":"第二十七条","t":"第二十七条 对已立案的案件，人力资源和社会保障主管部门应当及时组织调查取证。\n调查终结，人力资源和社会保障主管部门应当依法作出给予行政处罚或者不予行政处 罚的决定。\n人力资源和社会保障主管部门在作出行政处罚决定之前，应当告知当事人拟作出的行 政处罚内容及事实、理由、依据，并告知当事人依法享有的陈述、申辩、要求听证等权\n利。符合举行听证的条件，当事人要求听证的，应当在作出行政处罚决定之前依法组织听 证。","ex":""},{"no":"第二十八条","t":"第二十八条  人力资源和社会保障主管部门对违反劳动保障法律、法规、规章的行为 进行处罚，应当制作行政处罚决定书，并依法送达当事人。","ex":""},{"no":"第二十九条","t":"第二十九条 人力资源和社会保障主管部门对违反劳动保障法律、法规或者规章的行 为的调查，应当自立案之日起六十个工作日内完成；对情况复杂的，经人力资源和社会保 障主管部门负责人批准，可以延长三十个工作日。","ex":""},{"no":"第三十条","t":"第三十条  劳动保障监察案件的承办人员在案件处理完毕后，应当将案件查处过程中 形成的文件、资料编目立案归档。","ex":""},{"no":"第三十一条","t":"第三十一条  对重大案件和上级委托查处的案件，人力资源和社会保障主管部门应当 在结案后十五日内将处理决定报送本级人民政府和上一级人力资源和社会保障主管部门备 案。\n本级人民政府和上一级人力资源和社会保障主管部门经审查发现人力资源和社会保障 主管部门作出的行政处理决定违法或者不当的，应当责令其限期纠正；逾期不纠正的，有 权予以变更或者撤销。","ex":""}]},{"ch":"第五章法律责任","items":[{"no":"第三十二条","t":"第三十二条  用人单位具有本条例第十六条所列情形之一，法律、法规对其有处罚规 定的从其规定，没有处罚规定的，由人力资源和社会保障主管部门按照下列规定予以处理；\n（一）向劳动者收取押金、保证金等费用的，责令退还给当事人，并以每人五百元以 上二千元以下的标准处以罚款，对当事人造成损失的，依法承担赔偿责任。\n（二）扣押劳动者证件、实物的，责令改正，并可以处以五百元以上一千元以下罚款； 对当事人造成损失的，依法承担赔偿责任。\n（三）用人单位违反劳动保障法律、法规或者规章延长劳动者工作时间的，给予警告， 责令限期改正，并可以按照每人一百元以上五百元以下的标准处以罚款。\n（四）有第六项至第九项行为之一的，责令限期支付劳动者工资报酬、加班费或者经 济补偿；劳动报酬低于当地最低工资标准的，应当支付其差额部分；逾期不支付的，责令\n用人单位按照应付金额百分之五十以上百分之一百以下的标准向劳动者加付赔偿金。\n（五）未依法履行对女职工和未成年工的保护规定，侵害其合法权益的，责令改正， 并按照侵害人数每名处以用人单位一千元以上五千元以下罚款；对女职工或者未成年工造 成损害的，依法承担赔偿责任。\n（六）使用未取得国家职业资格证书的劳动者从事相应技术工种的，给予警告，责令 限期对有关人员进行培训，取得国家职业资格证书后再上岗；用人单位逾期不改正的，按 照每违规使用一名劳动者处以用人单位五百元以上一千元以下罚款。\n（七）使用未取得国家职业资格证书的劳动者从事特殊工种的，除按照前项规定处罚 外，对情节严重的，还可责令其停产停业整顿；造成严重后果，构成犯罪的，依法追究刑 事责任。","ex":""},{"no":"第三十三条","t":"第三十三条 职业介绍机构具有本条例第十七条第三项、第五项和第七项所列情形之 一的，由人力资源和社会保障主管部门或者其他主管部门责令改正；有违法所得的，没收 违法所得，并处一万元以上五万元以下的罚款；情节严重的，吊销职业中介许可证；对当 事人造成损害的，依法承担赔偿责任。","ex":""},{"no":"第三十四条","t":"第三十四条 用人单位、职业介绍机构有下列情形的，由人力资源和社会保障主管部 门责令改正，对有第一项、第二项或者第三项规定的行为的，处二千元以上二万元以下的 罚款：\n（一）未如实、按期提供有关情况、资料；\n（二）隐瞒事实真相，出具伪证或者隐匿、毁灭、篡改证据；\n（三）抗拒、阻挠人力资源和社会保障主管部门依法实施劳动保障监察；\n（四）打击报复举报人员。\n违反前款规定，构成违反治安管理行为的，由公安机关依法予以处罚；构成犯罪的， 依法追究刑事责任。","ex":""},{"no":"第三十五条","t":"第三十五条 当事人对人力资源和社会保障主管部门作出的责令支付劳动者工资报\n酬、经济补偿、赔偿金等决定，以及行政处罚决定不服的，可以依法申请行政复议或者提 起行政诉讼。当事人在法定期限内不申请行政复议、不提起行政诉讼，又不履行决定的， 人力资源和社会保障主管部门可以申请人民法院强制执行。","ex":""},{"no":"第三十六条","t":"第三十六条 劳动保障监察人员违反本条例第十一条规定的，依法给予处分；对用人 单位或者职业介绍机构造成经济损失的，依法承担赔偿责任；构成犯罪的，依法追究刑事 责任。\n第 六 章  附  则","ex":""},{"no":"第三十七条","t":"第三十七条 本条例自2003年11月1日起施行。","ex":""}]},{"ch":"第六章附则","items":[{"no":"","t":"第 一 章  总  则","ex":""},{"no":"第一条","t":"第一条  为规范和加强劳动保障监察工作，保护劳动者的合法权益，促进经济发展和 社会稳定，根据《中华人民共和国劳动法》和其他有关法律、行政法规的规定，结合本省 实际，制定本条例。","ex":""},{"no":"第二条","t":"第二条  在本省行政区域内，对企业、个体经济组织、民办非企业单位（以下统称用 人单位）以及职业介绍机构实施劳动保障监察，适用本条例。\n在本省行政区域内对与劳动者形成劳动关系的国家机关、事业组织、社会团体实施劳 动保障监察，由人力资源和社会保障主管部门依照本条例执行。\n劳动安全、卫生监察由有关行政部门按照各自职责，依照有关法律、法规的规定执行。","ex":""},{"no":"第三条","t":"第三条  劳动保障监察工作遵循教育与处罚相结合，专门监察与社会监督相结合的原 则。","ex":""},{"no":"第四条","t":"第四条  省人民政府人力资源和社会保障主管部门负责组织、指导和协调全省劳动保 障监察工作。\n县级以上人民政府人力资源和社会保障主管部门按照管辖权限主管本行政区域内的劳 动保障监察工作，其所属的劳动保障监察机构具体负责劳动保障监察工作。\n各级公安、市场监督管理、财政、税务、审计、卫生健康、住房和城乡建设等部门应 当在各自职责范围内，协同做好劳动保障监察工作。","ex":""},{"no":"第五条","t":"第五条  各级工会依法维护劳动者的合法权益，对用人单位遵守劳动保障法律、法规、 规章的情况进行监督。各级妇联应当依法参与监督。","ex":""},{"no":"第六条","t":"第六条 劳动保障监察工作所需经费，列入本级财政预算，由财政拨付，专款专用。\n人力资源和社会保障主管部门实施劳动保障监察，不得收取费用；收缴的罚款以及没 收的违法所得，全部上缴同级财政。","ex":""},{"no":"第七条","t":"第七条 任何组织和个人对违反劳动保障法律、法规、规章的行为，有权向人力资源 和社会保障主管部门检举和控告。\n各级人力资源和社会保障主管部门应当公布举报电话，设置举报箱，设立举报接待室。 人力资源和社会保障主管部门对检举、控告应当及时调查，依法处理，并为举报人保密。","ex":""}]}]
+;
 /* =================================================== */
-
 
 /* ===== 存储（自动保存 + 导出烘焙）===== */
 const KEY = 'statute_note_' + LAW_KEY;
-let store = 
-(function(){
-  var editMode = false;
-
-  // 醒目入口按钮
-  var btnEdit = document.createElement('button');
-  btnEdit.id = 'btnEdit';
-  btnEdit.title = '编辑模式：每条法条上方出现颜色工具条，可选中局部或直接改整条';
-  btnEdit.innerHTML = '\u270E 编辑条文';
-  btnEdit.style.cssText = 'padding:6px 13px; border:1px solid rgba(255,255,255,.45); border-radius:7px; background:#e6a23c; color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; box-shadow:0 2px 6px rgba(230,162,60,.4);';
-  var tip = document.createElement('span');
-  tip.className = 'edit-tip';
-  tip.textContent = '已开启：每条法条上方有颜色工具条（选中文字改局部，直接点改整条）';
-  tip.style.display = 'none';
-  var btnTest = document.getElementById('btnTest');
-  if(btnTest){ btnTest.parentNode.insertBefore(btnEdit, btnTest); btnEdit.insertAdjacentElement('afterend', tip); }
-  btnEdit.addEventListener('click', function(){
-    editMode = !editMode;
-    document.body.classList.toggle('edit-mode', editMode);
-    btnEdit.classList.toggle('active', editMode);
-    btnEdit.innerHTML = editMode ? '\u2713 退出编辑' : '\u270E 编辑条文';
-    if(editMode){ btnEdit.style.background='#27ae60'; btnEdit.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; tip.style.display='inline-block'; }
-    else { btnEdit.style.background='#e6a23c'; btnEdit.style.boxShadow='0 2px 6px rgba(230,162,60,.4)'; tip.style.display='none'; }
-    try{ showStatus(editMode ? '编辑模式已开启：点法条上方的颜色按钮即可改色 / 高亮' : '已退出编辑'); }catch(e){}
-  });
-
-  // 存储键（复用笔记已有 KEY）
-  var KEY = '';
-  try { document.querySelectorAll('script').forEach(function(s){ var m = s.textContent.match(/const KEY\s*=\s*'([^']+)'/); if(m) KEY = m[1]; }); }catch(e){}
-  if(!KEY) KEY = 'statute_note_edit';
-
-  var FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
-  var BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
-
-  function barHTML(){
-    var h = '<span class="elbl">字体</span>';
-    FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
-    h += '<span class="fsep"></span><span class="elbl">高亮</span>';
-    BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
-    h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
-    h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
-    return h;
-  }
-
-  function makeEditable(){
-    document.querySelectorAll('.article').forEach(function(art){
-      if(art.dataset.editInjected) return;
-      art.dataset.editInjected = '1';
-      var textEl = art.querySelector('.art-text');
-      if(textEl){
-        textEl.classList.add('editable');
-        textEl.setAttribute('contenteditable','true');
-        textEl.setAttribute('data-art', art.id || '');
-      }
-      var bar = document.createElement('div');
-      bar.className = 'art-editbar';
-      bar.setAttribute('data-bar', art.id || '');
-      bar.innerHTML = barHTML();
-      if(textEl && textEl.parentNode){ textEl.parentNode.insertBefore(bar, textEl); }
-    });
-  }
-
-  // 防止点击工具条导致法条失焦、选区丢失
-  document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
-
-  function applyColor(artId, c, hl){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 局部选区
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);   // 整条
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-  function clearColor(artId){
-    var el = document.querySelector('.art-text[data-art="'+artId+'"]');
-    if(!el) return;
-    var sel = window.getSelection();
-    var inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
-    if(sel && !sel.isCollapsed && inThis){
-      document.execCommand('removeFormat', false, null);
-    } else {
-      el.focus();
-      var range = document.createRange();
-      range.selectNodeContents(el);
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand('removeFormat', false, null);
-      sel.removeAllRanges();
-    }
-    saveArt(artId);
-  }
-
-  document.addEventListener('click', function(e){
-    if(!editMode) return;
-    var bar = e.target.closest('.art-editbar');
-    if(!bar) return;
-    var artId = bar.getAttribute('data-bar') || '';
-    var clearBtn = e.target.closest('[data-clear]');
-    if(clearBtn){ clearColor(artId); return; }
-    var btn = e.target.closest('[data-c]');
-    if(!btn) return;
-    applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
-  });
-
-  function saveArt(id){
-    var el = document.querySelector('.art-text[data-art="'+id+'"]');
-    if(!el) return;
-    try{ var s = localStorage.getItem(KEY); var store = s ? JSON.parse(s) : {}; if(!store.artEdit) store.artEdit = {}; store.artEdit[id] = el.innerHTML; localStorage.setItem(KEY, JSON.stringify(store)); }catch(err){}
-  }
-  function restoreEdits(){
-    try{ var s = localStorage.getItem(KEY); if(!s) return; var store = JSON.parse(s); if(!store.artEdit) return;
-      Object.keys(store.artEdit).forEach(function(id){ var el = document.querySelector('.art-text[data-art="'+id+'"]'); if(el && store.artEdit[id]) el.innerHTML = store.artEdit[id]; });
-    }catch(e){}
-  }
-
-  var _ro = new MutationObserver(function(){
-    var content = document.getElementById('content');
-    if(content && content.children.length > 0){ makeEditable(); restoreEdits(); }
-  });
-  var mainEl = document.getElementById('content');
-  if(mainEl) _ro.observe(mainEl, {childList:true});
-  setTimeout(function(){ makeEditable(); restoreEdits(); }, 500);
+let store = (function(){
+  try{ const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){}
+  try{ if(typeof INITIAL_STORE !== 'undefined' && INITIAL_STORE) return JSON.parse(JSON.stringify(INITIAL_STORE)); }catch(e){}
+  return {notes:{}, marks:{}, explain:{}};
 })();
+store.notes = store.notes || {};
+store.marks = store.marks || {};
+store.explain = store.explain || {};
+// 迁移旧版字符串笔记 -> 分层结构 {summary}
+Object.keys(store.notes).forEach(function(k){
+  if(typeof store.notes[k] === 'string'){
+    const s = store.notes[k];
+    store.notes[k] = s ? {s:s} : {};
+  }
+});
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){}
+    const n = Object.keys(store.notes).reduce(function(acc,k){
+      const v = store.notes[k];
+      if(typeof v === 'string') return acc + (v ? 1 : 0);
+      if(v) return acc + Object.keys(v).filter(function(c){return v[c];}).length;
+      return acc;
+    }, 0);
+    const m = Object.keys(store.marks).filter(function(k){return store.marks[k];}).length;
+    const x = Object.keys(store.explain).filter(function(k){return store.explain[k];}).length;
+    showStatus('已保存 ' + new Date().toLocaleTimeString() + ' · 笔记'+n+' 标记'+m+' 解读'+x);
+  }, 400);
+}
+function showStatus(s){ document.getElementById('status').textContent = s; }
+
+/* ===== 条文索引（用于互链）===== */
+let lawMap = {};
+function buildLawMap(){
+  lawMap = {}; let g = 0;
+  DATA.forEach(function(chap, ci){
+    chap.items.forEach(function(art, ai){ g++; lawMap[g] = 'a'+ci+'_'+ai; });
+  });
+}
+function linkLaws(text){
+  return text.replace(/第(\d+)条/g, function(m, num){
+    const id = lawMap[parseInt(num,10)];
+    return id ? '<a href="#'+id+'" class="lawlink">'+m+'</a>' : m;
+  });
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+/* 分层批注区块：疑问/我的案例/要点总结/待办 */
+function noteBlock(id, cat, tag, label, ph){
+  let val = '';
+  if(store.notes[id] && typeof store.notes[id] === 'object') val = store.notes[id][cat] || '';
+  return '<div class="note-block"><span class="note-tag '+tag+'">'+label+'</span>' +
+    '<div class="note sub" contenteditable="true" data-id="'+id+'" data-cat="'+cat+'" ' +
+    'data-ph="'+ph+'">'+escapeHtml(val)+'</div></div>';
+}
+
+/* ===== 速查卡（由 QUICK 生成）===== */
+function quickHtml(){
+  let q = '<div class="quick" id="quick">' +
+    '<div class="quick-head" onclick="toggleQuick()">📌 重点速查（点击展开/收起）</div>' +
+    '<div class="quick-body" id="quickBody">';
+  QUICK.forEach(function(item){
+    q += '<div class="qg"><b>'+escapeHtml(item.b)+'</b>：'+escapeHtml(item.t)+'</div>';
+  });
+  q += '</div></div>';
+  return linkLaws(q);
+}
+function toggleQuick(){
+  const b = document.getElementById('quickBody');
+  if(b) b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+/* ===== 法规简介（发布信息）===== */
+function metaHtml(){
+  const m = (typeof LAW_META !== 'undefined' && LAW_META) ? LAW_META : null;
+  if(!m) return '';
+  const intro = (typeof LAW_INTRO !== 'undefined' && LAW_INTRO) ? '<div class="law-intro-desc">'+escapeHtml(LAW_INTRO)+'</div>' : '';
+  let validTxt = m.valid; let validCls = 'mv';
+  if(m.valid === true){ validTxt = '有效'; validCls = 'mv ok'; }
+  else if(m.valid === false){ validTxt = '失效'; validCls = 'mv no'; }
+  else if(typeof m.valid === 'string'){ validCls = (m.valid.indexOf('有效') !== -1) ? 'mv ok' : 'mv no'; }
+  return '<div class="law-intro" id="lawIntro">' +
+    '<div class="law-intro-head">📖 法规简介</div>' +
+    '<div class="law-intro-body">' + intro +
+      '<div class="meta-grid">' +
+        '<span class="mk">发布主体</span><span class="mv">'+escapeHtml(m.issuer||'—')+'</span>' +
+        '<span class="mk">发布时间</span><span class="mv">'+escapeHtml(m.published||'—')+'</span>' +
+        '<span class="mk">生效时间</span><span class="mv">'+escapeHtml(m.effective||'—')+'</span>' +
+        (m.revised ? '<span class="mk">修正时间</span><span class="mv">'+escapeHtml(m.revised)+'</span>' : '') +
+        '<span class="mk">是否有效</span><span class="'+validCls+'">'+escapeHtml(validTxt||'—')+'</span>' +
+        '<span class="mk">效力等级</span><span class="mv">'+escapeHtml(m.level||'—')+'</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ===== 渲染 ===== */
+function render(){
+  buildLawMap();
+  const main = document.getElementById('content');
+  const toc = document.getElementById('toc');
+  let html = metaHtml() + quickHtml();
+  let tocHtml = '';
+  DATA.forEach(function(chap, ci){
+    const cid = 'chap' + ci;
+    tocHtml += '<a href="#' + cid + '" data-target="' + cid + '">' + chap.ch +
+               '<span class="cnt">' + chap.items.length + '条</span></a>';
+    html += '<section class="chapter" id="' + cid + '"><h2>' + chap.ch + '</h2>';
+    chap.items.forEach(function(art, ai){
+      const id = 'a' + ci + '_' + ai;
+      const mk = store.marks[id];
+      const exBase = store.explain[id] || art.ex || '';
+      const exHtml = linkLaws(escapeHtml(exBase));
+      // 关联案例
+      let casesHtml = '';
+      if(art.cases){
+        casesHtml += '<div class="case-label">⚖️ 关联案例</div>';
+        art.cases.forEach(function(cidKey){
+          const c = CASES[cidKey]; if(!c) return;
+          casesHtml += '<div class="case">' +
+            '<div class="case-title">'+escapeHtml(c.t)+'</div>' +
+            '<div class="case-desc">'+escapeHtml(c.d)+'</div>' +
+            '<div class="case-src">来源：'+escapeHtml(c.s)+'</div>' +
+          '</div>';
+        });
+      }
+      // 关联法条
+      let relHtml = '';
+      if(art.rel){
+        relHtml += '<div class="rel-label">🔗 关联法条</div>';
+        art.rel.forEach(function(rkey){
+          const r = (typeof REL !== 'undefined') ? REL[rkey] : null; if(!r) return;
+          relHtml += '<div class="rel">' +
+            '<div class="rel-src">'+escapeHtml(r.src)+' '+escapeHtml(r.art)+'</div>' +
+            '<div class="rel-text">'+escapeHtml(r.t)+'</div>' +
+          '</div>';
+        });
+      }
+      html += '<article class="article' + (mk ? ' marked' : '') + '" id="' + id + '">' +
+                '<div class="art-head">' +
+                  '<span class="art-no">' + art.no + '</span>' +
+                  '<button class="mark-btn" data-id="' + id + '" title="标记重点">' + (mk ? '★' : '☆') + '</button>' +
+                '</div>' +
+  // 法条原文（可编辑）
+  'barHTML(id) + <div class="art-text editable" contenteditable="true" data-art="' + id + '">' + escapeHtml(art.t) + '</div>' +
+                '<div class="explain-label">💡 条文解读（可补充）</div>' +
+                '<div class="explain" contenteditable="true" data-ex="' + id + '">' + exHtml + '</div>' +
+                casesHtml +
+                relHtml +
+                '<div class="tool-row"><button class="search-btn" data-kw="'+escapeHtml(LAW_TITLE+' '+art.no)+'">🔍 在北大法宝检索本条相关案例</button></div>' +
+                '<div class="note-label">📝 学习笔记（可分层批注）</div>' +
+                '<div class="notes-wrap">' +
+                  noteBlock(id,'q','tag-q','疑问','想不通／存疑之处…') +
+                  noteBlock(id,'c','tag-c','我的案例','自己办过的或想到的类案…') +
+                  noteBlock(id,'s','tag-s','要点总结','提炼核心规则、记忆口诀…') +
+                  noteBlock(id,'t','tag-t','待办','待查 / 待办事项…') +
+                '</div>' +
+                '<button class="reveal-btn" data-rev="' + id + '">显示解读</button>' +
+              '</article>';
+    });
+    html += '</section>';
+  });
+  main.innerHTML = html;
+  toc.insertAdjacentHTML('beforeend', tocHtml);  restoreArtEdits();
+}
+
+/* ===== 事件 ===== */
+document.addEventListener('input', function(e){
+  if(e.target.classList.contains('note')){
+    const id = e.target.dataset.id;
+    const cat = e.target.dataset.cat;
+    store.notes[id] = (store.notes[id] && typeof store.notes[id] === 'object') ? store.notes[id] : {};
+    store.notes[id][cat] = e.target.innerText;
+    save();
+  } else if(e.target.classList.contains('explain')){
+    const id = e.target.dataset.ex;
+    store.explain[id] = e.target.innerText;
+    save();
+  }
+});
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('reveal-btn')){
+    const art = e.target.closest('.article');
+    const rev = art.classList.toggle('revealed');
+    e.target.textContent = rev ? '隐藏解读' : '显示解读';
+    return;
+  }
+  if(e.target.classList.contains('mark-btn')){
+    const id = e.target.dataset.id;
+    const on = !store.marks[id];
+    store.marks[id] = on;
+    e.target.closest('.article').classList.toggle('marked', on);
+    e.target.textContent = on ? '★' : '☆';
+    save();
+  } else if(e.target.classList.contains('search-btn')){
+    const kw = e.target.dataset.kw;
+    window.open('https://www.pkulaw.com/search?keyword=' + encodeURIComponent(kw), '_blank');
+  }
+});
+
+/* 自测记忆模式：隐藏解读/笔记/案例，点“显示解读”对照 */
+let selfTest = false;
+document.getElementById('btnTest').addEventListener('click', function(){
+  selfTest = !selfTest;
+  document.body.classList.toggle('self-test', selfTest);
+  this.classList.toggle('active', selfTest);
+  this.textContent = selfTest ? '退出自测' : '自测模式';
+  showStatus(selfTest ? '自测模式：点条文下方“显示解读”对照记忆' : '已退出自测');
+});
+
+/* 目录滚动高亮 */
+const tocLinks = function(){ return document.querySelectorAll('nav.toc a'); };
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(en.isIntersecting){
+      tocLinks().forEach(function(a){
+        a.classList.toggle('active', a.dataset.target === en.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+
+/* 搜索过滤 */
+document.getElementById('search').addEventListener('input', function(){
+  const q = this.value.trim();
+  document.querySelectorAll('.article').forEach(function(a){
+    a.style.display = (!q || a.textContent.indexOf(q) !== -1) ? '' : 'none';
+  });
+});
+
+/* 导出：序列化当前页面并把笔记与解读烘焙进 INITIAL_STORE */
+document.getElementById('btnExport').addEventListener('click', function(){
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const INITIAL_STORE = [^;]*;/,
+                      'const INITIAL_STORE = ' + JSON.stringify(store) + ';');
+  const d = new Date();
+  const pad = function(n){return (n<10?'0':'')+n;};
+  const fname = LAW_TITLE + '学习笔记_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '.html';
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showStatus('已导出 ' + fname + '（在下载文件夹；想同步到网站，告诉我“发布批注”即可）');
+});
+
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+  if(confirm('确定清空本浏览器内全部学习笔记和标记吗？\n（解读为预置内容、案例为内置数据，不会清空；此操作不可撤销，建议先点“导出”备份）')){
+    store = {notes:{}, marks:{}, explain:{}};
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    render();
+    showStatus('已清空');
+  }
+});
 
 
+/* ===== 编辑模式切换（浮动工具条） ===== */
+let editMode = false;
+const btnEdit = document.getElementById('btnEdit');
+btnEdit.addEventListener('click', function(){
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  this.classList.toggle('active', editMode);
+  this.textContent = editMode ? '✓ 退出编辑' : '✎ 编辑条文';
+  if(editMode){ this.style.background='#27ae60'; this.style.boxShadow='0 2px 6px rgba(39,174,96,.4)'; }
+  else { this.style.background=''; this.style.boxShadow=''; }
+  showStatus(editMode ? '编辑模式：每条法条上方有颜色工具条，选中改局部或整条改色' : '已退出编辑');
+});
+
+/* 常驻工具条：每条法条上方由 render 注入 .art-editbar，点击即改色 */
+const FONT = ['#1f2329','#c0392b','#2980b9','#27ae60','#8e44ad'];
+const BG = ['#fff3cd','#d4edda','#cce5ff','#f8d7da','#e2d5f1'];
+function barHTML(id){
+  let h = '<span class="elbl">字体</span>';
+  FONT.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="0" title="字体色"></button>'; });
+  h += '<span class="fsep"></span><span class="elbl">高亮</span>';
+  BG.forEach(function(c){ h += '<button class="fcolor" style="background:'+c+'" data-c="'+c+'" data-hl="1" title="高亮"></button>'; });
+  h += '<span class="fsep"></span><button class="fclear" data-clear="1">清除</button>';
+  h += '<span class="ehint">选中文字改局部 · 直接点改整条</span>';
+  return '<div class="art-editbar" data-bar="'+id+'">' + h + '</div>';
+}
+
+// 防止点击工具条导致法条失焦、选区丢失
+document.addEventListener('mousedown', function(e){ if(e.target.closest('.art-editbar')) e.preventDefault(); });
+
+function applyColor(artId, c, hl){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+  } else {
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand(hl ? 'hiliteColor' : 'foreColor', false, c);
+    sel.removeAllRanges();
+  }
+  saveArtText(artId, el.innerHTML);
+}
+function clearColor(artId){
+  const el = document.querySelector('.art-text[data-art="'+artId+'"]');
+  if(!el) return;
+  const sel = window.getSelection();
+  const inThis = sel && sel.anchorNode && (sel.anchorNode.nodeType===3 ? sel.anchorNode.parentElement : sel.anchorNode).closest('.art-text[data-art="'+artId+'"]');
+  if(sel && !sel.isCollapsed && inThis){
+    document.execCommand('removeFormat', false, null);
+  } else {
+    const artData = getArtData(artId);
+    el.innerHTML = artData ? escapeHtml(artData.t) : el.textContent;
+  }
+  saveArtText(artId, el.innerHTML);
+}
+
+document.addEventListener('click', function(e){
+  if(!editMode) return;
+  const bar = e.target.closest('.art-editbar');
+  if(!bar) return;
+  const artId = bar.getAttribute('data-bar') || '';
+  const clearBtn = e.target.closest('[data-clear]');
+  if(clearBtn){ clearColor(artId); showStatus('已清除格式'); return; }
+  const btn = e.target.closest('[data-c]');
+  if(!btn) return;
+  applyColor(artId, btn.dataset.c, btn.dataset.hl === '1');
+  showStatus(btn.dataset.hl === '1' ? '已高亮标注' : '已改字体色');
+});
+
+/* 保存法条编辑后的HTML */
+function saveArtText(id, html){
+  if(!store.artEdit) store.artEdit = {};
+  store.artEdit[id] = html;
+  save();
+}
+
+/* 恢复已保存的法条编辑 */
+function restoreArtEdits(){
+  if(!store.artEdit) return;
+  Object.keys(store.artEdit).forEach(function(id){
+    const el = document.querySelector('.art-text[data-art="'+id+'"]');
+    if(el && store.artEdit[id]){
+      el.innerHTML = store.artEdit[id];
+    }
+  });
+}
+
+/* 获取法条原始数据（用于重置） */
+function getArtData(id){
+  for(let ci=0;ci<DATA.length;ci++){
+    for(let ai=0;ai<DATA[ci].items.length;ai++){
+      if('a'+ci+'_'+ai === id) return DATA[ci].items[ai];
+    }
+  }
+  return null;
+}
+
+
+/* ===== 启动 ===== */
+document.title = '《' + LAW_TITLE + '》学习笔记（可编辑）';
+document.getElementById('lawTitle').textContent = '《' + LAW_TITLE + '》学习笔记';
+document.getElementById('lawSub').textContent = LAW_SUB;
+document.getElementById('lawField').textContent = LAW_FIELD || '';
+render();
+DATA.forEach(function(_, ci){ observer.observe(document.getElementById('chap'+ci)); });
+showStatus('已就绪');
+</script>
 </body>
 </html>
